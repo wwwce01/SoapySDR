@@ -52,17 +52,17 @@
 #ifdef SIZE_T_IS_UNSIGNED_INT
 %typedef unsigned int size_t;
 #else
-%template(SoapySDRUnsignedList) std::vector<unsigned>;
+%template(UnsignedList) std::vector<unsigned>;
 #endif
 
-%template(SoapySDRKwargs) std::map<std::string, std::string>;
-%template(SoapySDRKwargsList) std::vector<SoapySDR::Kwargs>;
-%template(SoapySDRArgInfoList) std::vector<SoapySDR::ArgInfo>;
-%template(SoapySDRStringList) std::vector<std::string>;
-%template(SoapySDRRangeList) std::vector<SoapySDR::Range>;
-%template(SoapySDRSizeList) std::vector<size_t>;
-%template(SoapySDRDoubleList) std::vector<double>;
-%template(SoapySDRDeviceList) std::vector<SoapySDR::Device *>;
+%template(Kwargs) std::map<std::string, std::string>;
+%template(KwargsList) std::vector<SoapySDR::Kwargs>;
+%template(ArgInfoList) std::vector<SoapySDR::ArgInfo>;
+%template(StringList) std::vector<std::string>;
+%template(RangeList) std::vector<SoapySDR::Range>;
+%template(SizeList) std::vector<size_t>;
+%template(DoubleList) std::vector<double>;
+%template(DeviceList) std::vector<SoapySDR::Device *>;
 
 /*
 
@@ -89,6 +89,8 @@
     %}
 };
 
+*/
+
 ////////////////////////////////////////////////////////////////////////
 // Stream result class
 // Helps us deal with stream calls that return by reference
@@ -105,6 +107,7 @@
     };
 %}
 
+/*
 %extend StreamResult
 {
     %insert("python")
@@ -113,6 +116,7 @@
             return "ret=%s, flags=%s, timeNs=%s"%(self.ret, self.flags, self.timeNs)
     %}
 };
+*/
 
 ////////////////////////////////////////////////////////////////////////
 // Constants SOAPY_SDR_*
@@ -124,10 +128,8 @@
 %ignore SoapySDRKwargs_clear;
 %ignore SoapySDRKwargsList_clear;
 %ignore SoapySDRArgInfoList_clear;
-%include <SoapySDR/Types.h>
-%include <SoapySDR/Errors.h>
-%include <SoapySDR/Version.h>
-%include <SoapySDR/Formats.h>
+
+/*
 
 ////////////////////////////////////////////////////////////////////////
 // Logging tie-ins for python
@@ -212,26 +214,33 @@ def registerLogHandler(handler):
     else:
         _SoapySDR_globalLogHandlers[0] = _SoapySDR_pythonLogHandler(handler)
 %}
+*/
 
 ////////////////////////////////////////////////////////////////////////
 // Utility functions
 ////////////////////////////////////////////////////////////////////////
+/*
 %include <SoapySDR/Errors.hpp>
 %include <SoapySDR/Version.hpp>
 %include <SoapySDR/Modules.hpp>
 %include <SoapySDR/Formats.hpp>
 %include <SoapySDR/Time.hpp>
 
+
 %ignore SoapySDR::logf;
 %ignore SoapySDR::vlogf;
 %ignore SoapySDR::registerLogHandler;
 %include <SoapySDR/Logger.hpp>
+*/
 
 ////////////////////////////////////////////////////////////////////////
 // Device object
 ////////////////////////////////////////////////////////////////////////
 %nodefaultctor SoapySDR::Device;
+%ignore SoapySDR::Device::getNativeDeviceHandle;
 %include <SoapySDR/Device.hpp>
+
+/*
 
 //narrow import * to SOAPY_SDR_ constants
 %pythoncode %{
@@ -257,9 +266,11 @@ def extractBuffPointer(buff):
     raise Exception("Unrecognized data format: " + str(type(buff)))
 %}
 
+*/
+
 %extend SoapySDR::Device
 {
-    //additional overloads for writeSetting for basic types
+    // additional overloads for writeSetting for basic types
     %template(writeSetting) SoapySDR::Device::writeSetting<bool>;
     %template(writeSetting) SoapySDR::Device::writeSetting<double>;
     %template(writeSetting) SoapySDR::Device::writeSetting<long long>;
@@ -270,6 +281,7 @@ def extractBuffPointer(buff):
     %template(readSettingInt) SoapySDR::Device::readSetting<long long>;
     %template(readSettingFloat) SoapySDR::Device::readSetting<double>;
 
+/*
     StreamResult readStream__(SoapySDR::Stream *stream, const std::vector<size_t> &buffs, const size_t numElems, const int flags, const long timeoutUs)
     {
         StreamResult sr;
@@ -321,6 +333,5 @@ def extractBuffPointer(buff):
         def readStreamStatus(self, stream, timeoutUs = 100000):
             return self.readStreamStatus__(stream, timeoutUs)
     %}
-};
-
 */
+};
