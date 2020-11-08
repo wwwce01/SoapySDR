@@ -14,6 +14,8 @@
 #include <SoapySDR/Formats.hpp>
 #include <SoapySDR/Time.hpp>
 #include <SoapySDR/Logger.hpp>
+
+#include "CSharpExtensions.hpp"
 %}
 
 ////////////////////////////////////////////////////////////////////////
@@ -63,6 +65,14 @@
 %template(SizeList) std::vector<size_t>;
 %template(DoubleList) std::vector<double>;
 %template(DeviceList) std::vector<SoapySDR::Device *>;
+
+////////////////////////////////////////////////////////////////////////
+// Include extensions before types that will use them
+////////////////////////////////////////////////////////////////////////
+%nodefaultctor SoapySDRCSharp::BuildInfo;
+%nodefaultctor SoapySDRCSharp::StreamFormats;
+%nodefaultctor SoapySDRCSharp::Time;
+%include "CSharpExtensions.hpp"
 
 /*
 
@@ -121,7 +131,7 @@
 ////////////////////////////////////////////////////////////////////////
 // Constants SOAPY_SDR_*
 ////////////////////////////////////////////////////////////////////////
-%include <SoapySDR/Constants.h>
+//%include <SoapySDR/Constants.h>
 //import types.h for the defines
 //these ignores are C++ functions that were taken by %template() above
 %ignore SoapySDRKwargs;
@@ -233,105 +243,4 @@ def registerLogHandler(handler):
 %include <SoapySDR/Logger.hpp>
 */
 
-////////////////////////////////////////////////////////////////////////
-// Device object
-////////////////////////////////////////////////////////////////////////
-%nodefaultctor SoapySDR::Device;
-%ignore SoapySDR::Device::getNativeDeviceHandle;
-%include <SoapySDR/Device.hpp>
-
-/*
-
-//narrow import * to SOAPY_SDR_ constants
-%pythoncode %{
-
-__all__ = list()
-for key in sorted(globals().keys()):
-    if key.startswith('SOAPY_SDR_'):
-        __all__.append(key)
-%}
-
-//make device a constructable class
-%insert("python")
-%{
-class Device(Device):
-    def __new__(cls, *args, **kwargs):
-        return cls.make(*args, **kwargs)
-
-def extractBuffPointer(buff):
-    if hasattr(buff, '__array_interface__'): return buff.__array_interface__['data'][0]
-    if hasattr(buff, 'buffer_info'): return buff.buffer_info()[0]
-    if hasattr(buff, '__long__'): return long(buff)
-    if hasattr(buff, '__int__'): return int(buff)
-    raise Exception("Unrecognized data format: " + str(type(buff)))
-%}
-
-*/
-
-%extend SoapySDR::Device
-{
-    // additional overloads for writeSetting for basic types
-    %template(writeSetting) SoapySDR::Device::writeSetting<bool>;
-    %template(writeSetting) SoapySDR::Device::writeSetting<double>;
-    %template(writeSetting) SoapySDR::Device::writeSetting<long long>;
-    %template(readSensorBool) SoapySDR::Device::readSensor<bool>;
-    %template(readSensorInt) SoapySDR::Device::readSensor<long long>;
-    %template(readSensorFloat) SoapySDR::Device::readSensor<double>;
-    %template(readSettingBool) SoapySDR::Device::readSetting<bool>;
-    %template(readSettingInt) SoapySDR::Device::readSetting<long long>;
-    %template(readSettingFloat) SoapySDR::Device::readSetting<double>;
-
-/*
-    StreamResult readStream__(SoapySDR::Stream *stream, const std::vector<size_t> &buffs, const size_t numElems, const int flags, const long timeoutUs)
-    {
-        StreamResult sr;
-        sr.flags = flags;
-        std::vector<void *> ptrs(buffs.size());
-        for (size_t i = 0; i < buffs.size(); i++) ptrs[i] = (void *)buffs[i];
-        sr.ret = self->readStream(stream, (&ptrs[0]), numElems, sr.flags, sr.timeNs, timeoutUs);
-        return sr;
-    }
-
-    StreamResult writeStream__(SoapySDR::Stream *stream, const std::vector<size_t> &buffs, const size_t numElems, const int flags, const long long timeNs, const long timeoutUs)
-    {
-        StreamResult sr;
-        sr.flags = flags;
-        std::vector<const void *> ptrs(buffs.size());
-        for (size_t i = 0; i < buffs.size(); i++) ptrs[i] = (const void *)buffs[i];
-        sr.ret = self->writeStream(stream, (&ptrs[0]), numElems, sr.flags, timeNs, timeoutUs);
-        return sr;
-    }
-
-    StreamResult readStreamStatus__(SoapySDR::Stream *stream, const long timeoutUs)
-    {
-        StreamResult sr;
-        sr.ret = self->readStreamStatus(stream, sr.chanMask, sr.flags, sr.timeNs, timeoutUs);
-        return sr;
-    }
-
-    %insert("python")
-    %{
-        #manually unmake and flag for future calls and the deleter
-        def close(self):
-            try: getattr(self, '__closed__')
-            except AttributeError: Device.unmake(self)
-            setattr(self, '__closed__', True)
-
-        def __del__(self): self.close()
-
-        def __str__(self):
-            return "%s:%s"%(self.getDriverKey(), self.getHardwareKey())
-
-        def readStream(self, stream, buffs, numElems, flags = 0, timeoutUs = 100000):
-            ptrs = [extractBuffPointer(b) for b in buffs]
-            return self.readStream__(stream, ptrs, numElems, flags, timeoutUs)
-
-        def writeStream(self, stream, buffs, numElems, flags = 0, timeNs = 0, timeoutUs = 100000):
-            ptrs = [extractBuffPointer(b) for b in buffs]
-            return self.writeStream__(stream, ptrs, numElems, flags, timeNs, timeoutUs)
-
-        def readStreamStatus(self, stream, timeoutUs = 100000):
-            return self.readStreamStatus__(stream, timeoutUs)
-    %}
-*/
-};
+%include "Device.i"

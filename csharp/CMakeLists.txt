@@ -65,3 +65,5 @@ if(${CMAKE_VERSION} VERSION_LESS "3.8")
 else()
     SWIG_ADD_LIBRARY(SoapySDRCSharp LANGUAGE csharp SOURCES SoapySDR.i)
 endif()
+
+target_include_directories(${SWIG_MODULE_SoapySDRCSharp_REAL_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
