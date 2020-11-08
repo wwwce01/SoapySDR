@@ -125,8 +125,15 @@ add_subdirectory(tests)
 add_subdirectory(docs)
 
 ########################################################################
-# Python support (optional)
+# SWIG bindings support (optional)
 ########################################################################
+message(STATUS "")
+message(STATUS "#############################################")
+message(STATUS "## Begin configuration for C# support...")
+message(STATUS "#############################################")
+message(STATUS "Enabling optional C# bindings if possible...")
+add_subdirectory(csharp)
+
 message(STATUS "")
 message(STATUS "#############################################")
 message(STATUS "## Begin configuration for Python support...")
