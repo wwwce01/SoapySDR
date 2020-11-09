@@ -1,12 +1,31 @@
 // Copyright (c) 2020 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
+%include <arrays_csharp.i>
+CSHARP_ARRAYS_FIXED(void*, void*)
+
+%apply void* FIXED[] { void** buffs }
+%csmethodmodifiers SoapySDR::Device::__readStream "private unsafe";
+
 %include <typemaps.i>
 
 %apply double& OUTPUT { double& fullScale };
 
+%typemap(cscode) SoapySDR::Device
+%{
+    private StreamResult __readStreamCS(
+        StreamHandle streamHandle,
+        global::System.IntPtr[] intPtrs,
+        uint numElems,
+        int flags,
+        int timeoutUs = 100000)
+    {
+        return new StreamResult();
+    }
+%}
+
 ////////////////////////////////////////////////////////////////////////
-// Device object
+// Device object (TODO: other ignores)
 ////////////////////////////////////////////////////////////////////////
 %nodefaultctor SoapySDR::Device;
 %ignore SoapySDR::Device::setFrontendMapping(const int, const std::string&);
@@ -17,12 +36,29 @@
 %ignore SoapySDR::Device::getStreamFormats(const int, const size_t);
 %ignore SoapySDR::Device::getNativeStreamFormat(const int, const size_t, double&);
 %ignore SoapySDR::Device::getStreamArgsInfo(const int, const size_t);
+%ignore SoapySDR::Device::setupStream(const int, const std::string&, const std::vector<size_t>&, const SoapySDR::Kwargs&);
+%ignore SoapySDR::Device::closeStream(SoapySDR::Stream*);
+%ignore SoapySDR::Device::getStreamMTU(SoapySDR::Stream*);
+%ignore SoapySDR::Device::activateStream(SoapySDR::Stream*, const int, const long long, const size_t);
+%ignore SoapySDR::Device::deactivateStream(SoapySDR::Stream*, const int, const long long);
 %ignore SoapySDR::Device::getNativeDeviceHandle;
 %include <SoapySDR/Device.hpp>
 
 %{
     #include "CSharpExtensions.hpp"
 %}
+
+
+/*
+%extend StreamResult
+{
+    %insert("python")
+    %{
+        def __str__(self):
+            return "ret=%s, flags=%s, timeNs=%s"%(self.ret, self.flags, self.timeNs)
+    %}
+};
+*/
 
 // TODO: automate generation
 %extend SoapySDR::Device
@@ -76,6 +112,63 @@
     SoapySDR::ArgInfoList getStreamArgsInfo(SoapySDR::CSharp::Direction direction, size_t channel)
     {
         return self->getStreamArgsInfo(int(direction), channel);
+    }
+
+    SoapySDR::CSharp::StreamHandle setupStream(
+        SoapySDR::CSharp::Direction direction,
+        const std::string& format,
+        const std::vector<size_t>& channels = std::vector<size_t>(),
+        const SoapySDR::Kwargs& kwargs = SoapySDR::Kwargs())
+    {
+        SoapySDR::CSharp::StreamHandle streamHandle;
+        streamHandle.stream = self->setupStream(int(direction), format, channels, kwargs);
+
+        return streamHandle;
+    }
+
+    void closeStream(const SoapySDR::CSharp::StreamHandle& streamHandle)
+    {
+        self->closeStream(streamHandle.stream);
+    }
+
+    size_t getStreamMTU(const SoapySDR::CSharp::StreamHandle& streamHandle)
+    {
+        return self->getStreamMTU(streamHandle.stream);
+    }
+
+    int activateStream(
+        const SoapySDR::CSharp::StreamHandle& streamHandle,
+        int flags = 0,
+        long long timeNs = 0,
+        size_t numElems = 0)
+    {
+        return self->activateStream(streamHandle.stream, flags, timeNs, numElems);
+    }
+
+    int deactivateStream(
+        const SoapySDR::CSharp::StreamHandle& streamHandle,
+        int flags = 0,
+        long long timeNs = 0)
+    {
+        return self->deactivateStream(streamHandle.stream, flags, timeNs);
+    }
+
+    // We get void* from IntPtr
+    SoapySDR::CSharp::StreamResult __readStream(
+        const SoapySDR::CSharp::StreamHandle& streamHandle,
+        void** buffs,
+        size_t numElems,
+        int flags,
+        long timeoutUs)
+    {
+        //std::vector<void*> buffsCpp;
+        //for(size_t i = 0; i < buffs.size(); ++i) buffsCpp.emplace_back((void*)buffs[i]);
+
+        SoapySDR::CSharp::StreamResult streamResult;
+        //streamResult.flags = flags;
+        //streamResult.ret = self->readStream(streamHandle.stream, buffsCpp.data(), numElems, streamResult.flags, streamResult.timeNs, timeoutUs);
+
+        return streamResult;
     }
 
 /*

@@ -3,6 +3,8 @@
 
 %module(directors="1") SoapySDR
 
+%include <typemaps.i>
+
 ////////////////////////////////////////////////////////////////////////
 // Include all major headers to compile against
 ////////////////////////////////////////////////////////////////////////
@@ -69,9 +71,11 @@
 ////////////////////////////////////////////////////////////////////////
 // Include extensions before types that will use them
 ////////////////////////////////////////////////////////////////////////
-%nodefaultctor SoapySDRCSharp::BuildInfo;
-%nodefaultctor SoapySDRCSharp::StreamFormats;
-%nodefaultctor SoapySDRCSharp::Time;
+%nodefaultctor SoapySDR::CSharp::BuildInfo;
+%nodefaultctor SoapySDR::CSharp::StreamHandle;
+%ignore SoapySDR::CSharp::StreamHandle::stream;
+%nodefaultctor SoapySDR::CSharp::StreamFormats;
+%nodefaultctor SoapySDR::CSharp::Time;
 %include "CSharpExtensions.hpp"
 
 /*
@@ -99,33 +103,6 @@
     %}
 };
 
-*/
-
-////////////////////////////////////////////////////////////////////////
-// Stream result class
-// Helps us deal with stream calls that return by reference
-////////////////////////////////////////////////////////////////////////
-%inline %{
-    struct StreamResult
-    {
-        StreamResult(void):
-            ret(0), flags(0), timeNs(0), chanMask(0){}
-        int ret;
-        int flags;
-        long long timeNs;
-        size_t chanMask;
-    };
-%}
-
-/*
-%extend StreamResult
-{
-    %insert("python")
-    %{
-        def __str__(self):
-            return "ret=%s, flags=%s, timeNs=%s"%(self.ret, self.flags, self.timeNs)
-    %}
-};
 */
 
 ////////////////////////////////////////////////////////////////////////

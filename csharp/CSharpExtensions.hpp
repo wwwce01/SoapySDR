@@ -4,6 +4,7 @@
 #pragma once
 
 #include <SoapySDR/Constants.h>
+#include <SoapySDR/Device.hpp>
 #include <SoapySDR/Formats.hpp>
 #include <SoapySDR/Time.hpp>
 #include <SoapySDR/Version.hpp>
@@ -88,6 +89,21 @@ namespace SoapySDR { namespace CSharp {
     const std::string StreamFormats::U16  = SOAPY_SDR_U16;
     const std::string StreamFormats::S8   = SOAPY_SDR_S8;
     const std::string StreamFormats::U8   = SOAPY_SDR_U8;
+
+    struct StreamHandle
+    {
+        SoapySDR::Stream* stream;
+    };
+
+    struct StreamResult
+    {
+        StreamResult(): ret(0), flags(0), timeNs(0), chanMask(0){}
+
+        int ret;
+        int flags;
+        long long timeNs;
+        size_t chanMask;
+    };
 
     struct Time
     {
