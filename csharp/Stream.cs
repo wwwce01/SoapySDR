@@ -38,7 +38,7 @@ namespace SoapySDR
 
             for(int buffIndex = 0; buffIndex < buffs.Length; ++buffIndex)
             {
-                if(buffs[buffIndex] = null)
+                if(buffs[buffIndex] == null)
                 {
                     throw new ArgumentNullException(string.format("buffs[{0}]", buffIndex));
                 }
