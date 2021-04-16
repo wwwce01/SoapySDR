@@ -188,3 +188,5 @@ function Device:getAntenna(self, direction, channel)
 
     return ret
 end
+
+return Device
