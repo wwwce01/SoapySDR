@@ -10,6 +10,7 @@ local SoapySDR =
     ABI_VERSION = ffi.string(lib.SoapySDR_getABIVersion()),
     LIB_VERSION = ffi.string(lib.SoapySDR_getLibVersion()),
 
+    Complex = require("Complex"),
     Device = require("Device")
 }
 
