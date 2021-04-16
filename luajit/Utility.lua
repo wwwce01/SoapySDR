@@ -1,21 +1,18 @@
 -- Copyright (c) 2021 Nicholas Corgan
 -- SPDX-License-Identifier: BSL-1.0
 
+local ffi = require("ffi")
+local lib = require("Lib")
+
 local Utility = {}
 
 function Utility.checkError(code)
-    local ffi = require("ffi")
-    local lib = require("Lib")
-
     if code ~= 0 then
         error(ffi.string(lib.SoapySDR_errToStr(code)))
     end
 end
 
 function Utility.checkDeviceError()
-    local ffi = require("ffi")
-    local lib = require("Lib")
-
     Utility.checkError(lib.SoapySDRDevice_lastStatus())
 
     local lastError = ffi.string(lib.SoapySDRDevice_lastError())
@@ -34,9 +31,6 @@ function Utility.rawCharStringsToList(cStrs, numStrings)
 end
 
 function Utility.tableToKwargs(table)
-    local ffi = require("ffi")
-    local lib = require("Lib")
-
     kwargs = ffi.gc(ffi.new("SoapySDRKwargs"), lib.SoapySDRKwargs_clear)
 
     for k,v in pairs(table) do
@@ -44,6 +38,30 @@ function Utility.tableToKwargs(table)
     end
 
     return kwargs
+end
+
+function Utility.getStringsGCFcn(numStrs)
+    local function clearStrings(cStrs)
+        lib.SoapySDRStrings_clear(ffi.new("char**[1]", {cStrs}), numStrs)
+    end
+
+    return clearStrings
+end
+
+function Utility.processRawStringList(stringList, lengthPtr)
+    return ffi.gc(stringList, Utility.getStringsGCFcn(lengthPtr[0]))
+end
+
+function Utility.getArgInfoListGCFcn(length)
+    local function clearArgInfoList(argInfoList)
+        lib.SoapySDRArgInfoList_clear(ffi.new("SoapySDRArgInfo*[1]", {argInfoList}), length)
+    end
+
+    return clearArgInfoList
+end
+
+function Utility.processRawArgInfoList(argInfoList, lengthPtr)
+    return ffi.gc(streamArgsInfo, Utility.getArgInfoListGCFcn(lengthPtr[0]))
 end
 
 return Utility
