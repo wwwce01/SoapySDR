@@ -16,12 +16,9 @@ local function enumerateDevices(args)
 
     -- Abstract away different functions
     local argsType = tostring(type(args))
-    if argsType == "string" then
-        devs = Utility.processRawKwargsList(lib.SoapySDRDevice_enumerateStrArgs(args, lengthPtr))
-    elseif argsType == "table" then
+    if argsType == "table" then
         devs = Utility.processRawKwargsList(lib.SoapySDRDevice_enumerate(Utility.tableToKwargs(args), lengthPtr))
     else
-        -- Last-ditch effort
         devs = Utility.processRawKwargsList(lib.SoapySDRDevice_enumerateStrArgs(tostring(args), lengthPtr))
     end
 
@@ -40,11 +37,7 @@ function Device.new(param)
 
     -- Abstract away different C constructor functions
     local paramType = tostring(type(param))
-    if paramType == "string" then
-        self.__deviceHandle = ffi.gc(
-            lib.SoapySDRDevice_makeStrArgs(param),
-            lib.SoapySDRDevice_unmake)
-    elseif paramType == "table" then
+    if paramType == "table" then
         self.__deviceHandle = ffi.gc(
             lib.SoapySDRDevice_make(Utility.tableToKwargs(param)),
             lib.SoapySDRDevice_unmake)
@@ -54,7 +47,6 @@ function Device.new(param)
             lib.SoapySDRDevice_make(param),
             lib.SoapySDRDevice_unmake)
     else
-        -- Last-ditch effort
         self.__deviceHandle = ffi.gc(
             lib.SoapySDRDevice_makeStrArgs(tostring(param)),
             lib.SoapySDRDevice_unmake)
