@@ -73,7 +73,24 @@ function Utility.getKwargsListGCFcn(length)
 end
 
 function Utility.processRawKwargsList(kwargs, lengthPtr)
-    return ffi.gc(kwargs, Utility.getKwargsListGCFcn(lengthPtr[0]))
+    local freeFcn = function(kwargs)
+        lib.SoapySDRKwargs_clear(ffi.new("SoapySDRKwargs*[1]", {kwargs}))
+    end
+
+    -- Convert to an array so we can index the array. This new object
+    -- takes ownership of the pointers in each member.
+    local len = tonumber(lengthPtr[0])
+    local arrTypeName = "SoapySDRKwargs[" .. tostring(len) .. "]"
+    local arrType = ffi.typeof(arrTypeName)
+    local kwargsArr = ffi.new(arrType)
+    for i=0,len-1 do
+        kwargsArr[i] = ffi.gc(kwargs[i], freeFcn)
+    end
+
+    -- Free the outer C array.
+    lib.SoapySDR_free(kwargs)
+
+    return kwargsArr
 end
 
 function Utility.getRangeListGCFcn(length)
