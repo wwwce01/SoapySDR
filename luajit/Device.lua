@@ -17,9 +17,13 @@ local function enumerateDevices(args)
     -- Abstract away different functions
     local argsType = tostring(type(args))
     if argsType == "table" then
-        devs = Utility.processRawKwargsList(lib.SoapySDRDevice_enumerate(Utility.tableToKwargs(args), lengthPtr))
+        devs = Utility.processRawKwargsList(
+            lib.SoapySDRDevice_enumerate(Utility.tableToKwargs(args), lengthPtr),
+            lengthPtr)
     else
-        devs = Utility.processRawKwargsList(lib.SoapySDRDevice_enumerateStrArgs(tostring(args), lengthPtr))
+        devs = Utility.processRawKwargsList(
+            lib.SoapySDRDevice_enumerateStrArgs(tostring(args), lengthPtr),
+            lengthPtr)
     end
 
     return devs
@@ -67,7 +71,7 @@ end
 function Device:getDriverKey(self)
     local ret = ffi.string(ffi.gc(
         lib.SoapySDRDevice_getDriverKey(self.__deviceHandle),
-        ffi.C.free))
+        lib.SoapySDR_free))
     Utility.checkDeviceError()
 
     return ret
@@ -76,7 +80,7 @@ end
 function Device:getHardwareKey(self)
     local ret = ffi.string(ffi.gc(
         lib.SoapySDRDevice_getHardwareKey(self.__deviceHandle),
-        ffi.C.free))
+        lib.SoapySDR_free))
     Utility.checkDeviceError()
 
     return ret
@@ -106,7 +110,7 @@ end
 function Device:getFrontendMapping(self, direction)
     local ret = ffi.string(ffi.gc(
         lib.SoapySDRDevice_getFrontendMapping(self.__deviceHandle, direction),
-        ffi.C.free))
+        lib.SoapySDR_free))
     Utility.checkDeviceError()
 
     return ret
@@ -154,7 +158,7 @@ function Device:getNativeStreamFormat(self, direction, channel)
 
     local format = ffi.string(ffi.gc(
         lib.SoapySDRDevice_getNativeStreamFormat(self.__deviceHandle, direction, channel, fullScalePtr),
-        ffi.C.free))
+        lib.SoapySDR_free))
     Utility.checkDeviceError()
 
     return format, fullScalePtr[0]
@@ -200,7 +204,7 @@ end
 function Device:getAntenna(self, direction, channel)
     local ret = ffi.string(ffi.gc(
         lib.SoapySDRDevice_getAntenna(self.__deviceHandle, direction, channel),
-        ffi.C.free))
+        lib.SoapySDR_free))
     Utility.checkDeviceError()
 
     return ret

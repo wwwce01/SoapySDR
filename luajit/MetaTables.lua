@@ -24,7 +24,7 @@ ffi.metatype(ffi.typeof'SoapySDRArgInfo', SoapySDRArgInfoMetaTable)
 local SoapySDRKwargsMetaTable =
 {
     __tostring = function(kwargs)
-        return ffi.gc(lib.SoapySDRKwargs_toString(kwargs), ffi.C.free)
+        return ffi.string(ffi.gc(lib.SoapySDRKwargs_toString(kwargs), lib.SoapySDR_free))
     end
 }
 ffi.metatype(ffi.typeof'SoapySDRKwargs', SoapySDRKwargsMetaTable)
