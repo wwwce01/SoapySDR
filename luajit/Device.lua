@@ -1,10 +1,10 @@
 -- Copyright (c) 2021 Nicholas Corgan
 -- SPDX-License-Identifier: BSL-1.0
 
-local Complex = require("Complex")
+local Complex = require("SoapySDR.Complex")
 local ffi = require("ffi")
-local lib = require("Lib")
-local Utility = require("Utility")
+local lib = require("SoapySDR.Lib")
+local Utility = require("SoapySDR.Utility")
 
 --
 -- Device enumeration

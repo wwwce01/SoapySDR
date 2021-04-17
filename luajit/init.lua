@@ -2,12 +2,12 @@
 -- SPDX-License-Identifier: BSL-1.0
 
 local ffi = require("ffi")
-local lib = require("Lib")
+local lib = require("SoapySDR.Lib")
 
 -- Registers metatables for SoapySDR types
-require("MetaTables")
+require("SoapySDR.MetaTables")
 
-local enumerateDevices, Device = require("Device")
+local enumerateDevices, Device = require("SoapySDR.Device")
 
 local SoapySDR =
 {
@@ -17,7 +17,7 @@ local SoapySDR =
 
     enumerateDevices = enumerateDevices,
 
-    Complex = require("Complex"),
+    Complex = require("SoapySDR.Complex"),
     Device = Device
 }
 

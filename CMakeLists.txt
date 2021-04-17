@@ -142,6 +142,9 @@ message(STATUS "Enabling optional Python3 bindings if possible...")
 add_subdirectory(python3)
 
 
+# TODO: check for LuaJIT
+add_subdirectory(luajit)
+
 ########################################################################
 # uninstall target
 ########################################################################

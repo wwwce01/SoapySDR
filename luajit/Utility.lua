@@ -2,7 +2,7 @@
 -- SPDX-License-Identifier: BSL-1.0
 
 local ffi = require("ffi")
-local lib = require("Lib")
+local lib = require("SoapySDR.Lib")
 
 local Utility = {}
 
