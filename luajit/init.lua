@@ -4,6 +4,9 @@
 local ffi = require("ffi")
 local lib = require("Lib")
 
+-- Registers metatables for SoapySDR types
+require("MetaTables")
+
 local enumerateDevices, Device = require("Device")
 
 local SoapySDR =
