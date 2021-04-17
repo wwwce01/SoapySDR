@@ -64,6 +64,18 @@ function Utility.processRawArgInfoList(argInfoList, lengthPtr)
     return ffi.gc(streamArgsInfo, Utility.getArgInfoListGCFcn(lengthPtr[0]))
 end
 
+function Utility.getKwargsListGCFcn(length)
+    local function clearKwargsList(rangeList)
+        lib.SoapySDRKwargsList_clear(ffi.new("SoapySDRKwargs*[1]", {rangeList}), length)
+    end
+
+    return clearKwargsList
+end
+
+function Utility.processRawKwargsList(rangeList, lengthPtr)
+    return ffi.gc(streamKwargs, Utility.getKwargsListGCFcn(lengthPtr[0]))
+end
+
 function Utility.getRangeListGCFcn(length)
     local function clearRangeList(rangeList)
         lib.SoapySDRRangeList_clear(ffi.new("SoapySDRRange*[1]", {rangeList}), length)

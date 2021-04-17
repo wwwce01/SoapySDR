@@ -7,6 +7,28 @@ local lib = require("Lib")
 local Utility = require("Utility")
 
 --
+-- Device enumeration
+--
+
+local function enumerateDevices(args)
+    local devs = nil
+    local lengthPtr = ffi.new("size_t[1]")
+
+    -- Abstract away different functions
+    local argsType = tostring(type(args))
+    if argsType == "string" then
+        devs = Utility.processRawKwargsList(lib.SoapySDRDevice_enumerateStrArgs(args, lengthPtr))
+    elseif argsType == "table" then
+        devs = Utility.processRawKwargsList(lib.SoapySDRDevice_enumerate(Utility.tableToKwargs(args), lengthPtr))
+    else
+        -- Last-ditch effort
+        devs = Utility.processRawKwargsList(lib.SoapySDRDevice_enumerateStrArgs(tostring(args), lengthPtr))
+    end
+
+    return devs
+end
+
+--
 -- Constructor
 --
 
@@ -500,4 +522,4 @@ end
 -- Sample Rate API
 --
 
-return Device
+return enumerateDevices, Device
