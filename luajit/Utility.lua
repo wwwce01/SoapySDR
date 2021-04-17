@@ -6,6 +6,10 @@ local lib = require("SoapySDR.Lib")
 
 local Utility = {}
 
+--
+-- Error checking
+--
+
 function Utility.checkError(code)
     if code ~= 0 then
         error(ffi.string(lib.SoapySDR_errToStr(code)))
@@ -21,13 +25,17 @@ function Utility.checkDeviceError()
     end
 end
 
-function Utility.rawCharStringsToList(cStrs, numStrings)
-    local stringList = {}
-    for i = 0,(numStrings-1) do
-        stringList[i+1] = ffi.string(cStrs[i])
+--
+-- Handling C <-> Lua types
+--
+
+function Utility.kwargsToTable(kwargs)
+    local table = {}
+    for i = 0, tonumber(kwargs.size)-1 do
+        table[ffi.string(kwargs.keys[i])] = ffi.string(kwargs.vals[i])
     end
 
-    return stringList
+    return table
 end
 
 function Utility.tableToKwargs(table)
@@ -40,16 +48,17 @@ function Utility.tableToKwargs(table)
     return kwargs
 end
 
-function Utility.getStringsGCFcn(numStrs)
-    local function clearStrings(cStrs)
-        lib.SoapySDRStrings_clear(ffi.new("char**[1]", {cStrs}), numStrs)
+function Utility.processRawStringList(stringList, lengthPtr)
+    local arr = {}
+    local len = tonumber(lengthPtr[0])
+
+    for i = 0,len-1 do
+        arr[i+1] = ffi.string(stringList[i])
     end
 
-    return clearStrings
-end
+    lib.SoapySDRStrings_clear(ffi.new("char**[1]", {cStrs}), len)
 
-function Utility.processRawStringList(stringList, lengthPtr)
-    return ffi.gc(stringList, Utility.getStringsGCFcn(lengthPtr[0]))
+    return arr
 end
 
 function Utility.getArgInfoListGCFcn(length)
@@ -64,45 +73,30 @@ function Utility.processRawArgInfoList(argInfoList, lengthPtr)
     return ffi.gc(streamArgsInfo, Utility.getArgInfoListGCFcn(lengthPtr[0]))
 end
 
-function Utility.getKwargsListGCFcn(length)
-    local function clearKwargsList(kwargs)
-        lib.SoapySDRKwargsList_clear(kwargs, length)
-    end
-
-    return clearKwargsList
-end
-
 function Utility.processRawKwargsList(kwargs, lengthPtr)
-    local freeFcn = function(kwargs)
-        lib.SoapySDRKwargs_clear(ffi.new("SoapySDRKwargs*[1]", {kwargs}))
-    end
-
-    -- Convert to an array so we can index the array. This new object
-    -- takes ownership of the pointers in each member.
+    local arr = {}
     local len = tonumber(lengthPtr[0])
-    local arrTypeName = "SoapySDRKwargs[" .. tostring(len) .. "]"
-    local arrType = ffi.typeof(arrTypeName)
-    local kwargsArr = ffi.new(arrType)
-    for i=0,len-1 do
-        kwargsArr[i] = ffi.gc(kwargs[i], freeFcn)
+
+    for i = 0,len-1 do
+        arr[i+1] = Utility.kwargsToTable(kwargs[i])
     end
 
-    -- Free the outer C array.
-    lib.SoapySDR_free(kwargs)
+    lib.SoapySDRKwargsList_clear(kwargs, len)
 
-    return kwargsArr
-end
-
-function Utility.getRangeListGCFcn(length)
-    local function clearRangeList(rangeList)
-        lib.SoapySDRRangeList_clear(rangeList, length)
-    end
-
-    return clearRangeList
+    return arr
 end
 
 function Utility.processRawRangeList(rangeList, lengthPtr)
-    return ffi.gc(rangeList, Utility.getRangeListGCFcn(lengthPtr[0]))
+    local arr = {}
+    local len = tonumber(lengthPtr[0])
+
+    for i = 0,len-1 do
+        arr[i+1] = rangeList[i]
+    end
+
+    lib.SoapySDR_free(rangeList)
+
+    return arr
 end
 
 return Utility
