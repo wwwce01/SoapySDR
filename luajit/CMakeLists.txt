@@ -4,6 +4,7 @@ set(files
     init.lua
     Lib.lua
     MetaTables.lua
+    Time.lua
     Utility.lua)
 
 install(
