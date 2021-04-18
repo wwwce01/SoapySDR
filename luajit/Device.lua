@@ -36,8 +36,15 @@ end
 local Device = {}
 Device.__index = Device
 
-function Device.make(param)
-    local self = setmetatable({}, Device)
+function Device.make(self, param)
+    local mt =
+    {
+        __tostring = function(dev)
+            return string.format("%s:%s", dev:getDriverKey(), dev:getHardwareKey())
+        end
+    }
+
+    local self = setmetatable(mt, Device)
 
     -- Abstract away different C constructor functions
     local paramType = tostring(type(param))
@@ -45,11 +52,7 @@ function Device.make(param)
         self.__deviceHandle = ffi.gc(
             lib.SoapySDRDevice_make(Utility.tableToKwargs(param)),
             lib.SoapySDRDevice_unmake)
-    elseif param == nil then
-        self.__deviceHandle = ffi.gc(
-            lib.SoapySDRDevice_makeStrArgs(""),
-            lib.SoapySDRDevice_unmake)
-    elseif paramType == "SoapySDRKwargs" then
+    elseif (paramType == "SoapySDRKwargs") or (param == nil) then
         -- TODO: proper type check
         self.__deviceHandle = ffi.gc(
             lib.SoapySDRDevice_make(param),
@@ -61,6 +64,9 @@ function Device.make(param)
     end
     Utility.checkDeviceError()
 
+    if self == nil then
+        error("Device: null self")
+    end
     if self.__deviceHandle == nil then
         error("Device: null device handle")
     end
@@ -72,7 +78,7 @@ end
 -- Identification API
 --
 
-function Device:getDriverKey(self)
+function Device:getDriverKey()
     local ret = ffi.string(ffi.gc(
         lib.SoapySDRDevice_getDriverKey(self.__deviceHandle),
         lib.SoapySDR_free))
@@ -81,7 +87,7 @@ function Device:getDriverKey(self)
     return ret
 end
 
-function Device:getHardwareKey(self)
+function Device:getHardwareKey()
     local ret = ffi.string(ffi.gc(
         lib.SoapySDRDevice_getHardwareKey(self.__deviceHandle),
         lib.SoapySDR_free))
@@ -90,7 +96,7 @@ function Device:getHardwareKey(self)
     return ret
 end
 
-function Device:getHardwareInfo(self)
+function Device:getHardwareInfo()
     local ret = ffi.gc(
         lib.SoapySDRDevice_getHardwareInfo(self.__deviceHandle),
         lib.SoapySDRKwargs_clear)

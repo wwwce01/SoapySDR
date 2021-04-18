@@ -30,19 +30,19 @@ end
 --
 
 function Utility.kwargsToTable(kwargs)
-    local table = {}
+    local tbl = {}
     for i = 0, tonumber(kwargs.size)-1 do
-        table[ffi.string(kwargs.keys[i])] = ffi.string(kwargs.vals[i])
+        tbl[ffi.string(kwargs.keys[i])] = ffi.string(kwargs.vals[i])
     end
 
-    return table
+    return tbl
 end
 
-function Utility.tableToKwargs(table)
+function Utility.tableToKwargs(tbl)
     kwargs = ffi.gc(ffi.new("SoapySDRKwargs"), lib.SoapySDRKwargs_clear)
 
-    for k,v in pairs(table) do
-        checkError(lib.SoapySDRKwargs_set(kwargs, tostring(k), tostring(v)))
+    for k,v in pairs(tbl) do
+        Utility.checkError(lib.SoapySDRKwargs_set(kwargs, tostring(k), tostring(v)))
     end
 
     return kwargs
