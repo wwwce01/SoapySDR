@@ -7,7 +7,7 @@ local lib = require("SoapySDR.Lib")
 -- Registers metatables for SoapySDR types
 require("SoapySDR.MetaTables")
 
-local enumerateDevices, Device = require("SoapySDR.Device")
+local enumerateDevices, Device = unpack(require("SoapySDR.Device"))
 
 local SoapySDR =
 {

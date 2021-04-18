@@ -36,7 +36,7 @@ end
 local Device = {}
 Device.__index = Device
 
-function Device.new(param)
+function Device.make(param)
     local self = setmetatable({}, Device)
 
     -- Abstract away different C constructor functions
@@ -44,6 +44,10 @@ function Device.new(param)
     if paramType == "table" then
         self.__deviceHandle = ffi.gc(
             lib.SoapySDRDevice_make(Utility.tableToKwargs(param)),
+            lib.SoapySDRDevice_unmake)
+    elseif param == nil then
+        self.__deviceHandle = ffi.gc(
+            lib.SoapySDRDevice_makeStrArgs(""),
             lib.SoapySDRDevice_unmake)
     elseif paramType == "SoapySDRKwargs" then
         -- TODO: proper type check
@@ -518,4 +522,4 @@ end
 -- Sample Rate API
 --
 
-return enumerateDevices, Device
+return {enumerateDevices, Device}
