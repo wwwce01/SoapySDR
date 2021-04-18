@@ -59,6 +59,19 @@ function Utility.processRawKwargs(kwargs)
     return ret
 end
 
+function Utility.processRawPrimitiveList(rangeList, lengthPtr)
+    local arr = {}
+    local len = tonumber(lengthPtr[0])
+
+    for i = 0,len-1 do
+        arr[i+1] = rangeList[i]
+    end
+
+    lib.SoapySDR_free(rangeList)
+
+    return arr
+end
+
 function Utility.processRawStringList(stringList, lengthPtr)
     local arr = {}
     local len = tonumber(lengthPtr[0])
@@ -93,19 +106,6 @@ function Utility.processRawKwargsList(kwargs, lengthPtr)
     end
 
     lib.SoapySDRKwargsList_clear(kwargs, len)
-
-    return arr
-end
-
-function Utility.processRawRangeList(rangeList, lengthPtr)
-    local arr = {}
-    local len = tonumber(lengthPtr[0])
-
-    for i = 0,len-1 do
-        arr[i+1] = rangeList[i]
-    end
-
-    lib.SoapySDR_free(rangeList)
 
     return arr
 end
