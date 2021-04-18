@@ -496,7 +496,8 @@ function Device:getFrequencyRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawPrimitiveList(
         lib.SoapySDRDevice_getFrequencyRange(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr)
+        lengthPtr,
+        "double")
     Utility.checkDeviceError()
 
     return ret
@@ -506,7 +507,8 @@ function Device:getFrequencyRangeComponent(direction, channel, name)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawPrimitiveList(
         lib.SoapySDRDevice_getFrequencyRangeComponent(self.__deviceHandle, direction, channel, name, lengthPtr),
-        lengthPtr)
+        lengthPtr,
+        "double")
     Utility.checkDeviceError()
 
     return ret
@@ -546,7 +548,8 @@ function Device:listSampleRates(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawPrimitiveList(
         lib.SoapySDRDevice_listSampleRates(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr)
+        lengthPtr,
+        "double")
     Utility.checkDeviceError()
 
     return ret
@@ -556,7 +559,8 @@ function Device:getSampleRateRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawPrimitiveList(
         lib.SoapySDRDevice_getSampleRateRange(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr)
+        lengthPtr,
+        "SoapySDRRange")
     Utility.checkDeviceError()
 
     return ret
@@ -586,7 +590,8 @@ function Device:listBandwidths(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawPrimitiveList(
         lib.SoapySDRDevice_listBandwidths(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr)
+        lengthPtr,
+        "double")
     Utility.checkDeviceError()
 
     return ret
@@ -596,7 +601,8 @@ function Device:getBandwidthRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawPrimitiveList(
         lib.SoapySDRDevice_getBandwidthRange(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr)
+        lengthPtr,
+        "SoapySDRRange")
     Utility.checkDeviceError()
 
     return ret
@@ -624,7 +630,8 @@ function Device:getMasterClockRates()
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawPrimitiveList(
         lib.SoapySDRDevice_getMasterClockRates(self.__deviceHandle, lengthPtr),
-        lengthPtr)
+        lengthPtr,
+        "double")
     Utility.checkDeviceError()
 
     return ret
@@ -648,7 +655,8 @@ function Device:getReferenceClockRates()
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawPrimitiveList(
         lib.SoapySDRDevice_getReferenceClockRates(self.__deviceHandle, lengthPtr),
-        lengthPtr)
+        lengthPtr,
+        "double")
     Utility.checkDeviceError()
 
     return ret
@@ -682,8 +690,183 @@ end
 -- Time API
 --
 
+function Device:getTimeSources()
+    local lengthPtr = ffi.new("size_t[1]")
+    local ret = Utility.processRawStringList(
+        lib.SoapySDRDevice_getTimeSources(self.__deviceHandle, lengthPtr),
+        lengthPtr)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:setTimeSource(source)
+    Utility.checkError(lib.SoapySDRDevice_setTimeSource(
+        self.__deviceHandle,
+        source))
+    Utility.checkDeviceError()
+end
+
+function Device:getTimeSource()
+    local ret = Utility.processRawString(lib.SoapySDRDevice_getTimeSource(self.__deviceHandle))
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:hasHardwareTime(optionalArg)
+    local ret = lib.SoapySDRDevice_hasHardwareTime(self.__deviceHandle, optionalArg)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:getHardwareTime(optionalArg)
+    local ret = lib.SoapySDRDevice_getHardwareTime(self.__deviceHandle, optionalArg)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:setHardwareTime(time, optionalArg)
+    Utility.checkError(lib.SoapySDRDevice_setHardwareTime(
+        self.__deviceHandle,
+        time,
+        optionalArg))
+    Utility.checkDeviceError()
+end
+
+function Device:setCommandTime(time, optionalArg)
+    Utility.checkError(lib.SoapySDRDevice_setCommandTime(
+        self.__deviceHandle,
+        time,
+        optionalArg))
+    Utility.checkDeviceError()
+end
+
+--
+-- Sensor API
+--
+
+function Device:listSensors()
+    local lengthPtr = ffi.new("size_t[1]")
+    local ret = Utility.processRawStringList(
+        lib.SoapySDRDevice_listSensors(self.__deviceHandle, lengthPtr),
+        lengthPtr)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:getSensorInfo(key)
+    local ret = Utility.processRawArgInfo(lib.SoapySDRDevice_getSensorInfo(self.__deviceHandle, key))
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:readSensor(key)
+    local ret = Utility.processRawString(lib.SoapySDRDevice_readSensor(self.__deviceHandle, key))
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:listChannelSensors(direction, channel)
+    local lengthPtr = ffi.new("size_t[1]")
+    local ret = Utility.processRawStringList(
+        lib.SoapySDRDevice_listChannelSensors(self.__deviceHandle, lengthPtr, direction, channel),
+        lengthPtr)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:getChannelSensorInfo(direction, channel, key)
+    local ret = Utility.processRawArgInfo(lib.SoapySDRDevice_getChannelSensorInfo(
+        self.__deviceHandle,
+        direction,
+        channel,
+        key))
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:readChannelSensor(direction, channel, key)
+    local ret = Utility.processRawString(lib.SoapySDRDevice_readChannelSensor(
+        self.__deviceHandle,
+        direction,
+        channel,
+        key))
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+--
+-- Register API
+--
+
 --
 -- Return both of these
 --
+
+function Device:listRegisterInterfaces()
+    local lengthPtr = ffi.new("size_t[1]")
+    local ret = Utility.processRawStringList(
+        lib.SoapySDRDevice_listRegisterInterfaces(self.__deviceHandle, lengthPtr),
+        lengthPtr)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:writeRegister(name, addr, value)
+    Utility.checkError(lib.SoapySDRDevice_writeRegister(
+        self.__deviceHandle,
+        name,
+        addr,
+        value))
+    Utility.checkDeviceError()
+end
+
+function Device:readRegister(name, addr)
+    local ret = lib.SoapySDRDevice_readRegister(self.__deviceHandle, name, addr)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:writeRegisters(name, addr, values)
+    if tostring(type(values)) ~= "table" then
+        error("The \"values\" array must be a Lua table/array.")
+    end
+
+    -- TODO: check for LuaJIT array, which is 0-indexed
+    valuesFFI = ffi.new("unsigned[?]", #values)
+    for i = 0,#values do
+        valuesFFI[i] = values[i+1]
+    end
+
+    Utility.checkError(lib.SoapySDRDevice_writeRegisters(
+        self.__deviceHandle,
+        name,
+        addr,
+        ffi.cast("unsigned*", valuesFFI),
+        #values))
+    Utility.checkDeviceError()
+end
+
+function Device:readRegisters(direction, name, addr)
+    local lengthPtr = ffi.new("size_t[1]")
+    local ret = Utility.processRawPrimitiveList(
+        lib.SoapySDRDevice_readRegisters(self.__deviceHandle, name, addr, lengthPtr),
+        lengthPtr,
+        "unsigned")
+    Utility.checkDeviceError()
+
+    return ret
+end
 
 return {enumerateDevices, Device}

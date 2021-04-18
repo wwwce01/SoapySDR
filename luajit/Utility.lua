@@ -59,17 +59,25 @@ function Utility.processRawKwargs(kwargs)
     return ret
 end
 
-function Utility.processRawPrimitiveList(rangeList, lengthPtr)
-    local arr = {}
+-- TODO
+function Utility.processRawArgInfo(argInfo)
+    local ret = nil
+    lib.SoapySDRArgInfo_clear(argInfo)
+
+    return ret
+end
+
+function Utility.processRawPrimitiveList(arr, lengthPtr, ffiTypeName)
     local len = tonumber(lengthPtr[0])
+    local ret = ffi.new(ffiTypeName .. "[?]", len)
 
     for i = 0,len-1 do
-        arr[i+1] = rangeList[i]
+        ret[i] = arr[i]
     end
 
-    lib.SoapySDR_free(rangeList)
+    lib.SoapySDR_free(arr)
 
-    return arr
+    return ret
 end
 
 function Utility.processRawStringList(stringList, lengthPtr)
