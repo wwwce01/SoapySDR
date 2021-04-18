@@ -808,10 +808,6 @@ end
 -- Register API
 --
 
---
--- Return both of these
---
-
 function Device:listRegisterInterfaces()
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawStringList(
@@ -868,5 +864,218 @@ function Device:readRegisters(direction, name, addr)
 
     return ret
 end
+
+--
+-- Settings API
+--
+
+function Device:getSettingInfo()
+    local lengthPtr = ffi.new("size_t[1]")
+    local ret = Utility.processRawArgInfoList(
+        lib.SoapySDRDevice_getSettingInfo(self.__deviceHandle, lengthPtr),
+        lengthPtr)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+-- TODO: smarter tostring() logic. What if FFI number?
+function Device:writeSetting(key, value)
+    Utility.checkError(lib.SoapySDRDevice_writeSetting(
+        self.__deviceHandle,
+        key,
+        tostring(value)))
+    Utility.checkDeviceError()
+end
+
+function Device:readSetting(key)
+    local ret = Utility.processRawString(lib.SoapySDRDevice_readSetting(self.__deviceHandle, key))
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:getChannelSettingInfo(direction, channel)
+    local lengthPtr = ffi.new("size_t[1]")
+    local ret = Utility.processRawArgInfoList(
+        lib.SoapySDRDevice_getChannelSettingInfo(self.__deviceHandle, direction, channel, lengthPtr),
+        lengthPtr)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+-- TODO: smarter tostring() logic. What if FFI number?
+function Device:writeChannelSetting(direction, channel, key, value)
+    Utility.checkError(lib.SoapySDRDevice_writeChannelSetting(
+        self.__deviceHandle,
+        direction,
+        channel,
+        key,
+        tostring(value)))
+    Utility.checkDeviceError()
+end
+
+function Device:readChannelSetting(direction, channel, key)
+    local ret = Utility.processRawString(lib.SoapySDRDevice_readChannelSetting(
+        self.__deviceHandle,
+        direction,
+        channel,
+        key))
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+--
+-- GPIO API
+--
+
+function Device:listGPIOBanks()
+    local lengthPtr = ffi.new("size_t[1]")
+    local ret = Utility.processRawStringList(
+        lib.SoapySDRDevice_listGPIOBanks(self.__deviceHandle, lengthPtr),
+        lengthPtr)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:writeGPIO(bank, value)
+    Utility.checkError(lib.SoapySDRDevice_writeGPIO(
+        self.__deviceHandle,
+        bank,
+        value))
+    Utility.checkDeviceError()
+end
+
+function Device:writeGPIOMasked(bank, value, mask)
+    Utility.checkError(lib.SoapySDRDevice_writeGPIOMasked(
+        self.__deviceHandle,
+        bank,
+        value,
+        mask))
+    Utility.checkDeviceError()
+end
+
+function Device:readGPIO(bank)
+    local ret = lib.SoapySDRDevice_readGPIO(self.__deviceHandle, bank)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:writeGPIODir(bank, dir)
+    Utility.checkError(lib.SoapySDRDevice_writeGPIODir(
+        self.__deviceHandle,
+        bank,
+        dir))
+    Utility.checkDeviceError()
+end
+
+function Device:writeGPIODirMasked(bank, dir, mask)
+    Utility.checkError(lib.SoapySDRDevice_writeGPIODirMasked(
+        self.__deviceHandle,
+        bank,
+        dir,
+        mask))
+    Utility.checkDeviceError()
+end
+
+function Device:readGPIODir(bank)
+    local ret = lib.SoapySDRDevice_readGPIODir(self.__deviceHandle, bank)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+--
+-- I2C API
+--
+
+-- TODO: smarter input conversion to const char*
+function Device:writeI2C(addr, data)
+    Utility.checkError(lib.SoapySDRDevice_writeI2C(
+        self.__deviceHandle,
+        addr,
+        ffi.cast("const char*", data),
+        ffi.sizeof(data)))
+    Utility.checkDeviceError()
+end
+
+function Device:readI2C(bank, addr)
+    local lengthPtr = ffi.new("size_t[1]")
+    local ret = Utility.processRawPrimitiveList(lib.SoapySDRDevice_readI2C(
+        self.__deviceHandle,
+        bank,
+        addr,
+        lengthPtr),
+        "char")
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+--
+-- SPI API
+--
+
+function Device:transactSPI(addr, data, numBits)
+    local ret = lib.SoapySDRDevice_transactSPI(
+        self.__deviceHandle,
+        addr,
+        data,
+        numBits)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+--
+-- UART API
+--
+
+function Device:listUARTs()
+    local lengthPtr = ffi.new("size_t[1]")
+    local ret = Utility.processRawStringList(
+        lib.SoapySDRDevice_listUARTs(self.__deviceHandle, lengthPtr),
+        lengthPtr)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:writeUART(which, data)
+    Utility.checkError(lib.SoapySDRDevice_writeUART(
+        self.__deviceHandle,
+        which,
+        data))
+    Utility.checkDeviceError()
+end
+
+function Device:readUART(which, timeoutUs)
+    local ret = Utility.processRawString(lib.SoapySDRDevice_readUART(
+        self.__deviceHandle,
+        which,
+        timeoutUs))
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+--
+-- Native Access API
+--
+
+function Device:getNativeDeviceHandle()
+    local ret = lib.SoapySDRDevice_readGPIO(self.__deviceHandle)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+--
+-- Return both of these
+--
 
 return {enumerateDevices, Device}
