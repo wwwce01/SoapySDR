@@ -79,27 +79,21 @@ end
 --
 
 function Device:getDriverKey()
-    local ret = ffi.string(ffi.gc(
-        lib.SoapySDRDevice_getDriverKey(self.__deviceHandle),
-        lib.SoapySDR_free))
+    local ret = Utility.processRawString(lib.SoapySDRDevice_getDriverKey(self.__deviceHandle))
     Utility.checkDeviceError()
 
     return ret
 end
 
 function Device:getHardwareKey()
-    local ret = ffi.string(ffi.gc(
-        lib.SoapySDRDevice_getHardwareKey(self.__deviceHandle),
-        lib.SoapySDR_free))
+    local ret = Utility.processRawString(lib.SoapySDRDevice_getHardwareKey(self.__deviceHandle))
     Utility.checkDeviceError()
 
     return ret
 end
 
 function Device:getHardwareInfo()
-    local ret = ffi.gc(
-        lib.SoapySDRDevice_getHardwareInfo(self.__deviceHandle),
-        lib.SoapySDRKwargs_clear)
+    local ret = Utility.processRawKwargs(lib.SoapySDRDevice_getHardwareInfo(self.__deviceHandle))
     Utility.checkDeviceError()
 
     return ret
@@ -109,7 +103,7 @@ end
 -- Channels API
 --
 
-function Device:setFrontendMapping(self, direction, mapping)
+function Device:setFrontendMapping(direction, mapping)
     Utility.checkError(lib.SoapySDRDevice_setFrontendMapping(
         self.__deviceHandle,
         direction,
@@ -117,7 +111,7 @@ function Device:setFrontendMapping(self, direction, mapping)
     Utility.checkDeviceError()
 end
 
-function Device:getFrontendMapping(self, direction)
+function Device:getFrontendMapping(direction)
     local ret = ffi.string(ffi.gc(
         lib.SoapySDRDevice_getFrontendMapping(self.__deviceHandle, direction),
         lib.SoapySDR_free))
@@ -126,23 +120,24 @@ function Device:getFrontendMapping(self, direction)
     return ret
 end
 
-function Device:getNumChannels(self, direction)
+function Device:getNumChannels(direction)
     local ret = lib.SoapySDRDevice_getNumChannels(self.__deviceHandle, direction)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:getChannelInfo(self, direction, channel)
-    local ret = ffi.gc(
-        lib.SoapySDRDevice_getChannelInfo(self.__deviceHandle, direction, channel),
-        lib.SoapySDRKwargs_clear)
+function Device:getChannelInfo(direction, channel)
+    local ret = Utility.processRawKwargs(lib.SoapySDRDevice_getChannelInfo(
+        self.__deviceHandle,
+        direction,
+        channel))
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:getFullDuplex(self, direction, channel)
+function Device:getFullDuplex(direction, channel)
     local ret = lib.SoapySDRDevice_getFullDuplex(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
@@ -153,7 +148,7 @@ end
 -- Stream API (TODO: rest likely in own class)
 --
 
-function Device:getStreamFormats(self, direction, channel)
+function Device:getStreamFormats(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawStringList(
         lib.SoapySDRDevice_getStreamFormats(self.__deviceHandle, direction, channel, lengthPtr),
@@ -163,18 +158,20 @@ function Device:getStreamFormats(self, direction, channel)
     return ret
 end
 
-function Device:getNativeStreamFormat(self, direction, channel)
+function Device:getNativeStreamFormat(direction, channel)
     local fullScalePtr = ffi.new("double[1]")
 
-    local format = ffi.string(ffi.gc(
-        lib.SoapySDRDevice_getNativeStreamFormat(self.__deviceHandle, direction, channel, fullScalePtr),
-        lib.SoapySDR_free))
+    local format = Utility.processRawString(lib.SoapySDRDevice_getNativeStreamFormat(
+        self.__deviceHandle,
+        direction,
+        channel,
+        fullScalePtr))
     Utility.checkDeviceError()
 
-    return format, fullScalePtr[0]
+    return {format, fullScalePtr[0]}
 end
 
-function Device:getStreamArgsInfo(self, direction, channel)
+function Device:getStreamArgsInfo(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawArgInfoList(
         lib.SoapySDRDevice_getStreamArgsInfo(self.__deviceHandle, direction, channel, lengthPtr),
@@ -192,7 +189,7 @@ end
 -- Antenna API
 --
 
-function Device:listAntennas(self, direction, channel)
+function Device:listAntennas(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawStringList(
         lib.SoapySDRDevice_listAntennas(self.__deviceHandle, direction, channel, lengthPtr),
@@ -202,7 +199,7 @@ function Device:listAntennas(self, direction, channel)
     return ret
 end
 
-function Device:setAntenna(self, direction, channel, name)
+function Device:setAntenna(direction, channel, name)
     Utility.checkError(lib.SoapySDRDevice_setAntenna(
         self.__deviceHandle,
         direction,
@@ -211,10 +208,11 @@ function Device:setAntenna(self, direction, channel, name)
     Utility.checkDeviceError()
 end
 
-function Device:getAntenna(self, direction, channel)
-    local ret = ffi.string(ffi.gc(
-        lib.SoapySDRDevice_getAntenna(self.__deviceHandle, direction, channel),
-        lib.SoapySDR_free))
+function Device:getAntenna(direction, channel)
+    local ret = Utility.processRawString(lib.SoapySDRDevice_getAntenna(
+        self.__deviceHandle,
+        direction,
+        channel))
     Utility.checkDeviceError()
 
     return ret
@@ -224,14 +222,14 @@ end
 -- Frontend corrections API
 --
 
-function Device:hasDCOffsetMode(self, direction, channel)
+function Device:hasDCOffsetMode(direction, channel)
     local ret = lib.SoapySDRDevice_hasDCOffsetMode(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:setDCOffsetMode(self, direction, channel, automatic)
+function Device:setDCOffsetMode(direction, channel, automatic)
     Utility.checkError(lib.SoapySDRDevice_setDCOffsetMode(
         self.__deviceHandle,
         direction,
@@ -240,21 +238,21 @@ function Device:setDCOffsetMode(self, direction, channel, automatic)
     Utility.checkDeviceError()
 end
 
-function Device:getDCOffsetMode(self, direction, channel)
+function Device:getDCOffsetMode(direction, channel)
     local ret = lib.SoapySDRDevice_getDCOffsetMode(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:hasDCOffset(self, direction, channel)
+function Device:hasDCOffset(direction, channel)
     local ret = lib.SoapySDRDevice_hasDCOffset(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:setDCOffset(self, direction, channel, offset)
+function Device:setDCOffset(direction, channel, offset)
     local complexOffset = ffi.istype(offset, "complex") and offset or Complex(offset,0)
 
     Utility.checkError(lib.SoapySDRDevice_setDCOffset(
@@ -266,7 +264,7 @@ function Device:setDCOffset(self, direction, channel, offset)
     Utility.checkDeviceError()
 end
 
-function Device:getDCOffset(self, direction, channel)
+function Device:getDCOffset(direction, channel)
     local iPtr = ffi.new("double[1]")
     local qPtr = fii.new("double[1]")
 
@@ -281,14 +279,14 @@ function Device:getDCOffset(self, direction, channel)
     return Complex(iPtr[0], qPtr[0])
 end
 
-function Device:hasIQBalance(self, direction, channel)
+function Device:hasIQBalance(direction, channel)
     local ret = lib.SoapySDRDevice_hasIQBalance(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:setIQBalance(self, direction, channel, offset)
+function Device:setIQBalance(direction, channel, offset)
     local complexOffset = ffi.istype(offset, "complex") and offset or Complex(offset,0)
 
     Utility.checkError(lib.SoapySDRDevice_setIQBalance(
@@ -300,7 +298,7 @@ function Device:setIQBalance(self, direction, channel, offset)
     Utility.checkDeviceError()
 end
 
-function Device:getIQBalance(self, direction, channel)
+function Device:getIQBalance(direction, channel)
     local iPtr = ffi.new("double[1]")
     local qPtr = fii.new("double[1]")
 
@@ -315,14 +313,14 @@ function Device:getIQBalance(self, direction, channel)
     return Complex(iPtr[0], qPtr[0])
 end
 
-function Device:hasIQBalanceMode(self, direction, channel)
+function Device:hasIQBalanceMode(direction, channel)
     local ret = lib.SoapySDRDevice_hasIQBalanceMode(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:setIQBalanceMode(self, direction, channel, automatic)
+function Device:setIQBalanceMode(direction, channel, automatic)
     Utility.checkError(lib.SoapySDRDevice_setIQBalanceMode(
         self.__deviceHandle,
         direction,
@@ -331,21 +329,21 @@ function Device:setIQBalanceMode(self, direction, channel, automatic)
     Utility.checkDeviceError()
 end
 
-function Device:getIQBalanceMode(self, direction, channel)
+function Device:getIQBalanceMode(direction, channel)
     local ret = lib.SoapySDRDevice_getIQBalanceMode(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:hasFrequencyCorrection(self, direction, channel)
+function Device:hasFrequencyCorrection(direction, channel)
     local ret = lib.SoapySDRDevice_hasFrequencyCorrection(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:setFrequencyCorrection(self, direction, channel, value)
+function Device:setFrequencyCorrection(direction, channel, value)
     Utility.checkError(lib.SoapySDRDevice_setFrequencyCorrection(
         self.__deviceHandle,
         direction,
@@ -354,7 +352,7 @@ function Device:setFrequencyCorrection(self, direction, channel, value)
     Utility.checkDeviceError()
 end
 
-function Device:getFrequencyCorrection(self, direction, channel)
+function Device:getFrequencyCorrection(direction, channel)
     local ret = lib.SoapySDRDevice_getFrequencyCorrection(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
@@ -365,7 +363,7 @@ end
 -- Gain API
 --
 
-function Device:listGains(self, direction, channel)
+function Device:listGains(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawStringList(
         lib.SoapySDRDevice_listGains(self.__deviceHandle, direction, channel, lengthPtr),
@@ -375,14 +373,14 @@ function Device:listGains(self, direction, channel)
     return ret
 end
 
-function Device:hasGainMode(self, direction, channel)
+function Device:hasGainMode(direction, channel)
     local ret = lib.SoapySDRDevice_hasGainMode(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:setGainMode(self, direction, channel, automatic)
+function Device:setGainMode(direction, channel, automatic)
     Utility.checkError(lib.SoapySDRDevice_setGainMode(
         self.__deviceHandle,
         direction,
@@ -391,14 +389,14 @@ function Device:setGainMode(self, direction, channel, automatic)
     Utility.checkDeviceError()
 end
 
-function Device:getGainMode(self, direction, channel)
+function Device:getGainMode(direction, channel)
     local ret = lib.SoapySDRDevice_getGainMode(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:setGain(self, direction, channel, value)
+function Device:setGain(direction, channel, value)
     Utility.checkError(lib.SoapySDRDevice_setGain(
         self.__deviceHandle,
         direction,
@@ -407,7 +405,7 @@ function Device:setGain(self, direction, channel, value)
     Utility.checkDeviceError()
 end
 
-function Device:setGainElement(self, direction, channel, name, value)
+function Device:setGainElement(direction, channel, name, value)
     Utility.checkError(lib.SoapySDRDevice_setGainElement(
         self.__deviceHandle,
         direction,
@@ -417,28 +415,28 @@ function Device:setGainElement(self, direction, channel, name, value)
     Utility.checkDeviceError()
 end
 
-function Device:getGain(self, direction, channel)
+function Device:getGain(direction, channel)
     local ret = lib.SoapySDRDevice_getGain(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:getGainElement(self, direction, channel, name)
+function Device:getGainElement(direction, channel, name)
     local ret = lib.SoapySDRDevice_getGainElement(self.__deviceHandle, direction, channel, name)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:getGainRange(self, direction, channel)
+function Device:getGainRange(direction, channel)
     local ret = lib.SoapySDRDevice_getGainRange(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:getGainElementRange(self, direction, channel, name)
+function Device:getGainElementRange(direction, channel, name)
     local ret = lib.SoapySDRDevice_getGainElementRange(self.__deviceHandle, direction, channel, name)
     Utility.checkDeviceError()
 
@@ -449,7 +447,7 @@ end
 -- Frequency API
 --
 
-function Device:setFrequency(self, direction, channel, frequency, args)
+function Device:setFrequency(direction, channel, frequency, args)
     Utility.checkError(lib.SoapySDRDevice_setFrequency(
         self.__deviceHandle,
         direction,
@@ -459,7 +457,7 @@ function Device:setFrequency(self, direction, channel, frequency, args)
     Utility.checkDeviceError()
 end
 
-function Device:setFrequencyComponent(self, direction, channel, name, frequency, args)
+function Device:setFrequencyComponent(direction, channel, name, frequency, args)
     Utility.checkError(lib.SoapySDRDevice_setFrequencyComponent(
         self.__deviceHandle,
         direction,
@@ -470,21 +468,21 @@ function Device:setFrequencyComponent(self, direction, channel, name, frequency,
     Utility.checkDeviceError()
 end
 
-function Device:getFrequency(self, direction, channel)
+function Device:getFrequency(direction, channel)
     local ret = lib.SoapySDRDevice_getFrequency(self.__deviceHandle, direction, channel)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:getFrequencyComponent(self, direction, channel, name)
+function Device:getFrequencyComponent(direction, channel, name)
     local ret = lib.SoapySDRDevice_getFrequencyComponent(self.__deviceHandle, direction, channel, name)
     Utility.checkDeviceError()
 
     return ret
 end
 
-function Device:listFrequencies(self, direction, channel)
+function Device:listFrequencies(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawStringList(
         lib.SoapySDRDevice_listFrequencies(self.__deviceHandle, direction, channel, lengthPtr),
@@ -494,7 +492,7 @@ function Device:listFrequencies(self, direction, channel)
     return ret
 end
 
-function Device:getFrequencyRange(self, direction, channel)
+function Device:getFrequencyRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawRangeList(
         lib.SoapySDRDevice_getFrequencyRange(self.__deviceHandle, direction, channel, lengthPtr),
@@ -504,7 +502,7 @@ function Device:getFrequencyRange(self, direction, channel)
     return ret
 end
 
-function Device:getFrequencyRangeComponent(self, direction, channel, name)
+function Device:getFrequencyRangeComponent(direction, channel, name)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawRangeList(
         lib.SoapySDRDevice_getFrequencyRangeComponent(self.__deviceHandle, direction, channel, name, lengthPtr),
@@ -514,7 +512,7 @@ function Device:getFrequencyRangeComponent(self, direction, channel, name)
     return ret
 end
 
-function Device:getFrequencyArgsInfo(self, direction, channel)
+function Device:getFrequencyArgsInfo(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     local ret = Utility.processRawArgInfoList(
         lib.SoapySDRDevice_getFrequencyArgsInfo(self.__deviceHandle, direction, channel, lengthPtr),

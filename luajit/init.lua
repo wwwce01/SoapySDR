@@ -15,6 +15,12 @@ local SoapySDR =
     ABI_VERSION = ffi.string(lib.SoapySDR_getABIVersion()),
     LIB_VERSION = ffi.string(lib.SoapySDR_getLibVersion()),
 
+    Direction =
+    {
+        TX = 0,
+        RX = 1
+    },
+
     enumerateDevices = enumerateDevices,
 
     Complex = require("SoapySDR.Complex"),

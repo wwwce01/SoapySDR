@@ -48,6 +48,17 @@ function Utility.tableToKwargs(tbl)
     return kwargs
 end
 
+function Utility.processRawString(str)
+    return ffi.string(ffi.gc(str, lib.SoapySDR_free))
+end
+
+function Utility.processRawKwargs(kwargs)
+    local ret = Utility.kwargsToTable(kwargs)
+    lib.SoapySDRKwargs_clear(kwargs)
+
+    return ret
+end
+
 function Utility.processRawStringList(stringList, lengthPtr)
     local arr = {}
     local len = tonumber(lengthPtr[0])
