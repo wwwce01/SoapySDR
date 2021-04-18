@@ -97,6 +97,8 @@ if not __internal.SoapySDR then
             SOAPY_SDR_SSI      = 9
         } SoapySDRLogLevel;
 
+        void SoapySDR_log(const SoapySDRLogLevel logLevel, const char *message);
+
         typedef void (*SoapySDRLogHandler)(const SoapySDRLogLevel logLevel, const char *message);
 
         void SoapySDR_registerLogHandler(const SoapySDRLogHandler handler);

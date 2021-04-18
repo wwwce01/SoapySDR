@@ -3,6 +3,7 @@ set(files
     Device.lua
     init.lua
     Lib.lua
+    Logger.lua
     MetaTables.lua
     Time.lua
     Utility.lua)
