@@ -17,8 +17,13 @@ function Utility.checkError(code)
 end
 
 function Utility.checkDeviceError()
+    -- This check is for functions that return an error code.
+    -- Before a call into the underlying driver, this code is
+    -- set to 0, so this won't pose an issue when called after
+    -- functions that don't return an error code.
     Utility.checkError(lib.SoapySDRDevice_lastStatus())
 
+    -- See if an exception was caught in the last function call.
     local lastError = ffi.string(lib.SoapySDRDevice_lastError())
     if #lastError > 0 then
         error(lastError)
@@ -48,7 +53,25 @@ function Utility.tableToKwargs(tbl)
     return kwargs
 end
 
+local kwargsType = ffi.typeof("SoapySDRKwargs")
+
+function Utility.toKwargs(arg)
+    local ret = nil
+
+    local argType = tostring(type(arg))
+    if ffi.typeof(arg) == kwargsType then
+        return arg
+    elseif argType == "table" then
+        ret = Utility.tableToKwargs(arg)
+    else
+        ret = ffi.gc(lib.SoapySDRKwargs_fromString(tostring(arg)), lib.SoapySDRKwargs_clear)
+    end
+
+    return ret
+end
+
 function Utility.processRawString(str)
+    -- Copy to a Lua string and add garbage collection for the C string.
     return ffi.string(ffi.gc(str, lib.SoapySDR_free))
 end
 
@@ -61,61 +84,52 @@ end
 
 -- TODO
 function Utility.processRawArgInfo(argInfo)
-    local ret = nil
-    lib.SoapySDRArgInfo_clear(argInfo)
-
-    return ret
+    return nil
 end
 
-function Utility.processRawPrimitiveList(arr, lengthPtr, ffiTypeName)
+function Utility.processRawPrimitiveList(list, lengthPtr, ffiTypeName)
     local len = tonumber(lengthPtr[0])
+
+    -- Copy the data into a newly allocated array. This allows the data
+    -- to be indexed as an array and properly garbage-collected. Generally,
+    -- these allocations shouldn't be large enough for this to be an issue.
     local ret = ffi.new(ffiTypeName .. "[?]", len)
-
-    for i = 0,len-1 do
-        ret[i] = arr[i]
-    end
-
+    ffi.copy(ret, list, ffi.sizeof(ret))
     lib.SoapySDR_free(arr)
 
     return ret
 end
 
 function Utility.processRawStringList(stringList, lengthPtr)
-    local arr = {}
+    local ret = {}
     local len = tonumber(lengthPtr[0])
 
+    -- Copy to a Lua "array" of strings and clear the C string array.
     for i = 0,len-1 do
-        arr[i+1] = ffi.string(stringList[i])
+        ret[i+1] = ffi.string(stringList[i])
     end
 
     lib.SoapySDRStrings_clear(ffi.new("char**[1]", {cStrs}), len)
 
-    return arr
+    return ret
 end
 
-function Utility.getArgInfoListGCFcn(length)
-    local function clearArgInfoList(argInfoList)
-        lib.SoapySDRArgInfoList_clear(argInfoList, length)
-    end
-
-    return clearArgInfoList
-end
-
+-- TODO
 function Utility.processRawArgInfoList(argInfoList, lengthPtr)
-    return ffi.gc(streamArgsInfo, Utility.getArgInfoListGCFcn(lengthPtr[0]))
+    return nil
 end
 
 function Utility.processRawKwargsList(kwargs, lengthPtr)
-    local arr = {}
+    local ret = {}
     local len = tonumber(lengthPtr[0])
 
     for i = 0,len-1 do
-        arr[i+1] = Utility.kwargsToTable(kwargs[i])
+        ret[i+1] = Utility.kwargsToTable(kwargs[i])
     end
 
     lib.SoapySDRKwargsList_clear(kwargs, len)
 
-    return arr
+    return ret
 end
 
 return Utility

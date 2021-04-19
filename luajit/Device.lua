@@ -14,15 +14,18 @@ local function enumerateDevices(args)
     local devs = nil
     local lengthPtr = ffi.new("size_t[1]")
 
+    -- No parameter means no args
+    args = args or ""
+
     -- Abstract away different functions
     local argsType = tostring(type(args))
-    if argsType == "table" then
+    if argsType == "string" then
         devs = Utility.processRawKwargsList(
-            lib.SoapySDRDevice_enumerate(Utility.tableToKwargs(args), lengthPtr),
+            lib.SoapySDRDevice_enumerateStrArgs(args, lengthPtr),
             lengthPtr)
     else
         devs = Utility.processRawKwargsList(
-            lib.SoapySDRDevice_enumerateStrArgs(tostring(args), lengthPtr),
+            lib.SoapySDRDevice_enumerate(Utility.toKwargs(args), lengthPtr),
             lengthPtr)
     end
 
@@ -36,7 +39,7 @@ end
 local Device = {}
 Device.__index = Device
 
-function Device.make(self, param)
+function Device.make(param)
     local mt =
     {
         __tostring = function(dev)
@@ -46,29 +49,23 @@ function Device.make(self, param)
 
     local self = setmetatable(mt, Device)
 
+    -- No parameter means no args
+    param = param or ""
+
     -- Abstract away different C constructor functions
     local paramType = tostring(type(param))
-    if paramType == "table" then
+    if paramType == "string" then
         self.__deviceHandle = ffi.gc(
-            lib.SoapySDRDevice_make(Utility.tableToKwargs(param)),
-            lib.SoapySDRDevice_unmake)
-    elseif (paramType == "SoapySDRKwargs") or (param == nil) then
-        -- TODO: proper type check
-        self.__deviceHandle = ffi.gc(
-            lib.SoapySDRDevice_make(param),
+            lib.SoapySDRDevice_makeStrArgs(param),
             lib.SoapySDRDevice_unmake)
     else
         self.__deviceHandle = ffi.gc(
-            lib.SoapySDRDevice_makeStrArgs(tostring(param)),
+            lib.SoapySDRDevice_make(Utility.toKwargs(param)),
             lib.SoapySDRDevice_unmake)
     end
-    Utility.checkDeviceError()
 
-    if self == nil then
-        error("Device: null self")
-    end
     if self.__deviceHandle == nil then
-        error("Device: null device handle")
+        error("Invalid device args")
     end
 
     return self
@@ -182,7 +179,7 @@ function Device:getStreamArgsInfo(direction, channel)
 end
 
 --
--- Direct buffer access API (TODO)
+-- Direct buffer access API (TODO?)
 --
 
 --
@@ -835,6 +832,7 @@ function Device:readRegister(name, addr)
 end
 
 function Device:writeRegisters(name, addr, values)
+    -- TODO: support LuaJIT arrays (more likely case anyway)
     if tostring(type(values)) ~= "table" then
         error("The \"values\" array must be a Lua table/array.")
     end
