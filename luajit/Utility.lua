@@ -10,24 +10,14 @@ local Utility = {}
 -- Error checking
 --
 
-function Utility.checkError(code)
-    if code ~= 0 then
-        error(ffi.string(lib.SoapySDR_errToStr(code)))
-    end
-end
-
-function Utility.checkDeviceError()
-    -- This check is for functions that return an error code.
-    -- Before a call into the underlying driver, this code is
-    -- set to 0, so this won't pose an issue when called after
-    -- functions that don't return an error code.
-    Utility.checkError(lib.SoapySDRDevice_lastStatus())
-
+function Utility.checkDeviceError(ret)
     -- See if an exception was caught in the last function call.
     local lastError = ffi.string(lib.SoapySDRDevice_lastError())
     if #lastError > 0 then
         error(lastError)
     end
+
+    return ret
 end
 
 --
@@ -47,7 +37,10 @@ function Utility.tableToKwargs(tbl)
     kwargs = ffi.gc(ffi.new("SoapySDRKwargs"), lib.SoapySDRKwargs_clear)
 
     for k,v in pairs(tbl) do
-        Utility.checkError(lib.SoapySDRKwargs_set(kwargs, tostring(k), tostring(v)))
+        local code = lib.SoapySDRKwargs_set(kwargs, tostring(k), tostring(v))
+        if code ~= 0 then
+            error(lib.SoapySDR_errToStr(code))
+        end
     end
 
     return kwargs
