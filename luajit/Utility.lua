@@ -132,4 +132,14 @@ function Utility.processRawKwargsList(kwargs, lengthPtr)
     return ret
 end
 
+function Utility.luaArrayToFFIArray(arr, ffiTypeName)
+    local ret = ffi.new(ffiTypeName .. "[?]", #arr)
+
+    for i = 0,#arr do
+        ret[i] = arr[i+1]
+    end
+
+    return ret
+end
+
 return Utility

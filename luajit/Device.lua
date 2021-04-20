@@ -1,6 +1,8 @@
 -- Copyright (c) 2021 Nicholas Corgan
 -- SPDX-License-Identifier: BSL-1.0
 
+-- TODO: should error codes and/or exceptions automatically become Lua errors?
+
 local Complex = require("SoapySDR.Complex")
 local ffi = require("ffi")
 local lib = require("SoapySDR.Lib")
@@ -142,7 +144,7 @@ function Device:getFullDuplex(direction, channel)
 end
 
 --
--- Stream API (TODO: rest likely in own class)
+-- Stream API
 --
 
 function Device:getStreamFormats(direction, channel)
@@ -176,6 +178,129 @@ function Device:getStreamArgsInfo(direction, channel)
     Utility.checkDeviceError()
 
     return ret
+end
+
+function Device:setupStream(direction, format, channels, args)
+    local ret = lib.SoapySDRDevice_setupStream(
+        self.__deviceHandle,
+        direction,
+        format,
+        Utility.luaArrayToFFIArray(channels, "size_t"),
+        #channels,
+        Utility.toKwargs(args))
+    Utility.checkDeviceError()
+
+    if ret == nil then
+        error("setupStream returned null stream")
+    end
+
+    return ret
+end
+
+function Device:closeStream(stream)
+    Utility.checkError(lib.SoapySDRDevice_closeStream(
+        self.__deviceHandle,
+        stream))
+    Utility.checkDeviceError()
+end
+
+function Device:getStreamMTU(stream)
+    local ret = lib.SoapySDRDevice_getStreamMTU(
+        self.__deviceHandle,
+        stream)
+    Utility.checkDeviceError()
+
+    return ret
+end
+
+function Device:activateStream(stream, flags, timeNs, numElems)
+    -- To allow for optional parameters
+    flags = flags or 0
+    timeNs = timeNs or 0
+    numElems = numElems or 0
+
+    Utility.checkError(lib.SoapySDRDevice_activateStream(
+        self.__deviceHandle,
+        stream,
+        flags,
+        timeNs,
+        numElems))
+    Utility.checkDeviceError()
+end
+
+function Device:deactivateStream(stream, flags, timeNs)
+    -- To allow for optional parameters
+    flags = flags or 0
+    timeNs = timeNs or 0
+
+    Utility.checkError(lib.SoapySDRDevice_deactivateStream(
+        self.__deviceHandle,
+        stream,
+        flags,
+        timeNs))
+    Utility.checkDeviceError()
+end
+
+function Device:readStream(stream, buffs, numElems, timeoutUs)
+    -- To allow for optional parameters
+    timeoutUs = timeoutUs or 100000
+
+    local flagsPtr = ffi.new("int[1]")
+    local timeNsPtr = ffi.new("long long[1]")
+
+    local cRet = lib.SoapySDRDevice_readStream(
+        self.__deviceHandle,
+        stream,
+        ffi.cast("void* const*", buffs),
+        numElems,
+        flagsPtr,
+        timeNsPtr,
+        timeoutUs)
+    Utility.checkDeviceError()
+
+    return {cRet, flagsPtr[0], timeNsPtr[0]}
+end
+
+function Device:writeStream(stream, buffs, numElems, flagsIn, timeNs, timeoutUs)
+    -- To allow for optional parameters
+    flagsIn = flagsIn or 0
+    timeNs = timeNs or 0
+    timeoutUs = timeoutUs or 100000
+
+    local flagsPtr = ffi.new("int[1]", {flagsIn})
+    local timeNsPtr = ffi.new("long long[1]")
+
+    local cRet = lib.SoapySDRDevice_writeStream(
+        self.__deviceHandle,
+        stream,
+        ffi.cast("const void* const*", buffs),
+        numElems,
+        flagsPtr,
+        timeNs,
+        timeoutUs)
+    Utility.checkDeviceError()
+
+    return {cRet, flagsPtr[0]}
+end
+
+function Device:readStreamStatus(stream, timeoutUs)
+    -- To allow for optional parameters
+    timeoutUs = timeoutUs or 100000
+
+    local chanMaskPtr = ffi.new("size_t[1]")
+    local flagsPtr = ffi.new("int[1]")
+    local timeNsPtr = ffi.new("long long[1]")
+
+    local cRet = lib.SoapySDRDevice_readStreamStatus(
+        self.__deviceHandle,
+        stream,
+        chanMaskPtr,
+        flagsPtr,
+        timeNsPtr,
+        timeoutUs)
+    Utility.checkDeviceError()
+
+    return {cRet, chanMaskPtr[0], flagsPtr[0], timeNsPtr[0]}
 end
 
 --
