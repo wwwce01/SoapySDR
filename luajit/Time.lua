@@ -4,14 +4,10 @@
 local ffi = require("ffi")
 local lib = require("SoapySDR.Lib")
 
-local Time = {}
-
-function Time.ticksToTimeNs(ticks, rate)
-    return lib.SoapySDR_ticksToTimeNs(ticks, rate)
-end
-
-function Time.timeNsToTicks(timeNs, rate)
-    return lib.SoapySDR_timeNsToTicks(timeNs, rate)
-end
+local Time =
+{
+    ticksToTimeNs = lib.SoapySDR_ticksToTimeNs,
+    timeNsToTicks = lib.SoapySDR_timeNsToTicks
+}
 
 return Time;
