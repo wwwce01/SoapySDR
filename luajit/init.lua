@@ -21,6 +21,21 @@ local SoapySDR =
         RX = 1
     },
 
+    Error =
+    {
+        TIMEOUT       = -1,
+        STREAM_ERROR  = -2,
+        CORRUPTION    = -3,
+        OVERFLOW      = -4,
+        NOT_SUPPORTED = -5,
+        TIME_ERROR    = -6,
+        UNDERFLOW     = -7,
+
+        ToString = function(code)
+            return ffi.string(lib.SoapySDR_errToStr(code))
+        end
+    },
+
     enumerateDevices = enumerateDevices,
 
     Complex = require("SoapySDR.Complex"),
