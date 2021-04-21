@@ -44,4 +44,13 @@ local SoapySDR =
     Time = require("SoapySDR.Time"),
 }
 
+-- Error out before attempting to call invalid function
+local COMPILE_ABI_VERSION = "@SOAPY_SDR_ABI_VERSION@"
+if SoapySDR.ABI_VERSION ~= COMPILE_ABI_VERSION then
+    error(string.format(
+        "Failed ABI check. SoapySDR %s. LuaJIT API %s. Rebuild the module.",
+        SoapySDR.ABI_VERSION,
+        COMPILE_ABI_VERSION))
+end
+
 return SoapySDR
