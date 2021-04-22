@@ -6,41 +6,46 @@ CSHARP_ARRAYS_FIXED(void*, void*)
 
 %apply void* FIXED[] { void** buffs }
 %csmethodmodifiers SoapySDR::Device::__readStream "private unsafe";
+%csmethodmodifiers SoapySDR::Device::__writeStream "private unsafe";
 
 %include <typemaps.i>
 
 %apply double& OUTPUT { double& fullScale };
 
-%typemap(cscode) SoapySDR::Device
-%{
-    private StreamResult __readStreamCS(
-        StreamHandle streamHandle,
-        global::System.IntPtr[] intPtrs,
-        uint numElems,
-        int flags,
-        int timeoutUs = 100000)
-    {
-        return new StreamResult();
-    }
-%}
-
 ////////////////////////////////////////////////////////////////////////
 // Device object (TODO: other ignores)
 ////////////////////////////////////////////////////////////////////////
 %nodefaultctor SoapySDR::Device;
+%ignore SoapySDR::Stream;
 %ignore SoapySDR::Device::setFrontendMapping(const int, const std::string&);
-%ignore SoapySDR::Device::getFrontendMapping(const int);
+%ignore SoapySDR::Device::getFrontendMapping(const int) const;
 %ignore SoapySDR::Device::getNumChannels(const int);
-%ignore SoapySDR::Device::getChannelInfo(const int, const size_t);
-%ignore SoapySDR::Device::getFullDuplex(const int, const size_t);
-%ignore SoapySDR::Device::getStreamFormats(const int, const size_t);
-%ignore SoapySDR::Device::getNativeStreamFormat(const int, const size_t, double&);
-%ignore SoapySDR::Device::getStreamArgsInfo(const int, const size_t);
-%ignore SoapySDR::Device::setupStream(const int, const std::string&, const std::vector<size_t>&, const SoapySDR::Kwargs&);
-%ignore SoapySDR::Device::closeStream(SoapySDR::Stream*);
-%ignore SoapySDR::Device::getStreamMTU(SoapySDR::Stream*);
-%ignore SoapySDR::Device::activateStream(SoapySDR::Stream*, const int, const long long, const size_t);
-%ignore SoapySDR::Device::deactivateStream(SoapySDR::Stream*, const int, const long long);
+%ignore SoapySDR::Device::getChannelInfo(const int, const size_t) const;
+%ignore SoapySDR::Device::getFullDuplex(const int, const size_t) const;
+%ignore SoapySDR::Device::getStreamFormats(const int, const size_t) const;
+%ignore SoapySDR::Device::getNativeStreamFormat(const int, const size_t, double&) const;
+%ignore SoapySDR::Device::getStreamArgsInfo(const int, const size_t) const;
+%ignore SoapySDR::Device::setupStream(const int, const std::string &);
+%ignore SoapySDR::Device::setupStream(const int, const std::string &, const std::vector<size_t> &);
+%ignore SoapySDR::Device::setupStream(const int, const std::string &, const std::vector<size_t> &, const Kwargs &);
+%ignore SoapySDR::Device::closeStream(Stream*);
+%ignore SoapySDR::Device::getStreamMTU(Stream*) const;
+%ignore SoapySDR::Device::activateStream(Stream *);
+%ignore SoapySDR::Device::activateStream(Stream *, const int);
+%ignore SoapySDR::Device::activateStream(Stream *, const int, const long long);
+%ignore SoapySDR::Device::activateStream(Stream *, const int, const long long, const size_t);
+%ignore SoapySDR::Device::deactivateStream(Stream*);
+%ignore SoapySDR::Device::deactivateStream(Stream*, const int);
+%ignore SoapySDR::Device::deactivateStream(Stream*, const int, const long long);
+%ignore SoapySDR::Device::readStream;
+%ignore SoapySDR::Device::writeStream;
+%ignore SoapySDR::Device::readStreamStatus;
+%ignore SoapySDR::Device::getNumDirectAccessBuffers;
+%ignore SoapySDR::Device::getDirectAccessBufferAddrs;
+%ignore SoapySDR::Device::acquireReadBuffer;
+%ignore SoapySDR::Device::releaseReadBuffer;
+%ignore SoapySDR::Device::acquireWriteBuffer;
+%ignore SoapySDR::Device::releaseWriteBuffer;
 %ignore SoapySDR::Device::getNativeDeviceHandle;
 %include <SoapySDR/Device.hpp>
 
@@ -48,19 +53,6 @@ CSHARP_ARRAYS_FIXED(void*, void*)
     #include "CSharpExtensions.hpp"
 %}
 
-
-/*
-%extend StreamResult
-{
-    %insert("python")
-    %{
-        def __str__(self):
-            return "ret=%s, flags=%s, timeNs=%s"%(self.ret, self.flags, self.timeNs)
-    %}
-};
-*/
-
-// TODO: automate generation
 %extend SoapySDR::Device
 {
     // additional overloads for writeSetting for basic types
@@ -153,75 +145,51 @@ CSHARP_ARRAYS_FIXED(void*, void*)
         return self->deactivateStream(streamHandle.stream, flags, timeNs);
     }
 
-    // We get void* from IntPtr
     SoapySDR::CSharp::StreamResult __readStream(
         const SoapySDR::CSharp::StreamHandle& streamHandle,
-        void** buffs,
-        size_t numElems,
-        int flags,
-        long timeoutUs)
+        const std::vector<size_t>& buffs,
+        const size_t numElems,
+        const int flags,
+        const long long timeNs,
+        const long timeoutUs)
     {
-        //std::vector<void*> buffsCpp;
-        //for(size_t i = 0; i < buffs.size(); ++i) buffsCpp.emplace_back((void*)buffs[i]);
+        SoapySDR::CSharp::StreamResult result;
+        result.flags = flags;
+        std::vector<void*> buffPtrs(buffs.size());
+        for(size_t i = 0; i < buffs.size(); ++i)
+        {
+            buffPtrs[i] = reinterpret_cast<void*>(buffs[i]);
+        }
+        result.ret = self->readStream(streamHandle.stream, buffPtrs.data(), numElems, result.flags, result.timeNs, result.timeoutUs);
 
-        SoapySDR::CSharp::StreamResult streamResult;
-        //streamResult.flags = flags;
-        //streamResult.ret = self->readStream(streamHandle.stream, buffsCpp.data(), numElems, streamResult.flags, streamResult.timeNs, timeoutUs);
-
-        return streamResult;
+        return result;
     }
 
-/*
-    StreamResult readStream__(SoapySDR::Stream *stream, const std::vector<size_t> &buffs, const size_t numElems, const int flags, const long timeoutUs)
+    SoapySDR::CSharp::StreamResult __writeStream(
+        const SoapySDR::CSharp::StreamHandle& streamHandle,
+        const std::vector<size_t>& buffs,
+        const size_t numElems,
+        const long long timeNs,
+        const long timeoutUs)
     {
-        StreamResult sr;
-        sr.flags = flags;
-        std::vector<void *> ptrs(buffs.size());
-        for (size_t i = 0; i < buffs.size(); i++) ptrs[i] = (void *)buffs[i];
-        sr.ret = self->readStream(stream, (&ptrs[0]), numElems, sr.flags, sr.timeNs, timeoutUs);
-        return sr;
+        SoapySDR::CSharp::StreamResult result;
+        std::vector<const void*> buffPtrs(buffs.size());
+        for(size_t i = 0; i < buffs.size(); ++i)
+        {
+            buffPtrs[i] = reinterpret_cast<const void*>(buffs[i]);
+        }
+        result.ret = self->writeStream(streamHandle.stream, buffPtrs.data(), numElems, result.flags, timeNs, timeoutUs);
+
+        return result;
     }
 
-    StreamResult writeStream__(SoapySDR::Stream *stream, const std::vector<size_t> &buffs, const size_t numElems, const int flags, const long long timeNs, const long timeoutUs)
+    SoapySDR::CSharp::StreamResult readStreamStatus(
+        const SoapySDR::CSharp::StreamHandle& streamHandle,
+        const long timeoutUs)
     {
-        StreamResult sr;
-        sr.flags = flags;
-        std::vector<const void *> ptrs(buffs.size());
-        for (size_t i = 0; i < buffs.size(); i++) ptrs[i] = (const void *)buffs[i];
-        sr.ret = self->writeStream(stream, (&ptrs[0]), numElems, sr.flags, timeNs, timeoutUs);
-        return sr;
+        SoapySDR::CSharp::StreamResult result;
+        result.ret = self->readStreamStatus(streamHandle.stream, result.chanMask, result.flags, result.timeNs, timeoutUs);
+
+        return result;
     }
-
-    StreamResult readStreamStatus__(SoapySDR::Stream *stream, const long timeoutUs)
-    {
-        StreamResult sr;
-        sr.ret = self->readStreamStatus(stream, sr.chanMask, sr.flags, sr.timeNs, timeoutUs);
-        return sr;
-    }
-
-    %insert("python")
-    %{
-        #manually unmake and flag for future calls and the deleter
-        def close(self):
-            try: getattr(self, '__closed__')
-            except AttributeError: Device.unmake(self)
-            setattr(self, '__closed__', True)
-
-        def __del__(self): self.close()
-
-        def __str__(self):
-            return "%s:%s"%(self.getDriverKey(), self.getHardwareKey())
-
-        def readStream(self, stream, buffs, numElems, flags = 0, timeoutUs = 100000):
-            ptrs = [extractBuffPointer(b) for b in buffs]
-            return self.readStream__(stream, ptrs, numElems, flags, timeoutUs)
-
-        def writeStream(self, stream, buffs, numElems, flags = 0, timeNs = 0, timeoutUs = 100000):
-            ptrs = [extractBuffPointer(b) for b in buffs]
-            return self.writeStream__(stream, ptrs, numElems, flags, timeNs, timeoutUs)
-
-        def readStreamStatus(self, stream, timeoutUs = 100000):
-            return self.readStreamStatus__(stream, timeoutUs)
-    %}
-*/
 };

@@ -77,3 +77,5 @@
 %nodefaultctor SoapySDR::CSharp::StreamFormats;
 %nodefaultctor SoapySDR::CSharp::Time;
 %include "CSharpExtensions.hpp"
+
+%include "Device.i"
