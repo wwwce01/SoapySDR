@@ -93,6 +93,10 @@ namespace SoapySDR { namespace CSharp {
     struct StreamHandle
     {
         SoapySDR::Stream* stream;
+
+        // Ignored
+        std::vector<size_t> channels;
+        std::vector<size_t> GetChannels(){return channels;}
     };
 
     struct StreamResult

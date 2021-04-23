@@ -47,6 +47,55 @@ CSHARP_ARRAYS_FIXED(void*, void*)
 %ignore SoapySDR::Device::acquireWriteBuffer;
 %ignore SoapySDR::Device::releaseWriteBuffer;
 %ignore SoapySDR::Device::getNativeDeviceHandle;
+
+%typemap(cscode) SoapySDR::Device %{
+    public unsafe readStream<T>(StreamHandle streamHandle, ref T[][] buffs, long timeNs, int timeoutUs) where T: unmanaged
+    {
+        Utility.ValidateBuffs(streamHandle.getChannels(), buffs);
+
+        System.Runtime.InteropServices.GCHandle[] handles = null;
+        SizeList buffsAsSizes = null;
+
+        Utility.ManagedArraysToSizeList(
+            buffs,
+            handles,
+            buffsAsSizes);
+
+        return __readStream(streamHandle, buffsAsSizes, (uint)buffs.Length, timeNs, timeoutUs);
+    }
+
+    public unsafe readStream<T>(StreamHandle streamHandle, ref T[] buff, long timeNs, int timeoutUs) where T: unmanaged
+    {
+        T[][] buffs2D = new T[][1];
+        buffs2D[0] = buff;
+
+        return readStream(streamHandle, buffs2D, timeNs, timeoutUs);
+    }
+
+    public unsafe writeStream<T>(StreamHandle, T[][] buffs, uint numElems, long timeNs, int timeoutUs) where T: unmanaged
+    {
+        Utility.ValidateBuffs(streamHandle.getChannels(), buffs);
+
+        System.Runtime.InteropServices.GCHandle[] handles = null;
+        SizeList buffsAsSizes = null;
+
+        Utility.ManagedArraysToSizeList(
+            buffs,
+            handles,
+            buffsAsSizes);
+
+        return __writeStream(streamHandle, buffsAsSizes, (uint)buffs.Length, timeNs, timeoutUs);
+    }
+
+    public unsafe writeStream<T>(StreamHandle streamHandle, T[] buff, long timeNs, int timeoutUs) where T: unmanaged
+    {
+        T[][] buffs2D = new T[][1];
+        buffs2D[0] = buff;
+
+        return writeStream(streamHandle, buffs2D, timeNs, timeoutUs);
+    }
+%}
+
 %include <SoapySDR/Device.hpp>
 
 %{
@@ -114,6 +163,7 @@ CSHARP_ARRAYS_FIXED(void*, void*)
     {
         SoapySDR::CSharp::StreamHandle streamHandle;
         streamHandle.stream = self->setupStream(int(direction), format, channels, kwargs);
+        streamHandle.channels = channels;
 
         return streamHandle;
     }
