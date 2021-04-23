@@ -158,6 +158,7 @@ CSHARP_ARRAYS_FIXED(void*, void*)
 
 %{
     #include "CSharpExtensions.hpp"
+    #include "DeviceWrapper.hpp"
 %}
 
 %extend SoapySDR::Device
