@@ -97,6 +97,10 @@ namespace SoapySDR { namespace CSharp {
         // Ignored
         std::vector<size_t> channels;
         std::vector<size_t> GetChannels(){return channels;}
+
+        // Ignored
+        std::string format;
+        std::string GetFormat(){return format;}
     };
 
     struct StreamResult

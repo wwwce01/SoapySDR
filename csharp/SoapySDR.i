@@ -76,6 +76,8 @@
 %ignore SoapySDR::CSharp::StreamHandle::stream;
 %ignore SoapySDR::CSharp::StreamHandle::channels;
 %csmethodmodifiers SoapySDR::CSharp::StreamHandle::GetChannels "internal";
+%ignore SoapySDR::CSharp::StreamHandle::format;
+%csmethodmodifiers SoapySDR::CSharp::StreamHandle::GetFormat "internal";
 %nodefaultctor SoapySDR::CSharp::StreamFormats;
 %nodefaultctor SoapySDR::CSharp::Time;
 %include "CSharpExtensions.hpp"

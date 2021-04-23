@@ -48,10 +48,16 @@ CSHARP_ARRAYS_FIXED(void*, void*)
 %ignore SoapySDR::Device::releaseWriteBuffer;
 %ignore SoapySDR::Device::getNativeDeviceHandle;
 
+// TODO: default args where appropriate
 %typemap(cscode) SoapySDR::Device %{
+    public StreamHandle setupStream<T>(Direction direction, string format, SizeList channels, Kwargs kwargs) where T: unmanaged
+    {
+        return setupStream(direction, Utility.GetFormatString<T>(), channels, kwargs);
+    }
+
     public unsafe readStream<T>(StreamHandle streamHandle, ref T[][] buffs, long timeNs, int timeoutUs) where T: unmanaged
     {
-        Utility.ValidateBuffs(streamHandle.getChannels(), buffs);
+        Utility.ValidateBuffs(streamHandle, buffs);
 
         System.Runtime.InteropServices.GCHandle[] handles = null;
         SizeList buffsAsSizes = null;
@@ -72,9 +78,9 @@ CSHARP_ARRAYS_FIXED(void*, void*)
         return readStream(streamHandle, buffs2D, timeNs, timeoutUs);
     }
 
-    public unsafe writeStream<T>(StreamHandle, T[][] buffs, uint numElems, long timeNs, int timeoutUs) where T: unmanaged
+    public unsafe writeStream<T>(StreamHandle streamHandle, T[][] buffs, uint numElems, long timeNs, int timeoutUs) where T: unmanaged
     {
-        Utility.ValidateBuffs(streamHandle.getChannels(), buffs);
+        Utility.ValidateBuffs(streamHandle, buffs);
 
         System.Runtime.InteropServices.GCHandle[] handles = null;
         SizeList buffsAsSizes = null;
