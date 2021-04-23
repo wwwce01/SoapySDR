@@ -154,11 +154,11 @@ namespace SoapySDR { namespace CSharp {
             inline std::string GetNativeStreamFormat(
                 SoapySDR::CSharp::Direction direction,
                 const size_t channel,
-                double &rFullScale) const
+                double &fullScaleOut) const
             {
                 assert(_deviceSPtr);
 
-                return _deviceSPtr->getNativeStreamFormat(int(direction), channel, rFullScale);
+                return _deviceSPtr->getNativeStreamFormat(int(direction), channel, fullScaleOut);
             }
 
             inline SoapySDR::ArgInfoList GetStreamArgsInfo(

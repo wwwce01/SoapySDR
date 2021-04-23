@@ -6,7 +6,7 @@
 
 %include <typemaps.i>
 
-%apply double& OUTPUT { double& rFullScale };
+%apply double& OUTPUT { double& fullScaleOut };
 
 // TODO: default args where appropriate
 %typemap(cscode) SoapySDR::CSharp::Device %{
