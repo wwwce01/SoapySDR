@@ -59,7 +59,7 @@ namespace SoapySDR { namespace CSharp {
                 return csharpDevs;
             }
 
-            static DeviceVector ParallelMake(const std::vector<std::string>& argsList)
+            static DeviceVector __ParallelMake(const std::vector<std::string>& argsList)
             {
                 // TODO: replace with native SoapySDR::Device function when implemented
                 SoapySDR::KwargsList kwargsList;
@@ -146,7 +146,7 @@ namespace SoapySDR { namespace CSharp {
             // Stream API
             //
 
-            inline std::vector<std::string> GetStreamFormats(
+            inline std::vector<std::string> __GetStreamFormats(
                 SoapySDR::CSharp::Direction direction,
                 const size_t channel) const
             {
@@ -282,7 +282,7 @@ namespace SoapySDR { namespace CSharp {
             // Antenna API
             //
 
-            inline std::vector<std::string> ListAntennas(
+            inline std::vector<std::string> __ListAntennas(
                 SoapySDR::CSharp::Direction direction,
                 const size_t channel) const
             {

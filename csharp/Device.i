@@ -1,10 +1,13 @@
 // Copyright (c) 2020 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
+%csmethodmodifiers SoapySDR::CSharp::Device::__ParallelMake "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ToString "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__Equals "private";
+%csmethodmodifiers SoapySDR::CSharp::Device::__GetStreamFormats "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ReadStream "private unsafe";
 %csmethodmodifiers SoapySDR::CSharp::Device::__WriteStream "private unsafe";
+%csmethodmodifiers SoapySDR::CSharp::Device::__ListAntennas "private";
 
 %include <typemaps.i>
 
@@ -27,6 +30,19 @@
     public override int GetHashCode()
     {
         return (GetClass().GetHashCode() ^ __ToString().GetHashCode());
+    }
+
+    public static Device[] ParallelMake(string[] args)
+    {
+        var swigArgs = new StringList();
+        foreach(var arg in args) swigArgs.Add(arg);
+
+        return __ParallelMake(swigArgs).ToArray();
+    }
+
+    public string[] GetStreamFormats(Direction direction, uint channel)
+    {
+        return __GetStreamFormats(direction, channel).ToArray();
     }
 
     public StreamHandle SetupStream<T>(Direction direction, string format, SizeList channels, Kwargs kwargs) where T: unmanaged
@@ -118,6 +134,11 @@
 
         return __WriteStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
     }
+
+    public string[] ListAntennas(Direction direction, uint channel)
+    {
+        return __ListAntennas(direction, channel).ToArray();
+    }
 %}
 
 %ignore SoapySDR::CSharp::DeviceDeleter;
@@ -130,3 +151,4 @@
 %include "DeviceWrapper.hpp"
 
 %template(DeviceList) std::vector<SoapySDR::CSharp::Device>;
+

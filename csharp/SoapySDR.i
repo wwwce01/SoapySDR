@@ -62,7 +62,10 @@
 %template(Kwargs) std::map<std::string, std::string>;
 %template(KwargsList) std::vector<SoapySDR::Kwargs>;
 %template(ArgInfoList) std::vector<SoapySDR::ArgInfo>;
+
+%typemap(csclassmodifiers) std::vector<std::string> "internal class"
 %template(StringList) std::vector<std::string>;
+
 %template(RangeList) std::vector<SoapySDR::Range>;
 %template(SizeList) std::vector<size_t>; // TODO: this should be uint64_t for 64-bit platforms
 %template(DoubleList) std::vector<double>;
