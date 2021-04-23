@@ -7,7 +7,9 @@
 
 #include <SoapySDR/Device.hpp>
 
+#include <algorithm>
 #include <cassert>
+#include <cstdio>
 #include <memory>
 
 // We're separately using a separate thin wrapper for two reasons:
@@ -21,22 +23,50 @@ namespace SoapySDR { namespace CSharp {
     {
         void operator()(SoapySDR::Device* pDevice)
         {
-            SoapySDR::Device::unmake(pDevice);
+            // unmake can throw, which is bad in destructors.
+            try { SoapySDR::Device::unmake(pDevice); }
+            catch(const std::exception& ex) { fputs(ex.what(), stderr); }
+            catch(...) { fputs("Unknown error.", stderr); }
         }
     };
 
     class Device
     {
         public:
+            using DeviceVector = std::vector<SoapySDR::CSharp::Device>;
+
             Device(const Kwargs& kwargs): _deviceSPtr(SoapySDR::Device::make(kwargs), DeviceDeleter())
             {}
 
             Device(const std::string& args): _deviceSPtr(SoapySDR::Device::make(args), DeviceDeleter())
             {}
 
-            //
-            // TODO: parallel support
-            //
+            static DeviceVector ParallelMake(const SoapySDR::KwargsList& kwargsList)
+            {
+                const auto devs = SoapySDR::Device::make(kwargsList);
+                DeviceVector csharpDevs;
+
+                std::transform(
+                    devs.begin(),
+                    devs.end(),
+                    std::back_inserter(csharpDevs),
+                    [](SoapySDR::Device* pDev){ return Device(pDev); });
+
+                return csharpDevs;
+            }
+
+            static DeviceVector ParallelMake(const std::vector<std::string>& argsList)
+            {
+                // TODO: replace with native SoapySDR::Device function when implemented
+                SoapySDR::KwargsList kwargsList;
+                std::transform(
+                    argsList.begin(),
+                    argsList.end(),
+                    std::back_inserter(kwargsList),
+                    SoapySDR::KwargsFromString);
+
+                return ParallelMake(kwargsList);
+            }
 
             //
             // Identification API

@@ -66,7 +66,6 @@
 %template(RangeList) std::vector<SoapySDR::Range>;
 %template(SizeList) std::vector<size_t>; // TODO: this should be uint64_t for 64-bit platforms
 %template(DoubleList) std::vector<double>;
-%template(DeviceList) std::vector<SoapySDR::Device *>;
 
 ////////////////////////////////////////////////////////////////////////
 // Include extensions before types that will use them
