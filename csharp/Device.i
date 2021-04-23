@@ -1,6 +1,8 @@
 // Copyright (c) 2020 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
+%csmethodmodifiers SoapySDR::CSharp::Device::__ToString "private";
+%csmethodmodifiers SoapySDR::CSharp::Device::__Equals "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ReadStream "private unsafe";
 %csmethodmodifiers SoapySDR::CSharp::Device::__WriteStream "private unsafe";
 
@@ -10,20 +12,37 @@
 
 // TODO: default args where appropriate
 %typemap(cscode) SoapySDR::CSharp::Device %{
-    public StreamHandle setupStream<T>(Direction direction, string format, SizeList channels, Kwargs kwargs) where T: unmanaged
+    public override string ToString()
     {
-        return setupStream(direction, Utility.GetFormatString<T>(), channels, kwargs);
+        return __ToString();
     }
 
-    public unsafe StreamResult readStream<T>(StreamHandle streamHandle, ref T[] buff, long timeNs, int timeoutUs) where T: unmanaged
+    public override bool Equals(object other)
+    {
+        var otherAsDevice = other as Device;
+        if(otherAsDevice) return __Equals(otherAsDevice);
+        else throw new ArgumentException("Not a Device");
+    }
+
+    public override int GetHashCode()
+    {
+        return (GetClass().GetHashCode() ^ __ToString().GetHashCode());
+    }
+
+    public StreamHandle SetupStream<T>(Direction direction, string format, SizeList channels, Kwargs kwargs) where T: unmanaged
+    {
+        return SetupStream(direction, Utility.GetFormatString<T>(), channels, kwargs);
+    }
+
+    public unsafe StreamResult ReadStream<T>(StreamHandle streamHandle, ref T[] buff, long timeNs, int timeoutUs) where T: unmanaged
     {
         T[][] buffs2D = new T[][1];
         buffs2D[0] = buff;
 
-        return readStream(streamHandle, buffs2D, timeNs, timeoutUs);
+        return ReadStream(streamHandle, buffs2D, timeNs, timeoutUs);
     }
 
-    public unsafe StreamResult readStream<T>(StreamHandle streamHandle, ref T[][] buffs, long timeNs, int timeoutUs) where T: unmanaged
+    public unsafe StreamResult ReadStream<T>(StreamHandle streamHandle, ref T[][] buffs, long timeNs, int timeoutUs) where T: unmanaged
     {
         Utility.ValidateBuffs(streamHandle, buffs);
 
@@ -35,44 +54,44 @@
             handles,
             buffsAsSizes);
 
-        return __readStream(streamHandle, buffsAsSizes, (uint)buffs.Length, timeNs, timeoutUs);
+        return __ReadStream(streamHandle, buffsAsSizes, (uint)buffs.Length, timeNs, timeoutUs);
     }
 
-    public unsafe StreamResult readStream(StreamHandle streamHandle, IntPtr buff, uint numElems, long timeNs, int timeoutUs)
+    public unsafe StreamResult ReadStream(StreamHandle streamHandle, IntPtr buff, uint numElems, long timeNs, int timeoutUs)
     {
-        return readStream(streamHandle, new IntPtr{buff}, numElems, timeNs, timeoutUs);
+        return ReadStream(streamHandle, new IntPtr{buff}, numElems, timeNs, timeoutUs);
     }
 
-    public unsafe StreamResult readStream(StreamHandle streamHandle, IntPtr[] buffs, uint numElems, long timeNs, int timeoutUs)
+    public unsafe StreamResult ReadStream(StreamHandle streamHandle, IntPtr[] buffs, uint numElems, long timeNs, int timeoutUs)
     {
         var buffsAsSizes = new SizeList();
         foreach(var buff in buffs) buffsAsSizes.Add((UIntPtr)((void*)buff));
 
-        return __readStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
+        return __ReadStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
     }
 
-    public unsafe StreamResult readStream(StreamHandle streamHandle, UIntPtr buff, uint numElems, long timeNs, int timeoutUs)
+    public unsafe StreamResult ReadStream(StreamHandle streamHandle, UIntPtr buff, uint numElems, long timeNs, int timeoutUs)
     {
-        return readStream(streamHandle, new UIntPtr{buff}, numElems, timeNs, timeoutUs);
+        return ReadStream(streamHandle, new UIntPtr{buff}, numElems, timeNs, timeoutUs);
     }
 
-    public unsafe StreamResult readStream(StreamHandle streamHandle, UIntPtr[] buffs, uint numElems, long timeNs, int timeoutUs)
+    public unsafe StreamResult ReadStream(StreamHandle streamHandle, UIntPtr[] buffs, uint numElems, long timeNs, int timeoutUs)
     {
         var buffsAsSizes = new SizeList();
         foreach(var buff in buffs) buffsAsSizes.Add((uint)buff);
 
-        return __readStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
+        return __ReadStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
     }
 
-    public unsafe StreamResult writeStream<T>(StreamHandle streamHandle, T[] buff, long timeNs, int timeoutUs) where T: unmanaged
+    public unsafe StreamResult WriteStream<T>(StreamHandle streamHandle, T[] buff, long timeNs, int timeoutUs) where T: unmanaged
     {
         T[][] buffs2D = new T[][1];
         buffs2D[0] = buff;
 
-        return writeStream(streamHandle, buffs2D, timeNs, timeoutUs);
+        return WriteStream(streamHandle, buffs2D, timeNs, timeoutUs);
     }
 
-    public unsafe StreamResult writeStream<T>(StreamHandle streamHandle, T[][] buffs, uint numElems, long timeNs, int timeoutUs) where T: unmanaged
+    public unsafe StreamResult WriteStream<T>(StreamHandle streamHandle, T[][] buffs, uint numElems, long timeNs, int timeoutUs) where T: unmanaged
     {
         Utility.ValidateBuffs(streamHandle, buffs);
 
@@ -84,33 +103,20 @@
             handles,
             buffsAsSizes);
 
-        return __writeStream(streamHandle, buffsAsSizes, (uint)buffs.Length, timeNs, timeoutUs);
+        return __WriteStream(streamHandle, buffsAsSizes, (uint)buffs.Length, timeNs, timeoutUs);
     }
 
-    public unsafe StreamResult writeStream(StreamHandle streamHandle, IntPtr buff, uint numElems, long timeNs, int timeoutUs)
+    public unsafe StreamResult WriteStream(StreamHandle streamHandle, IntPtr buff, uint numElems, long timeNs, int timeoutUs)
     {
-        return writeStream(streamHandle, new IntPtr{buff}, numElems, timeNs, timeoutUs);
+        return WriteStream(streamHandle, new IntPtr{buff}, numElems, timeNs, timeoutUs);
     }
 
-    public unsafe StreamResult writeStream(StreamHandle streamHandle, IntPtr[] buffs, uint numElems, long timeNs, int timeoutUs)
+    public unsafe StreamResult WriteStream(StreamHandle streamHandle, IntPtr[] buffs, uint numElems, long timeNs, int timeoutUs)
     {
         var buffsAsSizes = new SizeList();
         foreach(var buff in buffs) buffsAsSizes.Add((UIntPtr)((void*)buff));
 
-        return __writeStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
-    }
-
-    public unsafe StreamResult writeStream(StreamHandle streamHandle, UIntPtr buff, uint numElems, long timeNs, int timeoutUs)
-    {
-        return writeStream(streamHandle, new UIntPtr{buff}, numElems, timeNs, timeoutUs);
-    }
-
-    public unsafe StreamResult writeStream(StreamHandle streamHandle, UIntPtr[] buffs, uint numElems, long timeNs, int timeoutUs)
-    {
-        var buffsAsSizes = new SizeList();
-        foreach(var buff in buffs) buffsAsSizes.Add((uint)buff);
-
-        return __writeStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
+        return __WriteStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
     }
 %}
 

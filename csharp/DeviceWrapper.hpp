@@ -41,6 +41,10 @@ namespace SoapySDR { namespace CSharp {
             Device(const std::string& args): _deviceSPtr(SoapySDR::Device::make(args), DeviceDeleter())
             {}
 
+            //
+            // Parallel support
+            //
+
             static DeviceVector ParallelMake(const SoapySDR::KwargsList& kwargsList)
             {
                 const auto devs = SoapySDR::Device::make(kwargsList);
@@ -439,6 +443,20 @@ namespace SoapySDR { namespace CSharp {
                 assert(_deviceSPtr);
 
                 return _deviceSPtr->getFrequencyCorrection(int(direction), channel);
+            }
+
+            //
+            // Used for CSharp internals
+            //
+
+            inline std::string __ToString() const
+            {
+                return (_deviceSPtr->getDriverKey() + ":" + _deviceSPtr->getHardwareKey());
+            }
+
+            inline bool __Equals(const SoapySDR::CSharp::Device& other) const
+            {
+                return (__ToString() == other.__ToString());
             }
 
         private:
