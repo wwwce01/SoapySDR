@@ -126,6 +126,21 @@ namespace SoapySDR { namespace CSharp {
             return SoapySDR::timeNsToTicks(timeNs, rate);
         }
     };
+
+    // Note: we need to repeat the literal enum values or
+    //       SWIG will copy SOAPY_SDR* into the C# file.
+    enum class LogLevel
+    {
+        FATAL    = 1,
+        CRITICAL = 2,
+        ERROR    = 3,
+        WARNING  = 4,
+        NOTICE   = 5,
+        INFO     = 6,
+        DEBUG    = 7,
+        TRACE    = 8,
+        SSI      = 9
+    };
 }}
 
 // Note: we can't set these enums to the equivalent #define

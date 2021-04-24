@@ -85,3 +85,4 @@
 %include "CSharpExtensions.hpp"
 
 %include "Device.i"
+%include "Logger.i"
