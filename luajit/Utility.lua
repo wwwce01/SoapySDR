@@ -46,7 +46,7 @@ function Utility.tableToKwargs(tbl)
     return kwargs
 end
 
-local kwargsType = ffi.typeof("SoapySDRKwargs")
+local kwargsType = ffi.type("SoapySDRKwargs")
 
 function Utility.toKwargs(arg)
     local ret = nil
@@ -61,6 +61,12 @@ function Utility.toKwargs(arg)
     end
 
     return ret
+end
+
+local ffiTrue = ffi.new("bool", true)
+
+function Utility.processBool(bool)
+    return (bool == ffiTrue)
 end
 
 function Utility.processRawString(str)
