@@ -1,10 +1,18 @@
 -- Copyright (c) 2021 Nicholas Corgan
 -- SPDX-License-Identifier: BSL-1.0
 
+local debug = require("debug")
 local ffi = require("ffi")
 local lib = require("SoapySDR.Lib")
 
 local Utility = {}
+
+local function isNativeLuaType(obj)
+    local objTypeName = tostring(type(obj))
+
+    return (objTypeName == "nil") or (objTypeName == "boolean") or
+           (objTypeName == "number") or (objTypeName == "string")
+end
 
 --
 -- FFI ctypes for comparison, these shouldn't be made often
@@ -56,6 +64,22 @@ local function isFFIRawKwargs(obj)
     return (ffi.typeof(obj) == ffiKwargsType)
 end
 
+local function isFFIRawRange(obj)
+    return (ffi.typeof(obj) == ffiRangeType)
+end
+
+local function isFFIArgInfoPtr(obj)
+    return (ffi.typeof(obj) == ffiArgInfoPtrType)
+end
+
+local function isFFIKwargsPtr(obj)
+    return (ffi.typeof(obj) == ffiKwargsPtrType)
+end
+
+local function isFFIRangePtr(obj)
+    return (ffi.typeof(obj) == ffiRangePtrType)
+end
+
 --
 -- Handling C <-> Lua types
 --
@@ -85,12 +109,10 @@ end
 
 function Utility.toKwargs(arg)
     local ret = nil
-
     local argType = tostring(type(arg))
-    if ffi.typeof(arg) == ffiKwargsType then
-        return arg
-    elseif argType == "table" then
-        ret = tableToKwargs(arg)
+
+    if isFFIRawKwargs(arg) then return arg
+    elseif argType == "table" then ret = tableToKwargs(arg)
     else
         ret = ffi.gc(lib.SoapySDRKwargs_fromString(tostring(arg)), lib.SoapySDRKwargs_clear)
     end
@@ -177,18 +199,22 @@ function Utility.luaArrayToFFIArray(arr, ffiTypeName)
 end
 
 -- Note: lengthPtr is only needed for lists
-function Utility.processFFIOutput(obj, lengthPtr)
-
-    if obj == nil then return
+function Utility.processOutput(obj, lengthPtr)
+    if isNativeLuaType(obj) then return obj
     elseif isFFINumeric(obj) then return tonumber(obj)
     elseif isFFIRawString(obj) then return processRawString(obj)
     elseif isFFIRawStringList(obj) then return processRawStringList(obj, lengthPtr)
     elseif isFFIBool(obj) then return processBool(obj)
     elseif isFFIRawArgInfo(obj) then return processRawArgInfo(obj)
     elseif isFFIRawKwargs(obj) then return processRawKwargs(obj)
+    elseif isFFIRawRange(obj) then return obj
+    elseif isFFIRawArgInfoPtr(obj) then return processRawArgInfoList(obj, lengthPtr)
+    elseif isFFIRawKwargsPtr(obj) then return processRawKwargsList(obj, lengthPtr)
+    elseif ifFFIRawRangePtr(obj) then return processRawPrimitiveList(obj, lengthPtr, "")
     end
 
-    -- TODO: print warning of unhandled type with name of caller function
+    print(string.format("Warning: %s returned unhandled type %s. Returning nil.", debug.getinfo(2).name, ffi.typeof(obj)))
+
     return nil
 end
 

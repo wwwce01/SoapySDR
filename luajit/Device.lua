@@ -18,7 +18,7 @@ local function processDeviceOutput(ret, lengthPtr)
         error(lastError)
     end
 
-    return Utility.processFFIOutput(ret, lengthPtr)
+    return Utility.processOutput(ret, lengthPtr)
 end
 
 --
