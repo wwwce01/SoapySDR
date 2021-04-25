@@ -7,6 +7,21 @@ local lib = require("SoapySDR.Lib")
 local Utility = require("SoapySDR.Utility")
 
 --
+-- Device-specific utility
+--
+
+-- Note: lengthPtr is only needed for lists
+local function processDeviceOutput(ret, lengthPtr)
+    -- See if an exception was caught in the last function call.
+    local lastError = ffi.string(lib.SoapySDRDevice_lastError())
+    if #lastError > 0 then
+        error(lastError)
+    end
+
+    return Utility.processFFIOutput(ret, lengthPtr)
+end
+
+--
 -- Device enumeration
 --
 
@@ -76,15 +91,15 @@ end
 --
 
 function Device:getDriverKey()
-    return Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_getDriverKey(self.__deviceHandle)))
+    return processDeviceOutput(lib.SoapySDRDevice_getDriverKey(self.__deviceHandle))
 end
 
 function Device:getHardwareKey()
-    return Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_getHardwareKey(self.__deviceHandle)))
+    return processDeviceOutput(lib.SoapySDRDevice_getHardwareKey(self.__deviceHandle))
 end
 
 function Device:getHardwareInfo()
-    return Utility.processRawKwargs(Utility.checkDeviceError(lib.SoapySDRDevice_getHardwareInfo(self.__deviceHandle)))
+    return processDeviceOutput(lib.SoapySDRDevice_getHardwareInfo(self.__deviceHandle))
 end
 
 --
@@ -92,31 +107,36 @@ end
 --
 
 function Device:setFrontendMapping(direction, mapping)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setFrontendMapping(
+    return processDeviceOutput(lib.SoapySDRDevice_setFrontendMapping(
         self.__deviceHandle,
         direction,
         mapping))
 end
 
 function Device:getFrontendMapping(direction)
-    return Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_getFrontendMapping(
+    return processDeviceOutput(lib.SoapySDRDevice_getFrontendMapping(
         self.__deviceHandle,
-        direction)))
+        direction))
 end
 
 function Device:getNumChannels(direction)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_getNumChannels(self.__deviceHandle, direction))
+    return processDeviceOutput(lib.SoapySDRDevice_getNumChannels(
+        self.__deviceHandle,
+        direction))
 end
 
 function Device:getChannelInfo(direction, channel)
-    return Utility.processRawKwargs(Utility.checkDeviceError(lib.SoapySDRDevice_getChannelInfo(
+    return processDeviceOutput(lib.SoapySDRDevice_getChannelInfo(
         self.__deviceHandle,
         direction,
-        channel)))
+        channel))
 end
 
 function Device:getFullDuplex(direction, channel)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_getFullDuplex(self.__deviceHandle, direction, channel))
+    return processDeviceOutput(lib.SoapySDRDevice_getFullDuplex(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 --
@@ -125,32 +145,42 @@ end
 
 function Device:getStreamFormats(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawStringList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_getStreamFormats(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_getStreamFormats(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
 end
 
 function Device:getNativeStreamFormat(direction, channel)
     local fullScalePtr = ffi.new("double[1]")
 
-    local format = Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_getNativeStreamFormat(
-        self.__deviceHandle,
-        direction,
-        channel,
-        fullScalePtr)))
+    local format = processDeviceOutput(
+        lib.SoapySDRDevice_getNativeStreamFormat(
+            self.__deviceHandle,
+            direction,
+            channel,
+            fullScalePtr),
+        fullScalePtr)
 
     return {format, tonumber(fullScalePtr[0])}
 end
 
 function Device:getStreamArgsInfo(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawArgInfoList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_getStreamArgsInfo(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_getStreamArgsInfo(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
 end
 
 function Device:setupStream(direction, format, channels, args)
-    local ret = Utility.checkDeviceError(lib.SoapySDRDevice_setupStream(
+    local ret = processDeviceOutput(lib.SoapySDRDevice_setupStream(
         self.__deviceHandle,
         direction,
         format,
@@ -166,15 +196,15 @@ function Device:setupStream(direction, format, channels, args)
 end
 
 function Device:closeStream(stream)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_closeStream(
+    return processDeviceOutput(lib.SoapySDRDevice_closeStream(
         self.__deviceHandle,
         stream))
 end
 
 function Device:getStreamMTU(stream)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_getStreamMTU(
+    return processDeviceOutput(lib.SoapySDRDevice_getStreamMTU(
         self.__deviceHandle,
-        stream)))
+        stream))
 end
 
 function Device:activateStream(stream, flags, timeNs, numElems)
@@ -183,7 +213,7 @@ function Device:activateStream(stream, flags, timeNs, numElems)
     timeNs = timeNs or 0
     numElems = numElems or 0
 
-    return Utility.checkDeviceError(lib.SoapySDRDevice_activateStream(
+    return processDeviceOutput(lib.SoapySDRDevice_activateStream(
         self.__deviceHandle,
         stream,
         flags,
@@ -196,7 +226,7 @@ function Device:deactivateStream(stream, flags, timeNs)
     flags = flags or 0
     timeNs = timeNs or 0
 
-    return Utility.checkDeviceError(lib.SoapySDRDevice_deactivateStream(
+    return processDeviceOutput(lib.SoapySDRDevice_deactivateStream(
         self.__deviceHandle,
         stream,
         flags,
@@ -210,7 +240,7 @@ function Device:readStream(stream, buffs, numElems, timeoutUs)
     local flagsPtr = ffi.new("int[1]")
     local timeNsPtr = ffi.new("long long[1]")
 
-    local ret = Utility.checkDeviceError(lib.SoapySDRDevice_readStream(
+    local ret = processDeviceOutput(lib.SoapySDRDevice_readStream(
         self.__deviceHandle,
         stream,
         ffi.cast("void* const*", buffs),
@@ -231,7 +261,7 @@ function Device:writeStream(stream, buffs, numElems, flagsIn, timeNs, timeoutUs)
     local flagsPtr = ffi.new("int[1]", {flagsIn})
     local timeNsPtr = ffi.new("long long[1]")
 
-    local ret = Utility.checkDeviceError(lib.SoapySDRDevice_writeStream(
+    local ret = processDeviceOutput(lib.SoapySDRDevice_writeStream(
         self.__deviceHandle,
         stream,
         ffi.cast("const void* const*", buffs),
@@ -251,7 +281,7 @@ function Device:readStreamStatus(stream, timeoutUs)
     local flagsPtr = ffi.new("int[1]")
     local timeNsPtr = ffi.new("long long[1]")
 
-    local ret = Utility.checkDeviceError(lib.SoapySDRDevice_readStreamStatus(
+    local ret = processDeviceOutput(lib.SoapySDRDevice_readStreamStatus(
         self.__deviceHandle,
         stream,
         chanMaskPtr,
@@ -268,13 +298,17 @@ end
 
 function Device:listAntennas(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawStringList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_listAntennas(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_listAntennas(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
 end
 
 function Device:setAntenna(direction, channel, name)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setAntenna(
+    return processDeviceOutput(lib.SoapySDRDevice_setAntenna(
         self.__deviceHandle,
         direction,
         channel,
@@ -282,10 +316,10 @@ function Device:setAntenna(direction, channel, name)
 end
 
 function Device:getAntenna(direction, channel)
-    return Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_getAntenna(
+    return processDeviceOutput(lib.SoapySDRDevice_getAntenna(
         self.__deviceHandle,
         direction,
-        channel)))
+        channel))
 end
 
 --
@@ -293,29 +327,38 @@ end
 --
 
 function Device:hasDCOffsetMode(direction, channel)
-    return Utility.processBool(Utility.checkDeviceError(lib.SoapySDRDevice_hasDCOffsetMode(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_hasDCOffsetMode(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:setDCOffsetMode(direction, channel, automatic)
-    return Utility.processBool(Utility.checkDeviceError(lib.SoapySDRDevice_setDCOffsetMode(
+    return processDeviceOutput(lib.SoapySDRDevice_setDCOffsetMode(
         self.__deviceHandle,
         direction,
         channel,
-        automatic)))
+        automatic))
 end
 
 function Device:getDCOffsetMode(direction, channel)
-    return Utility.processBool(Utility.checkDeviceError(lib.SoapySDRDevice_getDCOffsetMode(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_getDCOffsetMode(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:hasDCOffset(direction, channel)
-    return Utility.processBool(Utility.checkDeviceError(lib.SoapySDRDevice_hasDCOffset(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_hasDCOffset(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:setDCOffset(direction, channel, offset)
     local complexOffset = ffi.istype(offset, "complex") and offset or Complex(offset,0)
 
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setDCOffset(
+    return processDeviceOutput(lib.SoapySDRDevice_setDCOffset(
         self.__deviceHandle,
         direction,
         channel,
@@ -327,7 +370,7 @@ function Device:getDCOffset(direction, channel)
     local iPtr = ffi.new("double[1]")
     local qPtr = fii.new("double[1]")
 
-    Utility.checkDeviceError(lib.SoapySDRDevice_getDCOffset(
+    processDeviceOutput(lib.SoapySDRDevice_getDCOffset(
         self.__deviceHandle,
         direction,
         channel,
@@ -338,13 +381,16 @@ function Device:getDCOffset(direction, channel)
 end
 
 function Device:hasIQBalance(direction, channel)
-    return Utility.processBool(Utility.checkDeviceError(lib.SoapySDRDevice_hasIQBalance(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_hasIQBalance(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:setIQBalance(direction, channel, offset)
     local complexOffset = ffi.istype(offset, "complex") and offset or Complex(offset,0)
 
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setIQBalance(
+    return processDeviceOutput(lib.SoapySDRDevice_setIQBalance(
         self.__deviceHandle,
         direction,
         channel,
@@ -356,7 +402,7 @@ function Device:getIQBalance(direction, channel)
     local iPtr = ffi.new("double[1]")
     local qPtr = fii.new("double[1]")
 
-    Utility.checkDeviceError(lib.SoapySDRDevice_getIQBalance(
+    processDeviceOutput(lib.SoapySDRDevice_getIQBalance(
         self.__deviceHandle,
         direction,
         channel,
@@ -367,11 +413,14 @@ function Device:getIQBalance(direction, channel)
 end
 
 function Device:hasIQBalanceMode(direction, channel)
-    return Utility.processBool(Utility.checkDeviceError(lib.SoapySDRDevice_hasIQBalanceMode(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_hasIQBalanceMode(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:setIQBalanceMode(direction, channel, automatic)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setIQBalanceMode(
+    return processDeviceOutput(lib.SoapySDRDevice_setIQBalanceMode(
         self.__deviceHandle,
         direction,
         channel,
@@ -379,15 +428,21 @@ function Device:setIQBalanceMode(direction, channel, automatic)
 end
 
 function Device:getIQBalanceMode(direction, channel)
-    return Utility.processBool(Utility.checkDeviceError(lib.SoapySDRDevice_getIQBalanceMode(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_getIQBalanceMode(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:hasFrequencyCorrection(direction, channel)
-    return Utility.processBool(Utility.checkDeviceError(lib.SoapySDRDevice_hasFrequencyCorrection(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_hasFrequencyCorrection(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:setFrequencyCorrection(direction, channel, value)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setFrequencyCorrection(
+    return processDeviceOutput(lib.SoapySDRDevice_setFrequencyCorrection(
         self.__deviceHandle,
         direction,
         channel,
@@ -395,7 +450,10 @@ function Device:setFrequencyCorrection(direction, channel, value)
 end
 
 function Device:getFrequencyCorrection(direction, channel)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_getFrequencyCorrection(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_getFrequencyCorrection(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 --
@@ -404,17 +462,24 @@ end
 
 function Device:listGains(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawStringList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_listGains(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_listGains(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
 end
 
 function Device:hasGainMode(direction, channel)
-    return Utility.processBool(Utility.checkDeviceError(lib.SoapySDRDevice_hasGainMode(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_hasGainMode(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:setGainMode(direction, channel, automatic)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setGainMode(
+    return processDeviceOutput(lib.SoapySDRDevice_setGainMode(
         self.__deviceHandle,
         direction,
         channel,
@@ -422,11 +487,14 @@ function Device:setGainMode(direction, channel, automatic)
 end
 
 function Device:getGainMode(direction, channel)
-    return Utility.processBool(Utility.checkDeviceError(lib.SoapySDRDevice_getGainMode(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_getGainMode(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:setGain(direction, channel, value)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setGain(
+    return processDeviceOutput(lib.SoapySDRDevice_setGain(
         self.__deviceHandle,
         direction,
         channel,
@@ -434,7 +502,7 @@ function Device:setGain(direction, channel, value)
 end
 
 function Device:setGainElement(direction, channel, name, value)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setGainElement(
+    return processDeviceOutput(lib.SoapySDRDevice_setGainElement(
         self.__deviceHandle,
         direction,
         channel,
@@ -443,19 +511,33 @@ function Device:setGainElement(direction, channel, name, value)
 end
 
 function Device:getGain(direction, channel)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_getGain(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_getGain(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:getGainElement(direction, channel, name)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_getGainElement(self.__deviceHandle, direction, channel, name)))
+    return processDeviceOutput(lib.SoapySDRDevice_getGainElement(
+        self.__deviceHandle,
+        direction,
+        channel,
+        name))
 end
 
 function Device:getGainRange(direction, channel)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_getGainRange(self.__deviceHandle, direction, channel))
+    return processDeviceOutput(lib.SoapySDRDevice_getGainRange(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:getGainElementRange(direction, channel, name)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_getGainElementRange(self.__deviceHandle, direction, channel, name))
+    return processDeviceOutput(lib.SoapySDRDevice_getGainElementRange(
+        self.__deviceHandle,
+        direction,
+        channel,
+        name))
 end
 
 --
@@ -463,7 +545,7 @@ end
 --
 
 function Device:setFrequency(direction, channel, frequency, args)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setFrequency(
+    return processDeviceOutput(lib.SoapySDRDevice_setFrequency(
         self.__deviceHandle,
         direction,
         channel,
@@ -472,7 +554,7 @@ function Device:setFrequency(direction, channel, frequency, args)
 end
 
 function Device:setFrequencyComponent(direction, channel, name, frequency, args)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setFrequencyComponent(
+    return processDeviceOutput(lib.SoapySDRDevice_setFrequencyComponent(
         self.__deviceHandle,
         direction,
         channel,
@@ -482,41 +564,63 @@ function Device:setFrequencyComponent(direction, channel, name, frequency, args)
 end
 
 function Device:getFrequency(direction, channel)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_getFrequency(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_getFrequency(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:getFrequencyComponent(direction, channel, name)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_getFrequencyComponent(self.__deviceHandle, direction, channel, name)))
+    return processDeviceOutput(lib.SoapySDRDevice_getFrequencyComponent(
+        self.__deviceHandle,
+        direction,
+        channel,
+        name))
 end
 
 function Device:listFrequencies(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawStringList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_listFrequencies(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_listFrequencies(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
 end
 
 function Device:getFrequencyRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawPrimitiveList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_getFrequencyRange(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr,
-        "double"))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_getFrequencyRange(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
 end
 
 function Device:getFrequencyRangeComponent(direction, channel, name)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawPrimitiveList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_getFrequencyRangeComponent(self.__deviceHandle, direction, channel, name, lengthPtr),
-        lengthPtr,
-        "double"))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_getFrequencyRangeComponent(
+            self.__deviceHandle,
+            direction,
+            channel,
+            name,
+            lengthPtr),
+        lengthPtr)
 end
 
 function Device:getFrequencyArgsInfo(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawArgInfoList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_getFrequencyArgsInfo(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_getFrequencyArgsInfo(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
 end
 
 --
@@ -524,7 +628,7 @@ end
 --
 
 function Device:setSampleRate(direction, channel, rate)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setSampleRate(
+    return processDeviceOutput(lib.SoapySDRDevice_setSampleRate(
         self.__deviceHandle,
         direction,
         channel,
@@ -532,23 +636,32 @@ function Device:setSampleRate(direction, channel, rate)
 end
 
 function Device:getSampleRate(direction, channel)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_getSampleRate(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_getSampleRate(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:listSampleRates(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawPrimitiveList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_listSampleRates(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr,
-        "double"))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_listSampleRates(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
 end
 
 function Device:getSampleRateRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawPrimitiveList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_getSampleRateRange(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr,
-        "SoapySDRRange"))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_getSampleRateRange(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
 end
 
 --
@@ -556,7 +669,7 @@ end
 --
 
 function Device:setBandwidth(direction, channel, bw)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setBandwidth(
+    return processDeviceOutput(lib.SoapySDRDevice_setBandwidth(
         self.__deviceHandle,
         direction,
         channel,
@@ -564,23 +677,32 @@ function Device:setBandwidth(direction, channel, bw)
 end
 
 function Device:getBandwidth(direction, channel)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_getBandwidth(self.__deviceHandle, direction, channel)))
+    return processDeviceOutput(lib.SoapySDRDevice_getBandwidth(
+        self.__deviceHandle,
+        direction,
+        channel))
 end
 
 function Device:listBandwidths(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawPrimitiveList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_listBandwidths(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr,
-        "double"))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_listBandwidths(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
 end
 
 function Device:getBandwidthRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawPrimitiveList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_getBandwidthRange(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr,
-        "SoapySDRRange"))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_getBandwidthRange(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
 end
 
 --
@@ -588,56 +710,54 @@ end
 --
 
 function Device:setMasterClockRate(rate)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setMasterClockRate(
+    return processDeviceOutput(lib.SoapySDRDevice_setMasterClockRate(
         self.__deviceHandle,
         rate))
 end
 
 function Device:getMasterClockRate()
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_getMasterClockRate(self.__deviceHandle)))
+    return processDeviceOutput(lib.SoapySDRDevice_getMasterClockRate(self.__deviceHandle))
 end
 
 function Device:getMasterClockRates()
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawPrimitiveList(Utility.checkDeviceError(
+    return processDeviceOutput(
         lib.SoapySDRDevice_getMasterClockRates(self.__deviceHandle, lengthPtr),
-        lengthPtr,
-        "double"))
+        lengthPtr)
 end
 
 function Device:setReferenceClockRate(rate)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setReferenceClockRate(
+    return processDeviceOutput(lib.SoapySDRDevice_setReferenceClockRate(
         self.__deviceHandle,
         rate))
 end
 
 function Device:getReferenceClockRate()
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_getReferenceClockRate(self.__deviceHandle)))
+    return processDeviceOutput(lib.SoapySDRDevice_getReferenceClockRate(self.__deviceHandle))
 end
 
 function Device:getReferenceClockRates()
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawPrimitiveList(Utility.checkDeviceError(
+    return processDeviceOutput(
         lib.SoapySDRDevice_getReferenceClockRates(self.__deviceHandle, lengthPtr),
-        lengthPtr,
-        "double"))
+        lengthPtr)
 end
 
 function Device:listClockSources()
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawStringList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_listClockSources(self.__deviceHandle),
-        lengthPtr))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_listClockSources(self.__deviceHandle, lengthPtr),
+        lengthPtr)
 end
 
 function Device:setClockSource(source)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setClockSource(
+    return processDeviceOutput(lib.SoapySDRDevice_setClockSource(
         self.__deviceHandle,
         source))
 end
 
 function Device:getClockSource()
-    return Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_getClockSource(self.__deviceHandle)))
+    return processDeviceOutput(lib.SoapySDRDevice_getClockSource(self.__deviceHandle))
 end
 
 --
@@ -646,38 +766,44 @@ end
 
 function Device:getTimeSources()
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawStringList(Utility.checkDeviceError(
-        lib.SoapySDRDevice_getTimeSources(self.__deviceHandle, lengthPtr),
-        lengthPtr))
+    return processDeviceOutput(
+        lib.SoapySDRDevice_getTimeSources(
+            self.__deviceHandle,
+            lengthPtr),
+        lengthPtr)
 end
 
 function Device:setTimeSource(source)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setTimeSource(
+    return processDeviceOutput(lib.SoapySDRDevice_setTimeSource(
         self.__deviceHandle,
         source))
 end
 
 function Device:getTimeSource()
-    return Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_getTimeSource(self.__deviceHandle)))
+    return processDeviceOutput(lib.SoapySDRDevice_getTimeSource(self.__deviceHandle))
 end
 
 function Device:hasHardwareTime(optionalArg)
-    return Utility.processBool(Utility.checkDeviceError(lib.SoapySDRDevice_hasHardwareTime(self.__deviceHandle, optionalArg)))
+    return processDeviceOutput(lib.SoapySDRDevice_hasHardwareTime(
+        self.__deviceHandle,
+        optionalArg))
 end
 
 function Device:getHardwareTime(optionalArg)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_getHardwareTime(self.__deviceHandle, optionalArg)))
+    return processDeviceOutput(lib.SoapySDRDevice_getHardwareTime(
+        self.__deviceHandle,
+        optionalArg))
 end
 
 function Device:setHardwareTime(time, optionalArg)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setHardwareTime(
+    return processDeviceOutput(lib.SoapySDRDevice_setHardwareTime(
         self.__deviceHandle,
         time,
         optionalArg))
 end
 
 function Device:setCommandTime(time, optionalArg)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_setCommandTime(
+    return processDeviceOutput(lib.SoapySDRDevice_setCommandTime(
         self.__deviceHandle,
         time,
         optionalArg))
@@ -689,40 +815,40 @@ end
 
 function Device:listSensors()
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawStringList(Utility.checkDeviceError(
+    return processDeviceOutput(
         lib.SoapySDRDevice_listSensors(self.__deviceHandle, lengthPtr),
-        lengthPtr))
+        lengthPtr)
 end
 
 function Device:getSensorInfo(key)
-    return Utility.processRawArgInfo(Utility.checkDeviceError(lib.SoapySDRDevice_getSensorInfo(self.__deviceHandle, key)))
+    return processDeviceOutput(lib.SoapySDRDevice_getSensorInfo(self.__deviceHandle, key))
 end
 
 function Device:readSensor(key)
-    return Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_readSensor(self.__deviceHandle, key)))
+    return processDeviceOutput(lib.SoapySDRDevice_readSensor(self.__deviceHandle, key))
 end
 
 function Device:listChannelSensors(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawStringList(Utility.checkDeviceError(
+    return processDeviceOutput(
         lib.SoapySDRDevice_listChannelSensors(self.__deviceHandle, lengthPtr, direction, channel),
-        lengthPtr))
+        lengthPtr)
 end
 
 function Device:getChannelSensorInfo(direction, channel, key)
-    return Utility.processRawArgInfo(Utility.checkDeviceError(lib.SoapySDRDevice_getChannelSensorInfo(
+    return processDeviceOutput(lib.SoapySDRDevice_getChannelSensorInfo(
         self.__deviceHandle,
         direction,
         channel,
-        key)))
+        key))
 end
 
 function Device:readChannelSensor(direction, channel, key)
-    Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_readChannelSensor(
+    processDeviceOutput(lib.SoapySDRDevice_readChannelSensor(
         self.__deviceHandle,
         direction,
         channel,
-        key)))
+        key))
 end
 
 --
@@ -731,13 +857,13 @@ end
 
 function Device:listRegisterInterfaces()
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawStringList(Utility.checkDeviceError(
+    return processDeviceOutput(
         lib.SoapySDRDevice_listRegisterInterfaces(self.__deviceHandle, lengthPtr),
-        lengthPtr))
+        lengthPtr)
 end
 
 function Device:writeRegister(name, addr, value)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_writeRegister(
+    return processDeviceOutput(lib.SoapySDRDevice_writeRegister(
         self.__deviceHandle,
         name,
         addr,
@@ -745,7 +871,10 @@ function Device:writeRegister(name, addr, value)
 end
 
 function Device:readRegister(name, addr)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_readRegister(self.__deviceHandle, name, addr)))
+    return processDeviceOutput(lib.SoapySDRDevice_readRegister(
+        self.__deviceHandle,
+        name,
+        addr))
 end
 
 function Device:writeRegisters(name, addr, values)
@@ -760,7 +889,7 @@ function Device:writeRegisters(name, addr, values)
         valuesFFI[i] = values[i+1]
     end
 
-    return Utility.checkDeviceError(lib.SoapySDRDevice_writeRegisters(
+    return processDeviceOutput(lib.SoapySDRDevice_writeRegisters(
         self.__deviceHandle,
         name,
         addr,
@@ -770,10 +899,9 @@ end
 
 function Device:readRegisters(direction, name, addr)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawPrimitiveList(Utility.checkDeviceError(
+    return processDeviceOutput(
         lib.SoapySDRDevice_readRegisters(self.__deviceHandle, name, addr, lengthPtr),
-        lengthPtr,
-        "unsigned"))
+        lengthPtr)
 end
 
 --
@@ -782,33 +910,33 @@ end
 
 function Device:getSettingInfo()
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawArgInfoList(Utility.checkDeviceError(
+    return processDeviceOutput(
         lib.SoapySDRDevice_getSettingInfo(self.__deviceHandle, lengthPtr),
-        lengthPtr))
+        lengthPtr)
 end
 
 -- TODO: smarter tostring() logic. What if FFI number?
 function Device:writeSetting(key, value)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_writeSetting(
+    return processDeviceOutput(lib.SoapySDRDevice_writeSetting(
         self.__deviceHandle,
         key,
         tostring(value)))
 end
 
 function Device:readSetting(key)
-    return Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_readSetting(self.__deviceHandle, key)))
+    return Utility.processRawString(processDeviceOutput(lib.SoapySDRDevice_readSetting(self.__deviceHandle, key)))
 end
 
 function Device:getChannelSettingInfo(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawArgInfoList(Utility.checkDeviceError(
+    return processDeviceOutput(
         lib.SoapySDRDevice_getChannelSettingInfo(self.__deviceHandle, direction, channel, lengthPtr),
-        lengthPtr))
+        lengthPtr)
 end
 
 -- TODO: smarter tostring() logic. What if FFI number?
 function Device:writeChannelSetting(direction, channel, key, value)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_writeChannelSetting(
+    return processDeviceOutput(lib.SoapySDRDevice_writeChannelSetting(
         self.__deviceHandle,
         direction,
         channel,
@@ -817,11 +945,11 @@ function Device:writeChannelSetting(direction, channel, key, value)
 end
 
 function Device:readChannelSetting(direction, channel, key)
-    return Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_readChannelSetting(
+    return processDeviceOutput(lib.SoapySDRDevice_readChannelSetting(
         self.__deviceHandle,
         direction,
         channel,
-        key)))
+        key))
 end
 
 --
@@ -830,20 +958,20 @@ end
 
 function Device:listGPIOBanks()
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawStringList(Utility.checkDeviceError(
+    return processDeviceOutput(
         lib.SoapySDRDevice_listGPIOBanks(self.__deviceHandle, lengthPtr),
-        lengthPtr))
+        lengthPtr)
 end
 
 function Device:writeGPIO(bank, value)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_writeGPIO(
+    return processDeviceOutput(lib.SoapySDRDevice_writeGPIO(
         self.__deviceHandle,
         bank,
         value))
 end
 
 function Device:writeGPIOMasked(bank, value, mask)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_writeGPIOMasked(
+    return processDeviceOutput(lib.SoapySDRDevice_writeGPIOMasked(
         self.__deviceHandle,
         bank,
         value,
@@ -851,18 +979,20 @@ function Device:writeGPIOMasked(bank, value, mask)
 end
 
 function Device:readGPIO(bank)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_readGPIO(self.__deviceHandle, bank)))
+    return processDeviceOutput(lib.SoapySDRDevice_readGPIO(
+        self.__deviceHandle,
+        bank))
 end
 
 function Device:writeGPIODir(bank, dir)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_writeGPIODir(
+    return processDeviceOutput(lib.SoapySDRDevice_writeGPIODir(
         self.__deviceHandle,
         bank,
         dir))
 end
 
 function Device:writeGPIODirMasked(bank, dir, mask)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_writeGPIODirMasked(
+    return processDeviceOutput(lib.SoapySDRDevice_writeGPIODirMasked(
         self.__deviceHandle,
         bank,
         dir,
@@ -870,7 +1000,9 @@ function Device:writeGPIODirMasked(bank, dir, mask)
 end
 
 function Device:readGPIODir(bank)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_readGPIODir(self.__deviceHandle, bank)))
+    return processDeviceOutput(lib.SoapySDRDevice_readGPIODir(
+        self.__deviceHandle,
+        bank))
 end
 
 --
@@ -879,7 +1011,7 @@ end
 
 -- TODO: smarter input conversion to const char*
 function Device:writeI2C(addr, data)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_writeI2C(
+    return processDeviceOutput(lib.SoapySDRDevice_writeI2C(
         self.__deviceHandle,
         addr,
         ffi.cast("const char*", data),
@@ -888,12 +1020,11 @@ end
 
 function Device:readI2C(bank, addr)
     local lengthPtr = ffi.new("size_t[1]")
-    return ffi.string(Utility.processRawPrimitiveList(Utility.checkDeviceError(lib.SoapySDRDevice_readI2C(
+    return processDeviceOutput(lib.SoapySDRDevice_readI2C(
         self.__deviceHandle,
         bank,
         addr,
-        lengthPtr),
-        "char")))
+        lengthPtr))
 end
 
 --
@@ -901,11 +1032,11 @@ end
 --
 
 function Device:transactSPI(addr, data, numBits)
-    return tonumber(Utility.checkDeviceError(lib.SoapySDRDevice_transactSPI(
+    return processDeviceOutput(lib.SoapySDRDevice_transactSPI(
         self.__deviceHandle,
         addr,
         data,
-        numBits)))
+        numBits))
 end
 
 --
@@ -914,23 +1045,23 @@ end
 
 function Device:listUARTs()
     local lengthPtr = ffi.new("size_t[1]")
-    return Utility.processRawStringList(Utility.checkDeviceError(
+    return processDeviceOutput(
         lib.SoapySDRDevice_listUARTs(self.__deviceHandle, lengthPtr),
-        lengthPtr))
+        lengthPtr)
 end
 
 function Device:writeUART(which, data)
-    return Utility.checkDeviceError(lib.SoapySDRDevice_writeUART(
+    return lib.SoapySDRDevice_writeUART(
         self.__deviceHandle,
         which,
-        data))
+        data)
 end
 
 function Device:readUART(which, timeoutUs)
-    return Utility.processRawString(Utility.checkDeviceError(lib.SoapySDRDevice_readUART(
+    return processDeviceOutput(lib.SoapySDRDevice_readUART(
         self.__deviceHandle,
         which,
-        timeoutUs)))
+        timeoutUs))
 end
 
 --

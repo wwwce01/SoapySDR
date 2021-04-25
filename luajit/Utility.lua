@@ -7,24 +7,60 @@ local lib = require("SoapySDR.Lib")
 local Utility = {}
 
 --
--- Error checking
+-- FFI ctypes for comparison, these shouldn't be made often
 --
 
-function Utility.checkDeviceError(ret)
-    -- See if an exception was caught in the last function call.
-    local lastError = ffi.string(lib.SoapySDRDevice_lastError())
-    if #lastError > 0 then
-        error(lastError)
-    end
+local ffiCharPtrType = ffi.typeof("char*")
+local ffiCharPtrPtrType = ffi.typeof("char**")
+local ffiUnsignedIntPtrType = ffi.typeof("unsigned int*")
+local ffiDoublePtrType = ffi.typeof("double*")
 
-    return ret
+local ffiBoolType = ffi.typeof("bool")
+local ffiIntType = ffi.typeof("int")
+local ffiUnsignedIntType = ffi.typeof("unsigned int")
+local ffiDoubleType = ffi.typeof("double")
+local ffiSizeType = ffi.typeof("size_t")
+
+local ffiArgInfoType = ffi.typeof("SoapySDRArgInfo")
+local ffiKwargsType = ffi.typeof("SoapySDRKwargs")
+local ffiRangeType = ffi.typeof("SoapySDRRange")
+
+local ffiArgInfoPtrType = ffi.typeof("SoapySDRArgInfo*")
+local ffiKwargsPtrType = ffi.typeof("SoapySDRKwargs*")
+local ffiRangePtrType = ffi.typeof("SoapySDRRange*")
+
+local function isFFIBool(obj)
+    return (ffi.typeof(obj) == fiBoolType)
+end
+
+local function isFFINumeric(obj)
+    local ffiType = ffi.typeof(obj)
+
+    return (ffiType == ffiIntType) or (ffiType == ffiUnsignedIntType) or
+           (ffiType == ffiDoubleType) or (ffiType == ffiSizeType)
+end
+
+local function isFFIRawString(obj)
+    return (ffi.typeof(obj) == ffiCharPtrType)
+end
+
+local function isFFIRawStringList(obj)
+    return (ffi.typeof(obj) == ffiCharPtrPtrType)
+end
+
+local function isFFIRawArgInfo(obj)
+    return (ffi.typeof(obj) == ffiArgInfoType)
+end
+
+local function isFFIRawKwargs(obj)
+    return (ffi.typeof(obj) == ffiKwargsType)
 end
 
 --
 -- Handling C <-> Lua types
 --
 
-function Utility.kwargsToTable(kwargs)
+local function kwargsToTable(kwargs)
     local tbl = {}
     for i = 0, tonumber(kwargs.size)-1 do
         tbl[ffi.string(kwargs.keys[i])] = ffi.string(kwargs.vals[i])
@@ -33,7 +69,7 @@ function Utility.kwargsToTable(kwargs)
     return tbl
 end
 
-function Utility.tableToKwargs(tbl)
+local function tableToKwargs(tbl)
     kwargs = ffi.gc(ffi.new("SoapySDRKwargs"), lib.SoapySDRKwargs_clear)
 
     for k,v in pairs(tbl) do
@@ -46,16 +82,15 @@ function Utility.tableToKwargs(tbl)
     return kwargs
 end
 
-local kwargsType = ffi.type("SoapySDRKwargs")
 
 function Utility.toKwargs(arg)
     local ret = nil
 
     local argType = tostring(type(arg))
-    if ffi.typeof(arg) == kwargsType then
+    if ffi.typeof(arg) == ffiKwargsType then
         return arg
     elseif argType == "table" then
-        ret = Utility.tableToKwargs(arg)
+        ret = tableToKwargs(arg)
     else
         ret = ffi.gc(lib.SoapySDRKwargs_fromString(tostring(arg)), lib.SoapySDRKwargs_clear)
     end
@@ -65,28 +100,28 @@ end
 
 local ffiTrue = ffi.new("bool", true)
 
-function Utility.processBool(bool)
+local function processBool(bool)
     return (bool == ffiTrue)
 end
 
-function Utility.processRawString(str)
+local function processRawString(str)
     -- Copy to a Lua string and add garbage collection for the C string.
     return ffi.string(ffi.gc(str, lib.SoapySDR_free))
 end
 
-function Utility.processRawKwargs(kwargs)
-    local ret = Utility.kwargsToTable(kwargs)
+local function processRawKwargs(kwargs)
+    local ret = kwargsToTable(kwargs)
     lib.SoapySDRKwargs_clear(kwargs)
 
     return ret
 end
 
 -- TODO
-function Utility.processRawArgInfo(argInfo)
+local function processRawArgInfo(argInfo)
     return nil
 end
 
-function Utility.processRawPrimitiveList(list, lengthPtr, ffiTypeName)
+local function processRawPrimitiveList(list, lengthPtr, ffiTypeName)
     local len = tonumber(lengthPtr[0])
 
     -- Copy the data into a newly allocated array. This allows the data
@@ -99,7 +134,7 @@ function Utility.processRawPrimitiveList(list, lengthPtr, ffiTypeName)
     return ret
 end
 
-function Utility.processRawStringList(stringList, lengthPtr)
+local function processRawStringList(stringList, lengthPtr)
     local ret = {}
     local len = tonumber(lengthPtr[0])
 
@@ -114,16 +149,16 @@ function Utility.processRawStringList(stringList, lengthPtr)
 end
 
 -- TODO
-function Utility.processRawArgInfoList(argInfoList, lengthPtr)
+local function processRawArgInfoList(argInfoList, lengthPtr)
     return nil
 end
 
-function Utility.processRawKwargsList(kwargs, lengthPtr)
+local function processRawKwargsList(kwargs, lengthPtr)
     local ret = {}
     local len = tonumber(lengthPtr[0])
 
     for i = 0,len-1 do
-        ret[i+1] = Utility.kwargsToTable(kwargs[i])
+        ret[i+1] = kwargsToTable(kwargs[i])
     end
 
     lib.SoapySDRKwargsList_clear(kwargs, len)
@@ -139,6 +174,22 @@ function Utility.luaArrayToFFIArray(arr, ffiTypeName)
     end
 
     return ret
+end
+
+-- Note: lengthPtr is only needed for lists
+function Utility.processFFIOutput(obj, lengthPtr)
+
+    if obj == nil then return
+    elseif isFFINumeric(obj) then return tonumber(obj)
+    elseif isFFIRawString(obj) then return processRawString(obj)
+    elseif isFFIRawStringList(obj) then return processRawStringList(obj, lengthPtr)
+    elseif isFFIBool(obj) then return processBool(obj)
+    elseif isFFIRawArgInfo(obj) then return processRawArgInfo(obj)
+    elseif isFFIRawKwargs(obj) then return processRawKwargs(obj)
+    end
+
+    -- TODO: print warning of unhandled type with name of caller function
+    return nil
 end
 
 return Utility
