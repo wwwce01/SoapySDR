@@ -1,4 +1,4 @@
-// Copyright (c) 2020-201 Nicholas Corgan
+// Copyright (c) 2020-2021 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 using System;
