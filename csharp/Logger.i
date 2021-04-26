@@ -7,39 +7,9 @@
 
 #include <SoapySDR/Logger.hpp>
 
-typedef void(SWIGSTDCALL* SoapySDRCSharpLogHandler)(SoapySDR::CSharp::LogLevel logLevel, const std::string& message);
+typedef void(SWIGSTDCALL* SoapySDRCSharpLogHandler)(int logLevel, const std::string& message);
 
 static SoapySDRCSharpLogHandler CSharpLogHandler = nullptr;
-
-%}
-
-%pragma(csharp) imclasscode=%{
-    internal class SoapySDRLogHelper
-    {
-        public delegate SoapySDRLogDelegate(LogLevel logLevel, string message);
-        static SoapySDRLogDelegate logDelegate = new SoapySDRLogDelegate(DefaultLog);
-
-        [global::System.Runtime.InteropServices.DllImport("$dllimport", EntryPoint="RegisterSoapySDRCSharpLogHandler")]
-        private public static extern void RegisterSoapySDRCSharpLogHandler(SoapySDRLogDelegate logDelegate);
-
-        private static void DefaultLog(LogLevel logLevel, string message)
-        {
-            System.Console.Error(logLevel.ToString() + ": " + message);
-        }
-
-        public static void RegisterLogHandler(SoapySDRLogDelegate logDelegate)
-        {
-            logDelegate = del;
-        }
-
-        static SoapySDRLogHelper()
-        {
-            RegisterSoapySDRCSharpLogHandler(logDelegate);
-        }
-    };
-%}
-
-%{
 
 extern "C"
 {
@@ -49,4 +19,38 @@ extern "C"
     }
 }
 
+%}
+
+%pragma(csharp) imclasscode=%{
+    internal class SoapySDRLogHelper
+    {
+        [global::System.Runtime.InteropServices.DllImport("$dllimport", EntryPoint="RegisterSoapySDRCSharpLogHandler")]
+        private public static extern void RegisterSoapySDRCSharpLogHandler(SoapySDRLogDelegate logDelegate);
+
+        private static void NativeLogCaller(int logLevel, string message)
+        {
+            logDelegate(LogLevel(logLevel), message);
+        }
+
+        private delegate NativeSoapySDRLogDelegate(int logLevel, string message);
+        private static NativeSoapySDRLogDelegate nativeLogDelegate = new NativeSoapySDRLogDelegate(NativeLogCaller);
+
+        public delegate SoapySDRLogDelegate(LogLevel logLevel, string message);
+        static SoapySDRLogDelegate logDelegate = new SoapySDRLogDelegate(DefaultLog);
+
+        private static void DefaultLog(LogLevel logLevel, string message)
+        {
+            System.Console.WriteLine(logLevel.ToString() + ": " + message);
+        }
+
+        public static void RegisterLogHandler(SoapySDRLogDelegate logDelegate)
+        {
+            logDelegate = del;
+        }
+
+        static SoapySDRLogHelper()
+        {
+            RegisterSoapySDRCSharpLogHandler(nativeLogDelegate);
+        }
+    };
 %}
