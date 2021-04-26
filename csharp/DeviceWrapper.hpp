@@ -45,11 +45,12 @@ namespace SoapySDR { namespace CSharp {
             // Parallel support
             //
 
-            static DeviceVector ParallelMake(const SoapySDR::KwargsList& kwargsList)
+            static DeviceVector __ParallelMake(const SoapySDR::KwargsList& kwargsList)
             {
                 const auto devs = SoapySDR::Device::make(kwargsList);
                 DeviceVector csharpDevs;
 
+                // Note: transfers ownership to C# class
                 std::transform(
                     devs.begin(),
                     devs.end(),
@@ -61,15 +62,17 @@ namespace SoapySDR { namespace CSharp {
 
             static DeviceVector __ParallelMake(const std::vector<std::string>& argsList)
             {
-                // TODO: replace with native SoapySDR::Device function when implemented
-                SoapySDR::KwargsList kwargsList;
-                std::transform(
-                    argsList.begin(),
-                    argsList.end(),
-                    std::back_inserter(kwargsList),
-                    SoapySDR::KwargsFromString);
+                const auto devs = SoapySDR::Device::make(argsList);
+                DeviceVector csharpDevs;
 
-                return ParallelMake(kwargsList);
+                // Note: transfers ownership to C# class
+                std::transform(
+                    devs.begin(),
+                    devs.end(),
+                    std::back_inserter(csharpDevs),
+                    [](SoapySDR::Device* pDev){ return Device(pDev); });
+
+                return csharpDevs;
             }
 
             //
@@ -165,7 +168,7 @@ namespace SoapySDR { namespace CSharp {
                 return _deviceSPtr->getNativeStreamFormat(int(direction), channel, fullScaleOut);
             }
 
-            inline SoapySDR::ArgInfoList GetStreamArgsInfo(
+            inline SoapySDR::ArgInfoList __GetStreamArgsInfo(
                 SoapySDR::CSharp::Direction direction,
                 const size_t channel) const
             {
@@ -174,6 +177,7 @@ namespace SoapySDR { namespace CSharp {
                 return _deviceSPtr->getStreamArgsInfo(int(direction), channel);
             }
 
+            // TODO: make private, public with size_t array
             SoapySDR::CSharp::StreamHandle SetupStream(
                 SoapySDR::CSharp::Direction direction,
                 const std::string& format,
@@ -203,6 +207,7 @@ namespace SoapySDR { namespace CSharp {
                 return _deviceSPtr->getStreamMTU(streamHandle.stream);
             }
 
+            // TODO: bit-operatable flags
             inline int ActivateStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const int flags = 0,
@@ -214,6 +219,7 @@ namespace SoapySDR { namespace CSharp {
                 return _deviceSPtr->activateStream(streamHandle.stream, flags, timeNs, numElems);
             }
 
+            // TODO: bit-operatable flags
             inline int DeactivateStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const int flags = 0,
@@ -224,6 +230,7 @@ namespace SoapySDR { namespace CSharp {
                 return _deviceSPtr->deactivateStream(streamHandle.stream, flags, timeNs);
             }
 
+            // TODO: bit-operatable flags
             SoapySDR::CSharp::StreamResult __ReadStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const std::vector<size_t>& buffs,
@@ -462,6 +469,7 @@ namespace SoapySDR { namespace CSharp {
         private:
             std::shared_ptr<SoapySDR::Device> _deviceSPtr;
 
+            // C# class takes ownership, will unmake
             Device(SoapySDR::Device* pDevice): _deviceSPtr(pDevice, DeviceDeleter())
             {}
     };

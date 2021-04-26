@@ -1,7 +1,7 @@
 // Copyright (c) 2021 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
-%typemap(csclassmodifiers) LogHandlerBase "internal"
+%typemap(csclassmodifiers) LogHandlerBase "internal class"
 
 %ignore SoapySDR_logf;
 %ignore SoapySDR_vlogf;

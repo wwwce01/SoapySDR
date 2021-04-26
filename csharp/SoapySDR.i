@@ -60,14 +60,23 @@
 #endif
 
 %template(Kwargs) std::map<std::string, std::string>;
+
+%typemap(csclassmodifiers) std::vector<SoapySDR::Kwargs> "internal class"
 %template(KwargsList) std::vector<SoapySDR::Kwargs>;
+
+%typemap(csclassmodifiers) std::vector<SoapySDR::ArgInfo> "internal class"
 %template(ArgInfoList) std::vector<SoapySDR::ArgInfo>;
 
 %typemap(csclassmodifiers) std::vector<std::string> "internal class"
 %template(StringList) std::vector<std::string>;
 
+%typemap(csclassmodifiers) std::vector<SoapySDR::Range> "internal class"
 %template(RangeList) std::vector<SoapySDR::Range>;
+
+%typemap(csclassmodifiers) std::vector<size_t> "internal class"
 %template(SizeList) std::vector<size_t>; // TODO: this should be uint64_t for 64-bit platforms
+
+%typemap(csclassmodifiers) std::vector<double> "internal class"
 %template(DoubleList) std::vector<double>;
 
 ////////////////////////////////////////////////////////////////////////

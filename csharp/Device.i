@@ -5,6 +5,7 @@
 %csmethodmodifiers SoapySDR::CSharp::Device::__ToString "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__Equals "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__GetStreamFormats "private";
+%csmethodmodifiers SoapySDR::CSharp::Device::__GetStreamArgsInfo "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ReadStream "private unsafe";
 %csmethodmodifiers SoapySDR::CSharp::Device::__WriteStream "private unsafe";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ListAntennas "private";
@@ -32,6 +33,14 @@
         return (GetClass().GetHashCode() ^ __ToString().GetHashCode());
     }
 
+    public static Device[] ParallelMake(Kwargs[] kwargs)
+    {
+        var swigArgs = new KwargsList();
+        foreach(var arg in args) swigArgs.Add(arg);
+
+        return __ParallelMake(swigArgs).ToArray();
+    }
+
     public static Device[] ParallelMake(string[] args)
     {
         var swigArgs = new StringList();
@@ -45,14 +54,22 @@
         return __GetStreamFormats(direction, channel).ToArray();
     }
 
-    public StreamHandle SetupStream<T>(Direction direction, string format, SizeList channels, Kwargs kwargs) where T: unmanaged
+    public ArgInfo[] GetStreamArgsInfo(Direction direction, uint channel)
     {
-        return SetupStream(direction, Utility.GetFormatString<T>(), channels, kwargs);
+        return __GetStreamArgsInfo(direction, channel).ToArray();
+    }
+
+    public StreamHandle SetupStream<T>(Direction direction, string format, uint[] channels, Kwargs kwargs) where T: unmanaged
+    {
+        var swigChannels = new SizeList();
+        foreach(var channel in channels) swigChannels.Add(channel);
+
+        return SetupStream(direction, Utility.GetFormatString<T>(), swigChannels, kwargs);
     }
 
     public unsafe StreamResult ReadStream<T>(StreamHandle streamHandle, ref T[] buff, long timeNs, int timeoutUs) where T: unmanaged
     {
-        T[][] buffs2D = new T[][1];
+        T[][] buffs2D = new T[1][];
         buffs2D[0] = buff;
 
         return ReadStream(streamHandle, buffs2D, timeNs, timeoutUs);
@@ -101,7 +118,7 @@
 
     public unsafe StreamResult WriteStream<T>(StreamHandle streamHandle, T[] buff, long timeNs, int timeoutUs) where T: unmanaged
     {
-        T[][] buffs2D = new T[][1];
+        T[][] buffs2D = new T[1][];
         buffs2D[0] = buff;
 
         return WriteStream(streamHandle, buffs2D, timeNs, timeoutUs);
