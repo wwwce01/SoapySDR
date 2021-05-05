@@ -1,6 +1,9 @@
 // Copyright (c) 2021 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
+%typemap(csimports) SoapySDR::CSharp::Device "
+using System;"
+
 %csmethodmodifiers SoapySDR::CSharp::Device::__ParallelMake "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ToString "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__Equals "private";
