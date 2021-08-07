@@ -24,3 +24,15 @@ include(FeatureSummary)
 include(CMakeDependentOption)
 cmake_dependent_option(ENABLE_LUAJIT_TESTING "Enable LuaJIT unit tests" ON "ENABLE_LUAJIT;LUAUNIT_FOUND" OFF)
 add_feature_info("LuaJIT tests" ENABLE_LUAJIT_TESTING "LuaJIT unit tests")
+
+########################################################################
+## Tests
+########################################################################
+set(tests
+    TestLogger)
+
+foreach(test ${tests})
+    add_test(
+        NAME LuaJIT_${test}
+        COMMAND ${LUAJIT_INTERPRETER} ${CMAKE_CURRENT_SOURCE_DIR}/${test}.lua)
+endforeach()
