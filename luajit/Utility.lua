@@ -38,7 +38,7 @@ local ffiKwargsPtrType = ffi.typeof("SoapySDRKwargs*")
 local ffiRangePtrType = ffi.typeof("SoapySDRRange*")
 
 local function isFFIBool(obj)
-    return (ffi.typeof(obj) == fiBoolType)
+    return (ffi.typeof(obj) == ffiBoolType)
 end
 
 local function isFFINumeric(obj)

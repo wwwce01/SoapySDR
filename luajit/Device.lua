@@ -356,7 +356,7 @@ function Device:hasDCOffset(direction, channel)
 end
 
 function Device:setDCOffset(direction, channel, offset)
-    local complexOffset = ffi.istype(offset, "complex") and offset or Complex(offset,0)
+    local complexOffset = ffi.istype(offset, "complex") and offset or ffi.new("complex", offset, 0)
 
     return processDeviceOutput(lib.SoapySDRDevice_setDCOffset(
         self.__deviceHandle,
@@ -377,7 +377,7 @@ function Device:getDCOffset(direction, channel)
         iPtr,
         qPtr))
 
-    return Complex(iPtr[0], qPtr[0])
+    return ffi.new("complex", iPtr[0], qPtr[0])
 end
 
 function Device:hasIQBalance(direction, channel)
@@ -387,15 +387,15 @@ function Device:hasIQBalance(direction, channel)
         channel))
 end
 
-function Device:setIQBalance(direction, channel, offset)
-    local complexOffset = ffi.istype(offset, "complex") and offset or Complex(offset,0)
+function Device:setIQBalance(direction, channel, balance)
+    local complexBalance = ffi.istype(balance, "complex") and balance or ffi.new("complex", balance, 0)
 
     return processDeviceOutput(lib.SoapySDRDevice_setIQBalance(
         self.__deviceHandle,
         direction,
         channel,
-        complexOffset.re,
-        complexOffset.im))
+        complexBalance.re,
+        complexBalance.im))
 end
 
 function Device:getIQBalance(direction, channel)
@@ -409,7 +409,7 @@ function Device:getIQBalance(direction, channel)
         iPtr,
         qPtr))
 
-    return Complex(iPtr[0], qPtr[0])
+    return ffi.new("complex", iPtr[0], qPtr[0])
 end
 
 function Device:hasIQBalanceMode(direction, channel)
