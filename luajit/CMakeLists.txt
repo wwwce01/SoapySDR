@@ -24,6 +24,8 @@ if (NOT ENABLE_LUAJIT)
     return()
 endif()
 
+message(STATUS "LuaJIT interpreter: ${LUAJIT_INTERPRETER}")
+
 configure_file(
     init.in.lua
     ${CMAKE_CURRENT_BINARY_DIR}/init.lua
