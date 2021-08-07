@@ -4,7 +4,6 @@ configure_file(
 @ONLY)
 
 set(files
-    Complex.lua
     Device.lua
     ${CMAKE_CURRENT_BINARY_DIR}/init.lua
     Lib.lua

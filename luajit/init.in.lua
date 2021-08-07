@@ -38,7 +38,6 @@ local SoapySDR =
 
     enumerateDevices = enumerateDevices,
 
-    Complex = require("SoapySDR.Complex"),
     Device = Device,
     Logger = require("SoapySDR.Logger"),
     Time = require("SoapySDR.Time"),
