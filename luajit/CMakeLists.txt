@@ -1,3 +1,29 @@
+########################################################################
+# Project setup
+########################################################################
+cmake_minimum_required(VERSION 3.1.0)
+project(SoapySDRLuaJIT)
+enable_testing()
+
+find_package(SoapySDR CONFIG REQUIRED)
+
+########################################################################
+# Find LuaJIT
+########################################################################
+find_package(LuaJIT)
+
+########################################################################
+## Feature registration
+########################################################################
+include(FeatureSummary)
+include(CMakeDependentOption)
+cmake_dependent_option(ENABLE_LUAJIT "Enable LuaJIT bindings" ON "ENABLE_LIBRARY;LUAJIT_FOUND" OFF)
+add_feature_info(LuaJIT ENABLE_LUAJIT "LuaJIT bindings")
+
+if (NOT ENABLE_LUAJIT)
+    return()
+endif()
+
 configure_file(
     init.in.lua
     ${CMAKE_CURRENT_BINARY_DIR}/init.lua

@@ -155,8 +155,11 @@ message(STATUS "#############################################")
 message(STATUS "Enabling optional Python3 bindings if possible...")
 add_subdirectory(python3)
 
-
-# TODO: check for LuaJIT
+message(STATUS "")
+message(STATUS "#############################################")
+message(STATUS "## Begin configuration for LuaJIT support...")
+message(STATUS "#############################################")
+message(STATUS "Enabling optional LuaJIT bindings if possible...")
 add_subdirectory(luajit)
 
 ########################################################################
