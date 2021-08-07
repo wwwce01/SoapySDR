@@ -7,6 +7,12 @@ local lib = require("SoapySDR.Lib")
 
 local Utility = {}
 
+local function isNil(obj)
+    local objTypeName = tostring(type(obj))
+
+    return (objTypeName == "nil")
+end
+
 local function isNativeLuaType(obj)
     local objTypeName = tostring(type(obj))
 
@@ -83,6 +89,16 @@ end
 --
 -- Handling C <-> Lua types
 --
+
+-- TODO: setting-specific function, recreate Setting.hpp
+local function toString(val)
+    if isNil(val) then return "" -- By default, would return "nil"
+    if isNativeLuaType(val) then return tostring(val)
+    elseif isFFINumeric(val) then return tostring(tonumber(val))
+    elseif isFFIRawString(val) then return processRawString(val)
+    else return tostring(val) -- No idea what this is, hopefully this works
+    end
+end
 
 local function kwargsToTable(kwargs)
     local tbl = {}

@@ -36,6 +36,16 @@ local SoapySDR =
         end
     },
 
+    Flags =
+    {
+        END_BURST      = 2,  -- (1 << 1)
+        HAS_TIME       = 4,  -- (1 << 2)
+        END_ABRUPT     = 8,  -- (1 << 3)
+        ONE_PACKET     = 16, -- (1 << 4)
+        MORE_FRAGMENTS = 32, -- (1 << 5)
+        WAIT_TRIGGER   = 64, -- (1 << 6)
+    },
+
     Format =
     {
         CF64 = "CF64",

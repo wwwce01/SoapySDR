@@ -6,8 +6,13 @@ local lib = require("SoapySDR.Lib")
 
 local Time =
 {
-    ticksToTimeNs = lib.SoapySDR_ticksToTimeNs,
-    timeNsToTicks = lib.SoapySDR_timeNsToTicks
+    ticksToTimeNs = function(ticks, rate)
+        return tonumber(lib.SoapySDR_ticksToTimeNs(ticks, rate))
+    end,
+
+    timeNsToTicks = function(timeNs, rate)
+        return tonumber(lib.SoapySDR_timeNsToTicks(timeNs, rate))
+    end
 }
 
 return Time;
