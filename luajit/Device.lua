@@ -1,7 +1,6 @@
 -- Copyright (c) 2021 Nicholas Corgan
 -- SPDX-License-Identifier: BSL-1.0
 
-local Complex = require("SoapySDR.Complex")
 local ffi = require("ffi")
 local lib = require("SoapySDR.Lib")
 local Utility = require("SoapySDR.Utility")
@@ -974,7 +973,7 @@ function Device:readChannelSetting(direction, channel, key)
         self.__deviceHandle,
         direction,
         channel,
-        Utility.toString(key))
+        Utility.toString(key)))
 end
 
 --

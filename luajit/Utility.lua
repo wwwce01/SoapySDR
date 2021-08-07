@@ -93,7 +93,7 @@ end
 -- TODO: setting-specific function, recreate Setting.hpp
 local function toString(val)
     if isNil(val) then return "" -- By default, would return "nil"
-    if isNativeLuaType(val) then return tostring(val)
+    elseif isNativeLuaType(val) then return tostring(val)
     elseif isFFINumeric(val) then return tostring(tonumber(val))
     elseif isFFIRawString(val) then return processRawString(val)
     else return tostring(val) -- No idea what this is, hopefully this works
