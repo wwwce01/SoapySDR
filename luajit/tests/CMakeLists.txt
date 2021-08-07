@@ -22,13 +22,18 @@ LUA_CHECK_MODULE("LuaUnit" "luaunit" LUAUNIT_FOUND)
 ########################################################################
 include(FeatureSummary)
 include(CMakeDependentOption)
-cmake_dependent_option(ENABLE_LUAJIT_TESTING "Enable LuaJIT unit tests" ON "ENABLE_LUAJIT;LUAUNIT_FOUND;BIT32_FOUND" OFF)
+cmake_dependent_option(ENABLE_LUAJIT_TESTING "Enable LuaJIT unit tests" ON "ENABLE_LUAJIT;LUAUNIT_FOUND" OFF)
 add_feature_info("LuaJIT tests" ENABLE_LUAJIT_TESTING "LuaJIT unit tests")
+
+if (NOT ENABLE_LUAJIT_TESTING)
+    return()
+endif()
 
 ########################################################################
 ## Tests
 ########################################################################
 set(tests
+    TestFormats
     TestLogger
     TestTimeConversion)
 
