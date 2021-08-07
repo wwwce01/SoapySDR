@@ -43,3 +43,5 @@ set(files
 install(
     FILES ${files}
     DESTINATION share/lua/5.1/SoapySDR)
+
+add_subdirectory(tests)
