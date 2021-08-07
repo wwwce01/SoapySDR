@@ -33,6 +33,7 @@ endif()
 ## Tests
 ########################################################################
 set(tests
+    TestErrorCodes
     TestFormats
     TestLogger
     TestTimeConversion)
