@@ -4,7 +4,7 @@
 /// Misc data type definitions used in the API.
 ///
 /// \copyright
-/// Copyright (c) 2014-2017 Josh Blum
+/// Copyright (c) 2014-2021 Josh Blum
 /// SPDX-License-Identifier: BSL-1.0
 ///
 
@@ -13,6 +13,7 @@
 #include <SoapySDR/Types.h>
 #include <type_traits>
 #include <vector>
+#include <stdexcept>
 #include <string>
 #include <map>
 
@@ -173,16 +174,19 @@ namespace Detail {
 template <typename Type>
 typename std::enable_if<std::is_same<Type, bool>::value, Type>::type StringToSetting(const std::string &s)
 {
-    if (s == SOAPY_SDR_TRUE) return true;
-    if (s == SOAPY_SDR_FALSE) return false;
-
-    //zeros and empty strings are false
-    if (s == "0") return false;
-    if (s == "0.0") return false;
-    if (s == "") return false;
-
-    //other values are true
-    return "true";
+  if (s.empty() or s == SOAPY_SDR_FALSE) {
+    return false;
+  }
+  if (s == SOAPY_SDR_TRUE) {
+    return true;
+  }
+  try {
+    // C++: Float conversion to bool is unambiguous
+    return std::stod(s);
+  } catch (std::invalid_argument&) {
+  }
+  // other values are true
+  return true;
 }
 
 template <typename Type>
