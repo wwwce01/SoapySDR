@@ -36,11 +36,40 @@ local SoapySDR =
         end
     },
 
+    Format =
+    {
+        CF64 = "CF64",
+        CF32 = "CF32",
+        CS32 = "CS32",
+        CU32 = "CU32",
+        CS16 = "CS16",
+        CU16 = "CU16",
+        CS12 = "CS12",
+        CU12 = "CU12",
+        CS8 = "CS8",
+        CU8 = "CU8",
+        CS4 = "CS4",
+        CU4 = "CU4",
+
+        F64 = "F64",
+        F32 = "F32",
+        S32 = "S32",
+        U32 = "U32",
+        S16 = "S16",
+        U16 = "U16",
+        S8 = "S8",
+        U8 = "U8",
+
+        FormatToSize = function(format)
+            return tonumber(lib.SoapySDR_formatToSize(format))
+        end
+    },
+
     enumerateDevices = enumerateDevices,
 
     Device = Device,
     Logger = require("SoapySDR.Logger"),
-    Time = require("SoapySDR.Time"),
+    Time = require("SoapySDR.Time")
 }
 
 -- Error out before attempting to call invalid function
