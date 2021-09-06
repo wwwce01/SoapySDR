@@ -7,8 +7,12 @@ using System;"
 %csmethodmodifiers SoapySDR::CSharp::Device::__ParallelMake "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ToString "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__Equals "private";
+%csmethodmodifiers SoapySDR::CSharp::Device::__GetDriverKey "private";
+%csmethodmodifiers SoapySDR::CSharp::Device::__GetHardwareKey "private";
+%csmethodmodifiers SoapySDR::CSharp::Device::__GetHardwareInfo "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__GetStreamFormats "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__GetStreamArgsInfo "private";
+%csmethodmodifiers SoapySDR::CSharp::Device::__SetupStream "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ReadStream "private unsafe";
 %csmethodmodifiers SoapySDR::CSharp::Device::__WriteStream "private unsafe";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ListAntennas "private";
@@ -52,6 +56,21 @@ using System;"
         return __ParallelMake(swigArgs).ToArray();
     }
 
+    public string DriverKey
+    {
+        get { return __GetDriverKey(); }
+    }
+
+    public string HardwareKey
+    {
+        get { return __GetHardwareKey(); }
+    }
+
+    public Kwargs HardwareInfo
+    {
+        get { return __GetHardwareInfo(); }
+    }
+
     public string[] GetStreamFormats(Direction direction, uint channel)
     {
         return __GetStreamFormats(direction, channel).ToArray();
@@ -62,12 +81,17 @@ using System;"
         return __GetStreamArgsInfo(direction, channel).ToArray();
     }
 
-    public StreamHandle SetupStream<T>(Direction direction, string format, uint[] channels, Kwargs kwargs) where T: unmanaged
+    public StreamHandle SetupStream(Direction direction, string format, uint[] channels, Kwargs kwargs)
     {
         var swigChannels = new SizeList();
         foreach(var channel in channels) swigChannels.Add(channel);
 
-        return SetupStream(direction, Utility.GetFormatString<T>(), swigChannels, kwargs);
+        return __SetupStream(direction, format, swigChannels, kwargs);
+    }
+
+    public StreamHandle SetupStream<T>(Direction direction, uint[] channels, Kwargs kwargs) where T: unmanaged
+    {
+        return SetupStream(direction, Utility.GetFormatString<T>(), channels, kwargs);
     }
 
     public unsafe StreamResult ReadStream<T>(StreamHandle streamHandle, ref T[] buff, long timeNs, int timeoutUs) where T: unmanaged

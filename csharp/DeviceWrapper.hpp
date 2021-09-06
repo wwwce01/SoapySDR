@@ -76,24 +76,25 @@ namespace SoapySDR { namespace CSharp {
             }
 
             //
-            // Identification API
+            // Identification API (all private, to be used as properties)
             //
 
-            inline std::string GetDriverKey() const
+            inline std::string __GetDriverKey() const
             {
                 assert(_deviceSPtr);
 
                 return _deviceSPtr->getDriverKey();
             }
 
-            inline std::string GetHardwareKey() const
+            inline std::string __GetHardwareKey() const
             {
                 assert(_deviceSPtr);
 
                 return _deviceSPtr->getHardwareKey();
             }
 
-            inline SoapySDR::Kwargs GetHardwareInfo() const
+            // TODO: expose Kwargs?
+            inline SoapySDR::Kwargs __GetHardwareInfo() const
             {
                 assert(_deviceSPtr);
 
@@ -177,12 +178,11 @@ namespace SoapySDR { namespace CSharp {
                 return _deviceSPtr->getStreamArgsInfo(int(direction), channel);
             }
 
-            // TODO: make private, public with size_t array
-            SoapySDR::CSharp::StreamHandle SetupStream(
+            SoapySDR::CSharp::StreamHandle __SetupStream(
                 SoapySDR::CSharp::Direction direction,
                 const std::string& format,
-                const std::vector<size_t>& channels = std::vector<size_t>(),
-                const SoapySDR::Kwargs& kwargs = SoapySDR::Kwargs())
+                const std::vector<size_t>& channels,
+                const SoapySDR::Kwargs& kwargs)
             {
                 assert(_deviceSPtr);
 

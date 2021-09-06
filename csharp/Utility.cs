@@ -67,6 +67,7 @@ namespace SoapySDR
             }
         }
 
+        // TODO: complex version
         public static string GetFormatString<T>() where T: unmanaged
         {
             var type = typeof(T);
