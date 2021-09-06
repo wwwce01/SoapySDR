@@ -260,20 +260,23 @@ namespace SoapySDR { namespace CSharp {
             {
                 assert(_deviceSPtr);
 
-                SoapySDR::CSharp::StreamResult result;
-                std::vector<const void*> buffPtrs(buffs.size());
-                for(size_t i = 0; i < buffs.size(); ++i)
-                {
-                    buffPtrs[i] = reinterpret_cast<const void*>(buffs[i]);
-                }
+                std::vector<const void*> buffPtrs;
+                std::transform(
+                    buffs.begin(),
+                    buffs.end(),
+                    std::back_inserter(buffPtrs),
+                    [](const size_t buffNum)
+                    { return reinterpret_cast<const void*>(buffNum); });
+
                 int intFlags = 0;
+                SoapySDR::CSharp::StreamResult result;
                 result.ret = _deviceSPtr->writeStream(streamHandle.stream, buffPtrs.data(), numElems, intFlags, timeNs, timeoutUs);
                 result.flags = SoapySDR::CSharp::StreamFlags(intFlags);
 
                 return result;
             }
 
-            SoapySDR::CSharp::StreamResult ReadStreamStatus(
+            SoapySDR::CSharp::StreamResult __ReadStreamStatus(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const long timeoutUs)
             {

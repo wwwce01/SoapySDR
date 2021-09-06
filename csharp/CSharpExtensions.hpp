@@ -11,6 +11,8 @@
 
 #include <string>
 
+// TODO: CamelCase enums? C# naming convention?
+
 namespace SoapySDR { namespace CSharp {
 
     struct BuildInfo
@@ -103,6 +105,7 @@ namespace SoapySDR { namespace CSharp {
         std::string GetFormat(){return format;}
     };
 
+    // TODO: parsing ret as error if needed
     struct StreamResult
     {
         int ret{0};
@@ -123,6 +126,20 @@ namespace SoapySDR { namespace CSharp {
         {
             return SoapySDR::timeNsToTicks(timeNs, rate);
         }
+    };
+
+    // Note: we need to repeat the literal enum values or
+    //       SWIG will copy SOAPY_SDR* into the C# file.
+    enum class ErrorCode
+    {
+        NONE = 0,
+        TIMEOUT = -1,
+        STREAM_ERROR = -2,
+        CORRUPTION = -3,
+        OVERFLOW = -4,
+        NOT_SUPPORTED = -5,
+        TIME_ERROR = -6,
+        UNDERFLOW = -7
     };
 
     // Note: we need to repeat the literal enum values or

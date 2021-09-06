@@ -13,8 +13,9 @@ using System;"
 %csmethodmodifiers SoapySDR::CSharp::Device::__GetStreamFormats "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__GetStreamArgsInfo "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__SetupStream "private";
-%csmethodmodifiers SoapySDR::CSharp::Device::__ReadStream "private unsafe";
-%csmethodmodifiers SoapySDR::CSharp::Device::__WriteStream "private unsafe";
+%csmethodmodifiers SoapySDR::CSharp::Device::__ReadStream "internal unsafe";
+%csmethodmodifiers SoapySDR::CSharp::Device::__WriteStream "internal unsafe";
+%csmethodmodifiers SoapySDR::CSharp::Device::__ReadStreamStatus "internal";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ListAntennas "private";
 
 %include <typemaps.i>
@@ -141,42 +142,6 @@ using System;"
         foreach(var buff in buffs) buffsAsSizes.Add((uint)buff);
 
         return __ReadStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
-    }
-
-    public unsafe StreamResult WriteStream<T>(StreamHandle streamHandle, T[] buff, long timeNs, int timeoutUs) where T: unmanaged
-    {
-        T[][] buffs2D = new T[1][];
-        buffs2D[0] = buff;
-
-        return WriteStream(streamHandle, buffs2D, timeNs, timeoutUs);
-    }
-
-    public unsafe StreamResult WriteStream<T>(StreamHandle streamHandle, T[][] buffs, uint numElems, long timeNs, int timeoutUs) where T: unmanaged
-    {
-        Utility.ValidateBuffs(streamHandle, buffs);
-
-        System.Runtime.InteropServices.GCHandle[] handles = null;
-        SizeList buffsAsSizes = null;
-
-        Utility.ManagedArraysToSizeList(
-            buffs,
-            handles,
-            buffsAsSizes);
-
-        return __WriteStream(streamHandle, buffsAsSizes, (uint)buffs.Length, timeNs, timeoutUs);
-    }
-
-    public unsafe StreamResult WriteStream(StreamHandle streamHandle, IntPtr buff, uint numElems, long timeNs, int timeoutUs)
-    {
-        return WriteStream(streamHandle, new IntPtr{buff}, numElems, timeNs, timeoutUs);
-    }
-
-    public unsafe StreamResult WriteStream(StreamHandle streamHandle, IntPtr[] buffs, uint numElems, long timeNs, int timeoutUs)
-    {
-        var buffsAsSizes = new SizeList();
-        foreach(var buff in buffs) buffsAsSizes.Add((UIntPtr)((void*)buff));
-
-        return __WriteStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
     }
 
     public string[] ListAntennas(Direction direction, uint channel)
