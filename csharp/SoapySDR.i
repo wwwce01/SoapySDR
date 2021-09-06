@@ -93,6 +93,11 @@
 %csmethodmodifiers SoapySDR::CSharp::StreamHandle::GetFormat "internal";
 %nodefaultctor SoapySDR::CSharp::StreamFormats;
 %nodefaultctor SoapySDR::CSharp::Time;
+
+// Allows bitwise operations
+%typemap(csclassmodifiers) SoapySDR::CSharp::StreamFlags "[Flags]
+public enum"
+
 %include "CSharpExtensions.hpp"
 
 %include "Device.i"

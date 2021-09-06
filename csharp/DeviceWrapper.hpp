@@ -207,48 +207,46 @@ namespace SoapySDR { namespace CSharp {
                 return _deviceSPtr->getStreamMTU(streamHandle.stream);
             }
 
-            // TODO: bit-operatable flags
             inline int ActivateStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
-                const int flags = 0,
+                const SoapySDR::CSharp::StreamFlags flags = SoapySDR::CSharp::StreamFlags(0),
                 const long long timeNs = 0,
                 const size_t numElems = 0)
             {
                 assert(_deviceSPtr);
 
-                return _deviceSPtr->activateStream(streamHandle.stream, flags, timeNs, numElems);
+                return _deviceSPtr->activateStream(streamHandle.stream, int(flags), timeNs, numElems);
             }
 
-            // TODO: bit-operatable flags
             inline int DeactivateStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
-                const int flags = 0,
+                const SoapySDR::CSharp::StreamFlags flags = SoapySDR::CSharp::StreamFlags(0),
                 const long long timeNs = 0)
             {
                 assert(_deviceSPtr);
 
-                return _deviceSPtr->deactivateStream(streamHandle.stream, flags, timeNs);
+                return _deviceSPtr->deactivateStream(streamHandle.stream, int(flags), timeNs);
             }
 
-            // TODO: bit-operatable flags
             SoapySDR::CSharp::StreamResult __ReadStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const std::vector<size_t>& buffs,
                 const size_t numElems,
-                const int flags,
+                const SoapySDR::CSharp::StreamFlags flags,
                 const long long timeNs,
                 const long timeoutUs)
             {
                 assert(_deviceSPtr);
 
                 SoapySDR::CSharp::StreamResult result;
-                result.flags = flags;
                 std::vector<void*> buffPtrs(buffs.size());
                 for(size_t i = 0; i < buffs.size(); ++i)
                 {
                     buffPtrs[i] = reinterpret_cast<void*>(buffs[i]);
                 }
-                result.ret = _deviceSPtr->readStream(streamHandle.stream, buffPtrs.data(), numElems, result.flags, result.timeNs, result.timeoutUs);
+                auto intFlags = int(flags);
+                result.ret = _deviceSPtr->readStream(streamHandle.stream, buffPtrs.data(), numElems, intFlags, result.timeNs, result.timeoutUs);
+                result.flags = SoapySDR::CSharp::StreamFlags(intFlags);
 
                 return result;
             }
@@ -268,7 +266,9 @@ namespace SoapySDR { namespace CSharp {
                 {
                     buffPtrs[i] = reinterpret_cast<const void*>(buffs[i]);
                 }
-                result.ret = _deviceSPtr->writeStream(streamHandle.stream, buffPtrs.data(), numElems, result.flags, timeNs, timeoutUs);
+                int intFlags = 0;
+                result.ret = _deviceSPtr->writeStream(streamHandle.stream, buffPtrs.data(), numElems, intFlags, timeNs, timeoutUs);
+                result.flags = SoapySDR::CSharp::StreamFlags(intFlags);
 
                 return result;
             }
@@ -280,7 +280,9 @@ namespace SoapySDR { namespace CSharp {
                 assert(_deviceSPtr);
 
                 SoapySDR::CSharp::StreamResult result;
-                result.ret = _deviceSPtr->readStreamStatus(streamHandle.stream, result.chanMask, result.flags, result.timeNs, timeoutUs);
+                int intFlags = 0;
+                result.ret = _deviceSPtr->readStreamStatus(streamHandle.stream, result.chanMask, intFlags, result.timeNs, timeoutUs);
+                result.flags = SoapySDR::CSharp::StreamFlags(intFlags);
 
                 return result;
             }

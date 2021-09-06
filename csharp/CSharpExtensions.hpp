@@ -105,13 +105,11 @@ namespace SoapySDR { namespace CSharp {
 
     struct StreamResult
     {
-        StreamResult(): ret(0), flags(0), timeNs(0), timeoutUs(0), chanMask(0){}
-
-        int ret;
-        int flags;
-        long long timeNs;
-        long timeoutUs;
-        size_t chanMask;
+        int ret{0};
+        StreamFlags flags;
+        long long timeNs{0};
+        long timeoutUs{0};
+        size_t chanMask{0U};
     };
 
     struct Time
