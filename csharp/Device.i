@@ -170,5 +170,5 @@ using System;"
 
 %include "DeviceWrapper.hpp"
 
+%typemap(csclassmodifiers) std::vector<SoapySDR::CSharp::Device> "internal class"
 %template(DeviceList) std::vector<SoapySDR::CSharp::Device>;
-

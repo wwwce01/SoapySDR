@@ -61,6 +61,8 @@
 
 %template(Kwargs) std::map<std::string, std::string>;
 
+// NOTE: hide vectors, SWIG-generated C# vectors are ugly
+
 %typemap(csclassmodifiers) std::vector<SoapySDR::Kwargs> "internal class"
 %template(KwargsList) std::vector<SoapySDR::Kwargs>;
 
