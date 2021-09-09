@@ -52,13 +52,6 @@
 %ignore SoapySDR::Detail::StringToSetting; //ignore SFINAE overloads
 %include <SoapySDR/Types.hpp>
 
-//handle arm 32-bit case where size_t and unsigned are the same
-#ifdef SIZE_T_IS_UNSIGNED_INT
-%typedef unsigned int size_t;
-#else
-%template(UnsignedList) std::vector<unsigned>;
-#endif
-
 %template(Kwargs) std::map<std::string, std::string>;
 
 // NOTE: hide vectors, SWIG-generated C# vectors are ugly
@@ -86,17 +79,8 @@
 ////////////////////////////////////////////////////////////////////////
 %nodefaultctor SoapySDR::CSharp::BuildInfo;
 %nodefaultctor SoapySDR::CSharp::StreamHandle;
-%ignore SoapySDR::CSharp::StreamHandle::stream;
-%ignore SoapySDR::CSharp::StreamHandle::channels;
-%csmethodmodifiers SoapySDR::CSharp::StreamHandle::GetChannels "internal";
-%ignore SoapySDR::CSharp::StreamHandle::format;
-%csmethodmodifiers SoapySDR::CSharp::StreamHandle::GetFormat "internal";
-%nodefaultctor SoapySDR::CSharp::StreamFormats;
-%nodefaultctor SoapySDR::CSharp::Time;
 
-// Allows bitwise operations
-%typemap(csclassmodifiers) SoapySDR::CSharp::StreamFlags "[Flags]
-public enum"
+%include "Stream.i"
 
 %include "CSharpExtensions.hpp"
 

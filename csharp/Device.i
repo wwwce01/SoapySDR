@@ -1,6 +1,22 @@
 // Copyright (c) 2021 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
+%include <std_pair.i>
+%include <stdint.i>
+%include <typemaps.i>
+
+#ifdef SIZE_T_IS_UNSIGNED_INT
+%apply uint32_t { size_t };
+%apply uint32_t { uintptr_t };
+#else
+%apply uint64_t { size_t };
+%apply uint64_t { uintptr_t };
+#endif
+
+//
+// Wrapper class
+//
+
 %typemap(csimports) SoapySDR::CSharp::Device "
 using System;"
 
@@ -12,17 +28,19 @@ using System;"
 %csmethodmodifiers SoapySDR::CSharp::Device::__GetHardwareInfo "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__GetStreamFormats "private";
 %csmethodmodifiers SoapySDR::CSharp::Device::__GetStreamArgsInfo "private";
-%csmethodmodifiers SoapySDR::CSharp::Device::__SetupStream "private";
+%csmethodmodifiers SoapySDR::CSharp::Device::__SetupStream "internal";
+%csmethodmodifiers SoapySDR::CSharp::Device::__CloseStream "internal";
+%csmethodmodifiers SoapySDR::CSharp::Device::__ActivateStream "internal";
+%csmethodmodifiers SoapySDR::CSharp::Device::__DeactivateStream "internal";
+%csmethodmodifiers SoapySDR::CSharp::Device::__GetStreamMTU "internal";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ReadStream "internal unsafe";
 %csmethodmodifiers SoapySDR::CSharp::Device::__WriteStream "internal unsafe";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ReadStreamStatus "internal";
 %csmethodmodifiers SoapySDR::CSharp::Device::__ListAntennas "private";
-
-%include <typemaps.i>
+%csmethodmodifiers SoapySDR::CSharp::Device::__GetPointer "private";
 
 %apply double& OUTPUT { double& fullScaleOut };
 
-// TODO: default args where appropriate
 %typemap(cscode) SoapySDR::CSharp::Device %{
     public override string ToString()
     {
@@ -38,7 +56,7 @@ using System;"
 
     public override int GetHashCode()
     {
-        return (GetClass().GetHashCode() ^ __ToString().GetHashCode());
+        return (GetClass().GetHashCode() ^ __GetPointer().GetHashCode());
     }
 
     public static Device[] ParallelMake(Kwargs[] kwargs)
@@ -82,68 +100,6 @@ using System;"
         return __GetStreamArgsInfo(direction, channel).ToArray();
     }
 
-    public StreamHandle SetupStream(Direction direction, string format, uint[] channels, Kwargs kwargs)
-    {
-        var swigChannels = new SizeList();
-        foreach(var channel in channels) swigChannels.Add(channel);
-
-        return __SetupStream(direction, format, swigChannels, kwargs);
-    }
-
-    public StreamHandle SetupStream<T>(Direction direction, uint[] channels, Kwargs kwargs) where T: unmanaged
-    {
-        return SetupStream(direction, Utility.GetFormatString<T>(), channels, kwargs);
-    }
-
-    public unsafe StreamResult ReadStream<T>(StreamHandle streamHandle, ref T[] buff, long timeNs, int timeoutUs) where T: unmanaged
-    {
-        T[][] buffs2D = new T[1][];
-        buffs2D[0] = buff;
-
-        return ReadStream(streamHandle, buffs2D, timeNs, timeoutUs);
-    }
-
-    public unsafe StreamResult ReadStream<T>(StreamHandle streamHandle, ref T[][] buffs, long timeNs, int timeoutUs) where T: unmanaged
-    {
-        Utility.ValidateBuffs(streamHandle, buffs);
-
-        System.Runtime.InteropServices.GCHandle[] handles = null;
-        SizeList buffsAsSizes = null;
-
-        Utility.ManagedArraysToSizeList(
-            buffs,
-            handles,
-            buffsAsSizes);
-
-        return __ReadStream(streamHandle, buffsAsSizes, (uint)buffs.Length, timeNs, timeoutUs);
-    }
-
-    public unsafe StreamResult ReadStream(StreamHandle streamHandle, IntPtr buff, uint numElems, long timeNs, int timeoutUs)
-    {
-        return ReadStream(streamHandle, new IntPtr{buff}, numElems, timeNs, timeoutUs);
-    }
-
-    public unsafe StreamResult ReadStream(StreamHandle streamHandle, IntPtr[] buffs, uint numElems, long timeNs, int timeoutUs)
-    {
-        var buffsAsSizes = new SizeList();
-        foreach(var buff in buffs) buffsAsSizes.Add((UIntPtr)((void*)buff));
-
-        return __ReadStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
-    }
-
-    public unsafe StreamResult ReadStream(StreamHandle streamHandle, UIntPtr buff, uint numElems, long timeNs, int timeoutUs)
-    {
-        return ReadStream(streamHandle, new UIntPtr{buff}, numElems, timeNs, timeoutUs);
-    }
-
-    public unsafe StreamResult ReadStream(StreamHandle streamHandle, UIntPtr[] buffs, uint numElems, long timeNs, int timeoutUs)
-    {
-        var buffsAsSizes = new SizeList();
-        foreach(var buff in buffs) buffsAsSizes.Add((uint)buff);
-
-        return __ReadStream(streamHandle, buffsAsSizes, numElems, timeNs, timeoutUs);
-    }
-
     public string[] ListAntennas(Direction direction, uint channel)
     {
         return __ListAntennas(direction, channel).ToArray();
@@ -152,6 +108,9 @@ using System;"
 
 %ignore SoapySDR::CSharp::DeviceDeleter;
 %nodefaultctor SoapySDR::CSharp::Device;
+
+%typemap(csclassmodifiers) std::pair<SoapySDR::CSharp::ErrorCode, SoapySDR::CSharp::StreamResult> "internal class";
+%template(StreamResultPair) std::pair<SoapySDR::CSharp::ErrorCode, SoapySDR::CSharp::StreamResult>;
 
 %{
 #include "DeviceWrapper.hpp"

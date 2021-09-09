@@ -18,7 +18,7 @@ message(STATUS "SWIG_FOUND: ${SWIG_FOUND} - ${SWIG_VERSION}")
 ########################################################################
 set(CMAKE_SWIG_FLAGS -c++ -I${SoapySDR_INCLUDE_DIRS} -namespace SoapySDR)
 
-#check for size_t issue on arm 32-bit platforms
+# SWIG doesn't deal well with (s)size_t and (u)intptr_t
 include(CheckCXXSourceCompiles)
 CHECK_CXX_SOURCE_COMPILES("
     #include <cstddef>

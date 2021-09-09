@@ -11,6 +11,9 @@
 #include <cassert>
 #include <cstdio>
 #include <memory>
+#include <utility>
+
+using StreamResultPair = std::pair<SoapySDR::CSharp::ErrorCode, SoapySDR::CSharp::StreamResult>;
 
 // We're separately using a separate thin wrapper for two reasons:
 // * To abstract away the make() and unmake() calls, which SWIG won't
@@ -193,42 +196,53 @@ namespace SoapySDR { namespace CSharp {
                 return streamHandle;
             }
 
-            inline void CloseStream(const SoapySDR::CSharp::StreamHandle& streamHandle)
+            inline void __CloseStream(const SoapySDR::CSharp::StreamHandle& streamHandle)
             {
                 assert(_deviceSPtr);
 
                 _deviceSPtr->closeStream(streamHandle.stream);
             }
 
-            inline size_t GetStreamMTU(const SoapySDR::CSharp::StreamHandle& streamHandle)
+            inline size_t __GetStreamMTU(const SoapySDR::CSharp::StreamHandle& streamHandle)
             {
                 assert(_deviceSPtr);
 
                 return _deviceSPtr->getStreamMTU(streamHandle.stream);
             }
 
-            inline int ActivateStream(
+            inline SoapySDR::CSharp::ErrorCode __ActivateStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
-                const SoapySDR::CSharp::StreamFlags flags = SoapySDR::CSharp::StreamFlags(0),
-                const long long timeNs = 0,
-                const size_t numElems = 0)
+                const SoapySDR::CSharp::StreamFlags flags,
+                const long long timeNs,
+                const size_t numElems)
             {
                 assert(_deviceSPtr);
 
-                return _deviceSPtr->activateStream(streamHandle.stream, int(flags), timeNs, numElems);
+                return SoapySDR::CSharp::ErrorCode(_deviceSPtr->activateStream(
+                    streamHandle.stream,
+                    int(flags),
+                    timeNs,
+                    numElems));
             }
 
-            inline int DeactivateStream(
+            inline SoapySDR::CSharp::ErrorCode __DeactivateStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
-                const SoapySDR::CSharp::StreamFlags flags = SoapySDR::CSharp::StreamFlags(0),
-                const long long timeNs = 0)
+                const SoapySDR::CSharp::StreamFlags flags,
+                const long long timeNs)
             {
                 assert(_deviceSPtr);
 
-                return _deviceSPtr->deactivateStream(streamHandle.stream, int(flags), timeNs);
+                return SoapySDR::CSharp::ErrorCode(_deviceSPtr->deactivateStream(
+                    streamHandle.stream,
+                    int(flags),
+                    timeNs));
             }
 
-            SoapySDR::CSharp::StreamResult __ReadStream(
+            //
+            // TODO: SWIG typemap hackery can get us the "out StreamResult" we want
+            //
+
+            StreamResultPair __ReadStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const std::vector<size_t>& buffs,
                 const size_t numElems,
@@ -238,20 +252,29 @@ namespace SoapySDR { namespace CSharp {
             {
                 assert(_deviceSPtr);
 
-                SoapySDR::CSharp::StreamResult result;
-                std::vector<void*> buffPtrs(buffs.size());
-                for(size_t i = 0; i < buffs.size(); ++i)
-                {
-                    buffPtrs[i] = reinterpret_cast<void*>(buffs[i]);
-                }
-                auto intFlags = int(flags);
-                result.ret = _deviceSPtr->readStream(streamHandle.stream, buffPtrs.data(), numElems, intFlags, result.timeNs, result.timeoutUs);
-                result.flags = SoapySDR::CSharp::StreamFlags(intFlags);
+                StreamResultPair resultPair;
+                auto& errorCode = resultPair.first;
+                auto& result = resultPair.second;
 
-                return result;
+                std::vector<void*> buffPtrs(buffs.size());
+                std::transform(
+                    buffs.begin(),
+                    buffs.end(),
+                    std::back_inserter(buffPtrs),
+                    [](const size_t buffNum)
+                    { return reinterpret_cast<void*>(buffNum); });
+
+                auto intFlags = int(flags);
+                auto cppRet = _deviceSPtr->readStream(streamHandle.stream, buffPtrs.data(), numElems, intFlags, result.TimeNs, result.TimeoutUs);
+                result.Flags = SoapySDR::CSharp::StreamFlags(intFlags);
+
+                if(cppRet >= 0) result.NumSamples = static_cast<size_t>(cppRet);
+                else            errorCode = static_cast<SoapySDR::CSharp::ErrorCode>(cppRet);
+
+                return resultPair;
             }
 
-            SoapySDR::CSharp::StreamResult __WriteStream(
+            StreamResultPair __WriteStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const std::vector<size_t>& buffs,
                 const size_t numElems,
@@ -259,6 +282,10 @@ namespace SoapySDR { namespace CSharp {
                 const long timeoutUs)
             {
                 assert(_deviceSPtr);
+
+                StreamResultPair resultPair;
+                auto& errorCode = resultPair.first;
+                auto& result = resultPair.second;
 
                 std::vector<const void*> buffPtrs;
                 std::transform(
@@ -269,25 +296,35 @@ namespace SoapySDR { namespace CSharp {
                     { return reinterpret_cast<const void*>(buffNum); });
 
                 int intFlags = 0;
-                SoapySDR::CSharp::StreamResult result;
-                result.ret = _deviceSPtr->writeStream(streamHandle.stream, buffPtrs.data(), numElems, intFlags, timeNs, timeoutUs);
-                result.flags = SoapySDR::CSharp::StreamFlags(intFlags);
+                auto cppRet = _deviceSPtr->writeStream(streamHandle.stream, buffPtrs.data(), numElems, intFlags, timeNs, timeoutUs);
+                result.Flags = SoapySDR::CSharp::StreamFlags(intFlags);
 
-                return result;
+                if(cppRet >= 0) result.NumSamples = static_cast<size_t>(cppRet);
+                else            errorCode = static_cast<SoapySDR::CSharp::ErrorCode>(cppRet);
+
+                return resultPair;
             }
 
-            SoapySDR::CSharp::StreamResult __ReadStreamStatus(
+            StreamResultPair __ReadStreamStatus(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const long timeoutUs)
             {
                 assert(_deviceSPtr);
 
-                SoapySDR::CSharp::StreamResult result;
-                int intFlags = 0;
-                result.ret = _deviceSPtr->readStreamStatus(streamHandle.stream, result.chanMask, intFlags, result.timeNs, timeoutUs);
-                result.flags = SoapySDR::CSharp::StreamFlags(intFlags);
+                StreamResultPair resultPair;
+                auto& errorCode = resultPair.first;
+                auto& result = resultPair.second;
 
-                return result;
+                int intFlags = 0;
+                errorCode = SoapySDR::CSharp::ErrorCode(_deviceSPtr->readStreamStatus(
+                    streamHandle.stream,
+                    result.ChanMask,
+                    intFlags,
+                    result.TimeNs,
+                    result.TimeoutUs));
+                result.Flags = SoapySDR::CSharp::StreamFlags(intFlags);
+
+                return resultPair;
             }
 
             //
@@ -469,6 +506,11 @@ namespace SoapySDR { namespace CSharp {
             inline bool __Equals(const SoapySDR::CSharp::Device& other) const
             {
                 return (__ToString() == other.__ToString());
+            }
+
+            inline uintptr_t __GetPointer() const
+            {
+                return reinterpret_cast<uintptr_t>(_deviceSPtr.get());
             }
 
         private:

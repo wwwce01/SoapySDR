@@ -98,21 +98,24 @@ namespace SoapySDR { namespace CSharp {
 
         // Ignored
         std::vector<size_t> channels;
-        std::vector<size_t> GetChannels(){return channels;}
+        inline std::vector<size_t> GetChannels() const {return channels;}
 
         // Ignored
         std::string format;
-        std::string GetFormat(){return format;}
+        inline std::string GetFormat() const {return format;}
+
+        // Ignored
+        inline uintptr_t GetPointer() const {return reinterpret_cast<uintptr_t>(stream);}
     };
 
-    // TODO: parsing ret as error if needed
+    // TODO: once output parameter, change ret to numSamples or similar name
     struct StreamResult
     {
-        int ret{0};
-        StreamFlags flags;
-        long long timeNs{0};
-        long timeoutUs{0};
-        size_t chanMask{0U};
+        size_t NumSamples{0};
+        StreamFlags Flags;
+        long long TimeNs{0};
+        long TimeoutUs{0};
+        size_t ChanMask{0U};
     };
 
     struct Time
