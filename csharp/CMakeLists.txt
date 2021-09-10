@@ -8,6 +8,11 @@ enable_testing()
 find_package(SoapySDR CONFIG REQUIRED)
 
 ########################################################################
+# Find C# compiler
+########################################################################
+find_package(CSharp)
+
+########################################################################
 # Find SWIG
 ########################################################################
 find_package(SWIG)
@@ -45,8 +50,8 @@ endif ()
 ########################################################################
 include(FeatureSummary)
 include(CMakeDependentOption)
-cmake_dependent_option(ENABLE_CSHARP "Enable C# bindings" ON "ENABLE_LIBRARY;SWIG_FOUND" OFF)
-add_feature_info(CSharp ENABLE_CSHARP "C# bindings")
+cmake_dependent_option(ENABLE_CSHARP "Enable C# bindings" ON "ENABLE_LIBRARY;CSHARP_FOUND;SWIG_FOUND" OFF)
+add_feature_info(CSharp ENABLE_CSHARP "C# bindings (${CSHARP_TYPE} ${CSHARP_VERSION})")
 if (NOT ENABLE_CSHARP)
     return()
 endif()
@@ -55,8 +60,8 @@ endif()
 # Build Module
 ########################################################################
 include(UseSWIG)
+include(SWIGCSharp) # Convenient SWIG CMake stuff, TODO: more generic
 
-message(STATUS "CMAKE_SWIG_FLAGS=${CMAKE_SWIG_FLAGS}")
 set_source_files_properties(SoapySDR.i PROPERTIES CPLUSPLUS ON)
 
 # TODO: remove CSharp in DLL name output
@@ -67,3 +72,41 @@ else()
 endif()
 
 target_include_directories(${SWIG_MODULE_SoapySDRCSharp_REAL_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+########################################################################
+# Build C# assembly
+########################################################################
+
+set(csharp_srcs
+    ${CMAKE_CURRENT_SOURCE_DIR}/Logger.cs
+    ${CMAKE_CURRENT_SOURCE_DIR}/Stream.cs
+    ${CMAKE_CURRENT_SOURCE_DIR}/TxStream.cs
+    ${CMAKE_CURRENT_SOURCE_DIR}/Utility.cs
+
+    # SWIG-generated
+    ${CMAKE_CURRENT_BINARY_DIR}/ArgInfo.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/ArgInfoList.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/Device.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/DeviceList.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/Direction.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/DoubleList.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/ErrorCode.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/Kwargs.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/KwargsList.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/LogHandlerBase.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/LogLevel.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/Range.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/RangeList.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/SizeList.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/SoapySDR.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/SoapySDRPINVOKE.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/StreamFlags.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/StreamFormats.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/StreamHandle.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/StreamResult.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/StreamResultPair.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/StringList.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/Time.cs
+    ${CMAKE_CURRENT_BINARY_DIR}/UnsignedList.cs
+)
