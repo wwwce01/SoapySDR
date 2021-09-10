@@ -5,18 +5,8 @@ using System;
 
 namespace SoapySDR
 {
-    public class TxStream
+    public class TxStream: Stream
     {
-        private Device _device = null;
-        private StreamHandle _streamHandle = null;
-        private bool _active = false;
-        private bool _disposed = false;
-
-        public string Format { get; }
-        public uint[] Channels = { get; }
-        public Kwargs[] StreamArgs { get; }
-        public bool Active { get { return _active; } }
-
         // We already used these parameters to create the stream,
         // this is just for the sake of getters.
         internal TxStream(
@@ -24,69 +14,10 @@ namespace SoapySDR
             string format,
             uint[] channels,
             Kwargs kwargs,
-            StreamHandle streamHandle)
+            StreamHandle streamHandle
+        ):
+            base(device, format, channels, kwargs, streamHandle)
         {
-            _device = device;
-            _streamHandle = streamHandle;
-
-            Format = format;
-            Channels = channels;
-            StreamArgs = kwargs;
-        }
-
-        ~TxStream()
-        {
-            if(_active)       Deactivate();
-            if(_streamHandle) Close();
-        }
-
-        public uint MTU
-        {
-            // By convention, don't throw from property getters
-            get { return _active ? _device.getStreamMTU(_streamHandle) : 0; }
-        }
-
-        public ErrorCode Activate(
-            StreamFlags flags,
-            long timeNs = 0,
-            ulong numElems = 0)
-        {
-            ErrorCode ret = ErrorCode.NONE;
-            if(!_active)
-            {
-                ret = _device.__ActivateStream(
-                    _streamHandle,
-                    flags,
-                    timeNs,
-                    numElems);
-
-                if(ret == ErrorCode.NONE) _active = true;
-            }
-            else throw new NotSupportedException("Stream is already active");
-
-            return ret;
-        }
-
-        public ErrorCode Deactivate(
-            StreamFlags flags = StreamFlags(0),
-            long timeNs = 0)
-        {
-            ErrorCode ret = ErrorCode.NONE;
-            if(!_active)
-            {
-                ret = _device.__DeactivateStream(
-                    _streamHandle,
-                    flags,
-                    timeNs);
-
-                if(ret == ErrorCode.NONE) _active = true;
-            }
-            else throw new NotSupportedException("Stream is already inactive");
-        }
-
-        public void Close()
-        {
-            _device.__CloseStream(_streamHandle);
         }
 
         public unsafe ErrorCode Write<T>(
@@ -107,25 +38,33 @@ namespace SoapySDR
             int timeoutUs,
             out StreamResult result) where T: unmanaged
         {
-            Utility.ValidateBuffs(_streamHandle, buffs);
+            ErrorCode ret = ErrorCode.NONE;
 
-            System.Runtime.InteropServices.GCHandle[] handles = null;
-            SizeList buffsAsSizes = null;
+            if(_streamHandle)
+            {
+                Utility.ValidateBuffs(_streamHandle, buffs);
 
-            Utility.ManagedArraysToSizeList(
-                buffs,
-                handles,
-                buffsAsSizes);
+                System.Runtime.InteropServices.GCHandle[] handles = null;
+                SizeList buffsAsSizes = null;
 
-            var deviceOutput = _device.__WriteStream(
-                _streamHandle,
-                buffsAsSizes,
-                (uint)buffs.Length,
-                timeNs,
-                timeoutUs);
+                Utility.ManagedArraysToSizeList(
+                    buffs,
+                    handles,
+                    buffsAsSizes);
 
-            result = deviceOutput.second;
-            return deviceOutput.first;
+                var deviceOutput = _device.__WriteStream(
+                    _streamHandle,
+                    buffsAsSizes,
+                    (uint)buffs.Length,
+                    timeNs,
+                    timeoutUs);
+
+                result = deviceOutput.second;
+                ret = deviceOutput.first;
+            }
+            else throw new NotSupportedException("Stream is closed");
+
+            return ret;
         }
 
         public unsafe ErrorCode Write(
@@ -150,27 +89,29 @@ namespace SoapySDR
             int timeoutUs,
             out StreamResult result)
         {
-            var buffsAsSizes = new SizeList();
-            foreach(var buff in buffs) buffsAsSizes.Add((UIntPtr)((void*)buff));
+            ErrorCode ret = ErrorCode.NONE;
 
-            var deviceOutput = _device.__WriteStream(
-                streamHandle,
-                buffsAsSizes,
-                numElems,
-                timeNs,
-                timeoutUs);
+            if(_streamHandle)
+            {
+                var buffsAsSizes = new SizeList();
+                foreach(var buff in buffs) buffsAsSizes.Add((UIntPtr)((void*)buff));
 
-            result = deviceOutput.second;
-            return deviceOutput.first;
+                var deviceOutput = _device.__WriteStream(
+                    streamHandle,
+                    buffsAsSizes,
+                    numElems,
+                    timeNs,
+                    timeoutUs);
+
+                result = deviceOutput.second;
+                ret = deviceOutput.first;
+            }
+            else throw new NotSupportedException("Stream is closed");
+
+            return ret;
         }
 
-        public ErrorCode ReadStatus(int timeoutUs, out StreamResult result)
-        {
-            var deviceOutput = _device.__ReadStatus(_streamHandle, timeoutUs);
-
-            result = deviceOutput.second;
-            return deviceOutput.first;
-        }
+        // Note: Stream's Equals() and GetHashCode() work here too
 
         public override string ToString()
         {
@@ -180,19 +121,6 @@ namespace SoapySDR
                 (_active ? "active" : "inactive"),
                 Format,
                 Channels);
-        }
-
-        // For completeness, but a stream is only ever equal to itself
-        public override bool Equals(object other)
-        {
-            var otherAsTxStream = (TxStream)other;
-            if(otherAsTxStream) return ReferenceEquals(this, other);
-            else throw new ArgumentException("Not a TxStream");
-        }
-
-        public override int GetHashCode()
-        {
-            return (GetClass().GetHashCode() ^ _streamHandle.GetHashCode());
         }
     }
 }
