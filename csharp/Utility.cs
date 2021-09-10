@@ -10,7 +10,7 @@ namespace SoapySDR
     internal class Utility
     {
         // TODO: compare stream type to buffer type
-        public static void ValidateBuffs<T>(
+        internal static void ValidateBuffs<T>(
             StreamHandle streamHandle,
             ref T[][] buffs) where T: unmanaged
         {
@@ -48,7 +48,7 @@ namespace SoapySDR
             }
         }
 
-        public static unsafe void ManagedArraysToSizeList<T>(
+        internal static unsafe void ManagedArraysToSizeList<T>(
             T[][] buffs,
             out GCHandle[] handles,
             out SizeList sizeList)
