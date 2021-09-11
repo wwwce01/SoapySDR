@@ -42,7 +42,7 @@ endmacro( CSHARP_ADD_EXECUTABLE )
 
 # Private macro
 macro( CSHARP_ADD_PROJECT type name )
-  set( refs "/reference:System.dll;/reference:System.Drawing.dll;/reference:System.Windows.Forms.dll" )
+  set( refs "/reference:System.dll;/reference:System.Core.dll" )
   set( sources )
   set( sources_dep )
 
@@ -56,24 +56,18 @@ macro( CSHARP_ADD_PROJECT type name )
 
   # Step through each argument
   foreach( it ${ARGN} )
+    message(STATUS "it=${it}")
     if( ${it} MATCHES "(.*)(dll)" )
        # Argument is a dll, add reference
        list( APPEND refs /reference:${it} )
     else( )
       # Argument is a source file
-      if( EXISTS ${it} )
-        list( APPEND sources ${it} )
-        list( APPEND sources_dep ${it} )
-      elseif( EXISTS ${CSHARP_SOURCE_DIRECTORY}/${it} )
-        list( APPEND sources ${CSHARP_SOURCE_DIRECTORY}/${it} )
-        list( APPEND sources_dep ${CSHARP_SOURCE_DIRECTORY}/${it} )
-      elseif( ${it} MATCHES "[*]" )
-        # For dependencies, we need to expand wildcards
-        FILE( GLOB it_glob ${it} )
-        list( APPEND sources ${it} )
-        list( APPEND sources_dep ${it_glob} )
+      list( APPEND sources ${it} )
+      if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${it} )
+         list( APPEND sources_dep ${CMAKE_CURRENT_SOURCE_DIR}/${it} )
       endif( )
     endif ( )
+    message(STATUS "sources now ${sources}")
   endforeach( )
 
   # Perform platform specific actions
@@ -82,6 +76,10 @@ macro( CSHARP_ADD_PROJECT type name )
   else (UNIX)
     string( REPLACE "\\" "/" sources ${sources} )
   endif (WIN32)
+
+  string(REPLACE ";" " " sources ${sources})
+
+  message(STATUS "sources=${sources}")
 
   # Add custom target and command
   if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")

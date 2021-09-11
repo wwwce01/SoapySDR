@@ -7,12 +7,12 @@ namespace SoapySDR
 {
     public class Logger
     {
-        public delegate LoggerDelegate(LogLevel logLevel, string message);
+        public delegate void LoggerDelegate(LogLevel logLevel, string message);
         private static LoggerDelegate loggerDelegate = null;
 
         private class CSharpLogHandler: LogHandlerBase
         {
-            public CSharpLogHandler(): LogHandlerBase()
+            public CSharpLogHandler(): base()
             {
             }
 

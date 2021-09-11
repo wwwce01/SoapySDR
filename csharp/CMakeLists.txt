@@ -18,11 +18,6 @@ find_package(CSharp)
 find_package(SWIG)
 message(STATUS "SWIG_FOUND: ${SWIG_FOUND} - ${SWIG_VERSION}")
 
-########################################################################
-## set the SWIG flags
-########################################################################
-set(CMAKE_SWIG_FLAGS -c++ -I${SoapySDR_INCLUDE_DIRS} -namespace SoapySDR)
-
 # SWIG doesn't deal well with (s)size_t and (u)intptr_t
 include(CheckCXXSourceCompiles)
 CHECK_CXX_SOURCE_COMPILES("
@@ -36,14 +31,14 @@ if (SIZE_T_IS_UNSIGNED_INT)
 endif (SIZE_T_IS_UNSIGNED_INT)
 
 ########################################################################
-## Check for SoapySDR if this is used as a standalone build
+## Export variables for python3 subdirectory
 ########################################################################
 
 #this directory used as a stand-alone build since the library is pulled in externally
 #set ENABLE_LIBRARY for cmake_dependent_option() used in the feature setup below
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     set(ENABLE_LIBRARY ${SoapySDR_FOUND})
-endif ()
+endif()
 
 ########################################################################
 ## Feature registration
@@ -60,18 +55,18 @@ endif()
 # Build Module
 ########################################################################
 include(UseSWIG)
-include(SWIGCSharp) # Convenient SWIG CMake stuff, TODO: more generic
+include(SWIGCSharp) # Convenient SWIG CMake stuff
+SWIG_CSHARP_INIT()
 
-set_source_files_properties(SoapySDR.i PROPERTIES CPLUSPLUS ON)
+set(SWIG_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(SWIG_CSHARP_INCLUDE_DIRS ${SoapySDR_INCLUDE_DIRS})
+set(SWIG_CSHARP_LIBRARIES SoapySDR)
 
-# TODO: remove CSharp in DLL name output
-if(${CMAKE_VERSION} VERSION_LESS "3.8")
-    SWIG_ADD_MODULE(SoapySDRCSharp csharp SoapySDR.i)
-else()
-    SWIG_ADD_LIBRARY(SoapySDRCSharp LANGUAGE csharp SOURCES SoapySDR.i)
-endif()
+message(STATUS "SWIG_MODULE_DIR=${SWIG_MODULE_DIR}")
+message(STATUS "SWIG_CSHARP_INCLUDE_DIRS=${SWIG_CSHARP_INCLUDE_DIRS}")
+message(STATUS "SWIG_CSHARP_LIBRARIES=${SWIG_CSHARP_LIBRARIES}")
 
-target_include_directories(${SWIG_MODULE_SoapySDRCSharp_REAL_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+SWIG_BUILD_CSHARP_MODULE(SoapySDR SoapySDRCSharp SoapySDR TRUE SoapySDR)
 
 ########################################################################
 # Build C# assembly
@@ -82,8 +77,6 @@ set(csharp_srcs
     ${CMAKE_CURRENT_SOURCE_DIR}/Stream.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/TxStream.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Utility.cs
-
-    # SWIG-generated
     ${CMAKE_CURRENT_BINARY_DIR}/ArgInfo.cs
     ${CMAKE_CURRENT_BINARY_DIR}/ArgInfoList.cs
     ${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.cs
@@ -108,5 +101,7 @@ set(csharp_srcs
     ${CMAKE_CURRENT_BINARY_DIR}/StreamResultPair.cs
     ${CMAKE_CURRENT_BINARY_DIR}/StringList.cs
     ${CMAKE_CURRENT_BINARY_DIR}/Time.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/UnsignedList.cs
-)
+    ${CMAKE_CURRENT_BINARY_DIR}/UnsignedList.cs)
+
+CSHARP_BUILD_DLL(SoapySDR.CSharp "SoapySDRCSharp" "${csharp_srcs}")
+add_dependencies(SoapySDR.CSharp ${csharp_srcs})

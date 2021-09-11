@@ -60,89 +60,92 @@
 ########################################################################
 
 MACRO(SWIG_CSHARP_INIT)
-    SET(CSHARP_SOURCE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources)
-    SET(CMAKE_SWIG_OUTDIR       ${CSHARP_SOURCE_DIRECTORY})
-    FILE(MAKE_DIRECTORY         ${CSHARP_SOURCE_DIRECTORY})
-    SET(CSHARP_BINARY_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    set(CSHARP_SOURCE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources)
+    set(CMAKE_SWIG_OUTDIR       ${CSHARP_SOURCE_DIRECTORY})
+    file(MAKE_DIRECTORY         ${CSHARP_SOURCE_DIRECTORY})
+    set(CSHARP_BINARY_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 ENDMACRO(SWIG_CSHARP_INIT)
 
 MACRO(SWIG_BUILD_CSHARP_MODULE swig_filename nativelib_name csharp_module_name cplusplus namespace)
-    INCLUDE(UseCSharp)
-    INCLUDE(UseSWIG)
+    include(UseCSharp)
+    include(UseSWIG)
 
-    SET(SWIG_INCLUDE_DIRS
+    set(SWIG_INCLUDE_DIRS
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${SWIG_MODULE_DIR}
         ${SWIG_CSHARP_INCLUDE_DIRS}
         ${CMAKE_CURRENT_BINARY_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/csharp
     )
-    INCLUDE_DIRECTORIES(${SWIG_INCLUDE_DIRS})
-    SET(SWIG_LIBRARIES ${SWIG_CSHARP_LIBRARIES})
+    include_directories(${SWIG_INCLUDE_DIRS})
+    set(SWIG_LIBRARIES ${SWIG_CSHARP_LIBRARIES})
 
     # Set output directory
-    FOREACH(CMAKE_CONFIGURATION_TYPE ${CMAKE_CONFIGURATION_TYPES})
-        STRING(TOUPPER ${CMAKE_CONFIGURATION_TYPE} CMAKE_CONFIGURATION_TYPE)
-        SET_TARGET_PROPERTIES(${SWIG_MODULE_${nativelib_name}_TARGET_NAME}
+    foreach(CMAKE_CONFIGURATION_TYPE ${CMAKE_CONFIGURATION_TYPES})
+        string(TOUPPER ${CMAKE_CONFIGURATION_TYPE} CMAKE_CONFIGURATION_TYPE)
+        set_target_properties(${SWIG_MODULE_${nativelib_name}_TARGET_NAME}
             PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${CMAKE_CONFIGURATION_TYPE} "${CSHARP_BINARY_DIRECTORY}")
-        SET_TARGET_PROPERTIES(${SWIG_MODULE_${nativelib_name}_TARGET_NAME}
+        set_target_properties(${SWIG_MODULE_${nativelib_name}_TARGET_NAME}
             PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${CMAKE_CONFIGURATION_TYPE} "${CSHARP_BINARY_DIRECTORY}")
-    ENDFOREACH()
+    endforeach()
 
     # Set flags to pass into SWIG call
-    IF(MSVC)
-        SET(dllimport_name "${nativelib_name}")
-    ELSE()
-        SET(dllimport_name "lib${nativelib_name}")
-    ENDIF()
-    SET(CMAKE_SWIG_FLAGS -module ${csharp_module_name} -dllimport ${dllimport_name} -namespace ${namespace} ${CMAKE_SWIG_GLOBAL_FLAGS} ${CMAKE_GLOBAL_FLAGS})
-    FOREACH(dir ${SWIG_INCLUDE_DIRS})
-        LIST(APPEND CMAKE_SWIG_FLAGS "-I${dir}")
-    ENDFOREACH(dir ${SWIG_INCLUDE_DIRS})
+    if(MSVC)
+        set(dllimport_name "${nativelib_name}")
+    else()
+        set(dllimport_name "lib${nativelib_name}")
+    endif()
+    set(CMAKE_SWIG_FLAGS -module ${csharp_module_name} -dllimport ${dllimport_name} -namespace ${namespace} ${CMAKE_SWIG_GLOBAL_FLAGS} ${CMAKE_GLOBAL_FLAGS})
+    foreach(dir ${SWIG_INCLUDE_DIRS})
+        list(APPEND CMAKE_SWIG_FLAGS "-I${dir}")
+    endforeach()
 
     # Allows CMake variables to be placed in SWIG .i files
-    CONFIGURE_FILE(
+    configure_file(
         ${SWIG_MODULE_DIR}/${swig_filename}.i
         ${CMAKE_CURRENT_BINARY_DIR}/${swig_filename}.i
     @ONLY)
 
     # Set SWIG's C++ flag if specified by the user
-    IF(${cplusplus})
-        SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_BINARY_DIR}/${swig_filename}.i PROPERTIES CPLUSPLUS ON)
-    ENDIF(${cplusplus})
+    if(${cplusplus})
+        set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/${swig_filename}.i PROPERTIES CPLUSPLUS ON)
+    endif()
 
-    # TODO: ADD_MODULE vs ADD_LIBRARY
     # The actual CMake call for SWIG
-    SET(SWIG_MODULE_RC_NAME ${csharp_module_name})
-    SWIG_ADD_MODULE(${nativelib_name} csharp ${CMAKE_CURRENT_BINARY_DIR}/${swig_filename}.i)
-    LIST(LENGTH SWIG_LIBRARIES num_swig_libs)
-    IF(${num_swig_libs} GREATER 0)
+    set(SWIG_MODULE_RC_NAME ${csharp_module_name})
+    if(${CMAKE_VERSION} VERSION_LESS "3.8")
+        SWIG_ADD_MODULE(${nativelib_name} csharp ${CMAKE_CURRENT_BINARY_DIR}/${swig_filename}.i)
+    else()
+        SWIG_ADD_LIBRARY(${nativelib_name} LANGUAGE csharp SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${swig_filename}.i)
+    endif()
+
+    list(LENGTH SWIG_LIBRARIES num_swig_libs)
+    if(${num_swig_libs} GREATER 0)
         SWIG_LINK_LIBRARIES(${nativelib_name} ${SWIG_LIBRARIES})
-    ENDIF(${num_swig_libs} GREATER 0)
+    endif()
 
     # Install files
-    IF(WIN32)
-        INSTALL(
+    if(WIN32)
+        install(
             TARGETS ${SWIG_MODULE_${nativelib_name}_REAL_NAME}
             DESTINATION bin
             COMPONENT CSharp
         )
-    ELSE()
-        INSTALL(
+    else()
+        install(
             TARGETS ${SWIG_MODULE_${nativelib_name}_REAL_NAME}
             DESTINATION lib
             COMPONENT CSharp
         )
-    ENDIF(WIN32)
+    endif()
 ENDMACRO(SWIG_BUILD_CSHARP_MODULE)
 
-MACRO(CSHARP_BUILD_DLL dll_name swig_modules)
+MACRO(CSHARP_BUILD_DLL dll_name swig_modules sources)
     CSHARP_ADD_LIBRARY(
-        ${dll_name} "${CMAKE_SWIG_OUTDIR}/*.cs"
+        ${dll_name} ${sources}
     )
-    ADD_DEPENDENCIES(${dll_name} ${swig_modules})
+    add_dependencies(${dll_name} ${swig_modules})
 
-    INSTALL(
+    install(
         FILES ${CSHARP_BINARY_DIRECTORY}/${dll_name}.dll
         DESTINATION bin
         COMPONENT CSharp
@@ -151,9 +154,9 @@ ENDMACRO(CSHARP_BUILD_DLL)
 
 MACRO(CSHARP_BUILD_EXE exe_name swig_dll)
     CSHARP_ADD_EXECUTABLE(${exe_name} ${CSHARP_SOURCE_DIRECTORY}/${exe_name}.cs ${CMAKE_CURRENT_BINARY_DIR}/${swig_dll}.dll)
-    ADD_DEPENDENCIES(${exe_name} ${swig_dll})
+    add_dependencies(${exe_name} ${swig_dll})
 
-    INSTALL(
+    install(
         FILES ${CMAKE_CURRENT_BINARY_DIR}/${exe_name}
         DESTINATION bin
         COMPONENT CSharp
