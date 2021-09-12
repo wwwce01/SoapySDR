@@ -35,7 +35,7 @@ local function enumerateDevices(args)
 
     -- Abstract away different functions
     local argsType = tostring(type(args))
-    if (argsType == "string") then
+    if argsType == "string" then
         devs = Utility.processRawKwargsList(
             lib.SoapySDRDevice_enumerateStrArgs(args, lengthPtr),
             lengthPtr)

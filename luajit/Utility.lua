@@ -161,14 +161,14 @@ function Utility.processRawArgInfo(argInfo)
     return nil
 end
 
-function Utility.processRawPrimitiveList(list, lengthPtr, ffiTypeName)
+function Utility.processRawPrimitiveList(arr, lengthPtr, ffiTypeName)
     local len = tonumber(lengthPtr[0])
 
     -- Copy the data into a newly allocated array. This allows the data
     -- to be indexed as an array and properly garbage-collected. Generally,
     -- these allocations shouldn't be large enough for this to be an issue.
     local ret = ffi.new(ffiTypeName .. "[?]", len)
-    ffi.copy(ret, list, ffi.sizeof(ret))
+    ffi.copy(ret, arr, ffi.sizeof(ret))
     lib.SoapySDR_free(arr)
 
     return ret
