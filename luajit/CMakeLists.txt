@@ -32,6 +32,7 @@ configure_file(
 @ONLY)
 
 set(files
+    Class.lua
     Device.lua
     ${CMAKE_CURRENT_BINARY_DIR}/init.lua
     Lib.lua

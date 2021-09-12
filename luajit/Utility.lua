@@ -97,7 +97,7 @@ function Utility.toString(val)
     if Utility.isNil(val) then return "" -- By default, would return "nil"
     elseif Utility.isNativeLuaType(val) then return tostring(val)
     elseif Utility.isFFINumeric(val) then return tostring(tonumber(val))
-    elseif Utility.isFFIRawString(val) then return processRawString(val)
+    elseif Utility.isFFIRawString(val) then return Utility.processRawString(val)
     else return tostring(val) -- No idea what this is, hopefully this works
     end
 end
@@ -220,15 +220,15 @@ end
 function Utility.processOutput(obj, lengthPtr)
     if Utility.isNativeLuaType(obj) then return obj
     elseif Utility.isFFINumeric(obj) then return tonumber(obj)
-    elseif Utility.isFFIRawString(obj) then return processRawString(obj)
-    elseif Utility.isFFIRawStringList(obj) then return processRawStringList(obj, lengthPtr)
-    elseif Utility.isFFIBool(obj) then return processBool(obj)
-    elseif Utility.isFFIRawArgInfo(obj) then return processRawArgInfo(obj)
-    elseif Utility.isFFIRawKwargs(obj) then return processRawKwargs(obj)
+    elseif Utility.isFFIRawString(obj) then return Utility.processRawString(obj)
+    elseif Utility.isFFIRawStringList(obj) then return Utility.processRawStringList(obj, lengthPtr)
+    elseif Utility.isFFIBool(obj) then return Utility.processBool(obj)
+    elseif Utility.isFFIRawArgInfo(obj) then return Utility.processRawArgInfo(obj)
+    elseif Utility.isFFIRawKwargs(obj) then return Utility.processRawKwargs(obj)
     elseif Utility.isFFIRawRange(obj) then return obj
-    elseif Utility.isFFIRawArgInfoPtr(obj) then return processRawArgInfoList(obj, lengthPtr)
-    elseif Utility.isFFIRawKwargsPtr(obj) then return processRawKwargsList(obj, lengthPtr)
-    elseif ifFFIRawRangePtr(obj) then return processRawPrimitiveList(obj, lengthPtr, "")
+    elseif Utility.isFFIRawArgInfoPtr(obj) then return Utility.processRawArgInfoList(obj, lengthPtr)
+    elseif Utility.isFFIRawKwargsPtr(obj) then return Utility.processRawKwargsList(obj, lengthPtr)
+    elseif ifFFIRawRangePtr(obj) then return Utility.processRawPrimitiveList(obj, lengthPtr, "")
     end
 
     print(string.format("Warning: %s returned unhandled type %s. Returning nil.", debug.getinfo(2).name, ffi.typeof(obj)))

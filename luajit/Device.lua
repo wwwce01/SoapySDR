@@ -1,6 +1,8 @@
 -- Copyright (c) 2021 Nicholas Corgan
 -- SPDX-License-Identifier: BSL-1.0
 
+local class = require("SoapySDR.Class")
+
 local ffi = require("ffi")
 local lib = require("SoapySDR.Lib")
 local Utility = require("SoapySDR.Utility")
@@ -52,39 +54,30 @@ end
 -- Constructor
 --
 
-local Device = {}
-Device.__index = Device
+Device = class(
+    function(dev,param)
+        -- No parameter means no args
+        param = param or ""
 
-function Device.make(param)
-    local mt =
-    {
-        __tostring = function(dev)
-            return string.format("%s:%s", dev:getDriverKey(), dev:getHardwareKey())
-        end
-    }
-
-    local self = setmetatable(mt, Device)
-
-    -- No parameter means no args
-    param = param or ""
-
-    -- Abstract away different C constructor functions
-    local paramType = tostring(type(param))
-    if paramType == "string" then
-        self.__deviceHandle = ffi.gc(
+        -- Abstract away different C constructor functions
+        local paramType = tostring(type(param))
+        if paramType == "string" then
+            dev.__deviceHandle = ffi.gc(
             lib.SoapySDRDevice_makeStrArgs(param),
             lib.SoapySDRDevice_unmake)
-    else
-        self.__deviceHandle = ffi.gc(
+        else
+            dev.__deviceHandle = ffi.gc(
             lib.SoapySDRDevice_make(Utility.toKwargs(param)),
             lib.SoapySDRDevice_unmake)
-    end
+        end
 
-    if self.__deviceHandle == nil then
-        error("Invalid device args")
-    end
+        if dev.__deviceHandle == nil then
+            error("Invalid device args")
+        end
+    end)
 
-    return self
+function Device:__tostring()
+    return string.format("%s:%s", dev:getDriverKey(), dev:getHardwareKey())
 end
 
 --
