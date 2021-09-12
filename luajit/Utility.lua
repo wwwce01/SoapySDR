@@ -76,7 +76,7 @@ function Utility.isFFIRawRange(obj)
     return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiRangeType)
 end
 
-function Utility.isFFIArgInfoPtr(obj)
+function Utility.isFFIRawArgInfoPtr(obj)
     return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiArgInfoPtrType)
 end
 

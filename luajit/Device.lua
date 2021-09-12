@@ -63,12 +63,12 @@ Device = class(
         local paramType = tostring(type(param))
         if paramType == "string" then
             dev.__deviceHandle = ffi.gc(
-            lib.SoapySDRDevice_makeStrArgs(param),
-            lib.SoapySDRDevice_unmake)
+                lib.SoapySDRDevice_makeStrArgs(param),
+                lib.SoapySDRDevice_unmake)
         else
             dev.__deviceHandle = ffi.gc(
-            lib.SoapySDRDevice_make(Utility.toKwargs(param)),
-            lib.SoapySDRDevice_unmake)
+                lib.SoapySDRDevice_make(Utility.toKwargs(param)),
+                lib.SoapySDRDevice_unmake)
         end
 
         if dev.__deviceHandle == nil then
@@ -77,7 +77,7 @@ Device = class(
     end)
 
 function Device:__tostring()
-    return string.format("%s:%s", dev:getDriverKey(), dev:getHardwareKey())
+    return string.format("%s:%s", self:getDriverKey(), self:getHardwareKey())
 end
 
 --
