@@ -7,17 +7,18 @@ local lib = require("SoapySDR.Lib")
 
 local Utility = {}
 
-local function isNil(obj)
+function Utility.isNil(obj)
     local objTypeName = tostring(type(obj))
 
     return (objTypeName == "nil")
 end
 
-local function isNativeLuaType(obj)
+function Utility.isNativeLuaType(obj)
     local objTypeName = tostring(type(obj))
 
     return (objTypeName == "nil") or (objTypeName == "boolean") or
-           (objTypeName == "number") or (objTypeName == "string")
+           (objTypeName == "number") or (objTypeName == "string") or
+           (objTypeName == "table")
 end
 
 --
@@ -43,47 +44,48 @@ local ffiArgInfoPtrType = ffi.typeof("SoapySDRArgInfo*")
 local ffiKwargsPtrType = ffi.typeof("SoapySDRKwargs*")
 local ffiRangePtrType = ffi.typeof("SoapySDRRange*")
 
-local function isFFIBool(obj)
-    return (ffi.typeof(obj) == ffiBoolType)
+function Utility.isFFIBool(obj)
+    return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiBoolType)
 end
 
-local function isFFINumeric(obj)
+function Utility.isFFINumeric(obj)
     local ffiType = ffi.typeof(obj)
 
-    return (ffiType == ffiIntType) or (ffiType == ffiUnsignedIntType) or
-           (ffiType == ffiDoubleType) or (ffiType == ffiSizeType)
+    return (not Utility.isNativeLuaType(obj)) and
+           ((ffiType == ffiIntType) or (ffiType == ffiUnsignedIntType) or
+            (ffiType == ffiDoubleType) or (ffiType == ffiSizeType))
 end
 
-local function isFFIRawString(obj)
-    return (ffi.typeof(obj) == ffiCharPtrType)
+function Utility.isFFIRawString(obj)
+    return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiCharPtrType)
 end
 
-local function isFFIRawStringList(obj)
-    return (ffi.typeof(obj) == ffiCharPtrPtrType)
+function Utility.isFFIRawStringList(obj)
+    return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiCharPtrPtrType)
 end
 
-local function isFFIRawArgInfo(obj)
-    return (ffi.typeof(obj) == ffiArgInfoType)
+function Utility.isFFIRawArgInfo(obj)
+    return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiArgInfoType)
 end
 
-local function isFFIRawKwargs(obj)
-    return (ffi.typeof(obj) == ffiKwargsType)
+function Utility.isFFIRawKwargs(obj)
+    return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiKwargsType)
 end
 
-local function isFFIRawRange(obj)
-    return (ffi.typeof(obj) == ffiRangeType)
+function Utility.isFFIRawRange(obj)
+    return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiRangeType)
 end
 
-local function isFFIArgInfoPtr(obj)
-    return (ffi.typeof(obj) == ffiArgInfoPtrType)
+function Utility.isFFIArgInfoPtr(obj)
+    return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiArgInfoPtrType)
 end
 
-local function isFFIKwargsPtr(obj)
-    return (ffi.typeof(obj) == ffiKwargsPtrType)
+function Utility.isFFIKwargsPtr(obj)
+    return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiKwargsPtrType)
 end
 
-local function isFFIRangePtr(obj)
-    return (ffi.typeof(obj) == ffiRangePtrType)
+function Utility.isFFIRangePtr(obj)
+    return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiRangePtrType)
 end
 
 --
@@ -91,16 +93,16 @@ end
 --
 
 -- TODO: setting-specific function, recreate Setting.hpp
-local function toString(val)
-    if isNil(val) then return "" -- By default, would return "nil"
-    elseif isNativeLuaType(val) then return tostring(val)
-    elseif isFFINumeric(val) then return tostring(tonumber(val))
-    elseif isFFIRawString(val) then return processRawString(val)
+function Utility.toString(val)
+    if Utility.isNil(val) then return "" -- By default, would return "nil"
+    elseif Utility.isNativeLuaType(val) then return tostring(val)
+    elseif Utility.isFFINumeric(val) then return tostring(tonumber(val))
+    elseif Utility.isFFIRawString(val) then return processRawString(val)
     else return tostring(val) -- No idea what this is, hopefully this works
     end
 end
 
-local function kwargsToTable(kwargs)
+function Utility.kwargsToTable(kwargs)
     local tbl = {}
     for i = 0, tonumber(kwargs.size)-1 do
         tbl[ffi.string(kwargs.keys[i])] = ffi.string(kwargs.vals[i])
@@ -109,7 +111,7 @@ local function kwargsToTable(kwargs)
     return tbl
 end
 
-local function tableToKwargs(tbl)
+function Utility.tableToKwargs(tbl)
     kwargs = ffi.gc(ffi.new("SoapySDRKwargs"), lib.SoapySDRKwargs_clear)
 
     for k,v in pairs(tbl) do
@@ -127,8 +129,8 @@ function Utility.toKwargs(arg)
     local ret = nil
     local argType = tostring(type(arg))
 
-    if isFFIRawKwargs(arg) then return arg
-    elseif argType == "table" then ret = tableToKwargs(arg)
+    if Utility.isFFIRawKwargs(arg) then return arg
+    elseif argType == "table" then ret = Utility.tableToKwargs(arg)
     else
         ret = ffi.gc(lib.SoapySDRKwargs_fromString(tostring(arg)), lib.SoapySDRKwargs_clear)
     end
@@ -138,28 +140,28 @@ end
 
 local ffiTrue = ffi.new("bool", true)
 
-local function processBool(bool)
+function Utility.processBool(bool)
     return (bool == ffiTrue)
 end
 
-local function processRawString(str)
+function Utility.processRawString(str)
     -- Copy to a Lua string and add garbage collection for the C string.
     return ffi.string(ffi.gc(str, lib.SoapySDR_free))
 end
 
-local function processRawKwargs(kwargs)
-    local ret = kwargsToTable(kwargs)
+function Utility.processRawKwargs(kwargs)
+    local ret = Utility.kwargsToTable(kwargs)
     lib.SoapySDRKwargs_clear(kwargs)
 
     return ret
 end
 
 -- TODO
-local function processRawArgInfo(argInfo)
+function Utility.processRawArgInfo(argInfo)
     return nil
 end
 
-local function processRawPrimitiveList(list, lengthPtr, ffiTypeName)
+function Utility.processRawPrimitiveList(list, lengthPtr, ffiTypeName)
     local len = tonumber(lengthPtr[0])
 
     -- Copy the data into a newly allocated array. This allows the data
@@ -172,7 +174,7 @@ local function processRawPrimitiveList(list, lengthPtr, ffiTypeName)
     return ret
 end
 
-local function processRawStringList(stringList, lengthPtr)
+function Utility.processRawStringList(stringList, lengthPtr)
     local ret = {}
     local len = tonumber(lengthPtr[0])
 
@@ -187,16 +189,16 @@ local function processRawStringList(stringList, lengthPtr)
 end
 
 -- TODO
-local function processRawArgInfoList(argInfoList, lengthPtr)
+function Utility.processRawArgInfoList(argInfoList, lengthPtr)
     return nil
 end
 
-local function processRawKwargsList(kwargs, lengthPtr)
+function Utility.processRawKwargsList(kwargs, lengthPtr)
     local ret = {}
     local len = tonumber(lengthPtr[0])
 
     for i = 0,len-1 do
-        ret[i+1] = kwargsToTable(kwargs[i])
+        ret[i+1] = Utility.kwargsToTable(kwargs[i])
     end
 
     lib.SoapySDRKwargsList_clear(kwargs, len)
@@ -216,16 +218,16 @@ end
 
 -- Note: lengthPtr is only needed for lists
 function Utility.processOutput(obj, lengthPtr)
-    if isNativeLuaType(obj) then return obj
-    elseif isFFINumeric(obj) then return tonumber(obj)
-    elseif isFFIRawString(obj) then return processRawString(obj)
-    elseif isFFIRawStringList(obj) then return processRawStringList(obj, lengthPtr)
-    elseif isFFIBool(obj) then return processBool(obj)
-    elseif isFFIRawArgInfo(obj) then return processRawArgInfo(obj)
-    elseif isFFIRawKwargs(obj) then return processRawKwargs(obj)
-    elseif isFFIRawRange(obj) then return obj
-    elseif isFFIRawArgInfoPtr(obj) then return processRawArgInfoList(obj, lengthPtr)
-    elseif isFFIRawKwargsPtr(obj) then return processRawKwargsList(obj, lengthPtr)
+    if Utility.isNativeLuaType(obj) then return obj
+    elseif Utility.isFFINumeric(obj) then return tonumber(obj)
+    elseif Utility.isFFIRawString(obj) then return processRawString(obj)
+    elseif Utility.isFFIRawStringList(obj) then return processRawStringList(obj, lengthPtr)
+    elseif Utility.isFFIBool(obj) then return processBool(obj)
+    elseif Utility.isFFIRawArgInfo(obj) then return processRawArgInfo(obj)
+    elseif Utility.isFFIRawKwargs(obj) then return processRawKwargs(obj)
+    elseif Utility.isFFIRawRange(obj) then return obj
+    elseif Utility.isFFIRawArgInfoPtr(obj) then return processRawArgInfoList(obj, lengthPtr)
+    elseif Utility.isFFIRawKwargsPtr(obj) then return processRawKwargsList(obj, lengthPtr)
     elseif ifFFIRawRangePtr(obj) then return processRawPrimitiveList(obj, lengthPtr, "")
     end
 
