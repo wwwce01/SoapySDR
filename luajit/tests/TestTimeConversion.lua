@@ -11,7 +11,7 @@ function RandomInt32()
     return math.floor(math.random() * 2147483647)
 end
 
-function test_LoopbackTimeToTicks()
+function testLoopbackTimeToTicks()
     function loopbackTest(timeNs, rate)
         local ticks = SoapySDR.Time.timeNsToTicks(timeNs, rate)
         local output = SoapySDR.Time.ticksToTimeNs(ticks, rate)
@@ -28,7 +28,7 @@ function test_LoopbackTimeToTicks()
     end
 end
 
-function test_LoopbackTicksToTime()
+function testLoopbackTicksToTime()
     function loopbackTest(ticks, rate)
         local timeNs = SoapySDR.Time.ticksToTimeNs(ticks, rate)
         local output = SoapySDR.Time.timeNsToTicks(timeNs, rate)

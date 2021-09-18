@@ -5,7 +5,7 @@ SoapySDR = require("SoapySDR")
 
 luaunit = require("luaunit")
 
-function test_ErrorCodes()
+function testErrorCodes()
     luaunit.assertEquals(SoapySDR.Error.ToString(SoapySDR.Error.TIMEOUT), "TIMEOUT")
     luaunit.assertEquals(SoapySDR.Error.ToString(SoapySDR.Error.STREAM_ERROR), "STREAM_ERROR")
     luaunit.assertEquals(SoapySDR.Error.ToString(SoapySDR.Error.CORRUPTION), "CORRUPTION")

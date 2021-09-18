@@ -7,7 +7,7 @@ ffi = require("ffi")
 io = require("io")
 luaunit = require("luaunit")
 
-function test_Logger()
+function testLogger()
     local tmpFile = io.tmpfile()
 
     function logFunction(logLevel, rawMessage)

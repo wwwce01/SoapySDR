@@ -5,7 +5,7 @@ SoapySDR = require("SoapySDR")
 
 luaunit = require("luaunit")
 
-function test_FormatSizes()
+function testFormatSizes()
     luaunit.assertEquals(SoapySDR.Format.FormatToSize(SoapySDR.Format.U8), 1)
     luaunit.assertEquals(SoapySDR.Format.FormatToSize(SoapySDR.Format.S8), 1)
     luaunit.assertEquals(SoapySDR.Format.FormatToSize(SoapySDR.Format.U16), 2)
