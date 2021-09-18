@@ -24,6 +24,21 @@ local function processDeviceOutput(ret, lengthPtr)
     return Utility.processOutput(ret, lengthPtr)
 end
 
+local function processDeviceSetting(settingRet, settingName, allSettingInfo)
+    local settingStr = processDeviceOutput(settingRet)
+    local nativeSetting = nil
+
+    for i=1,#allSettingInfo do
+        local settingInfo = allSettingInfo[i]
+        if settingInfo["name"] == settingName then
+            nativeSetting = Utility.stringToSoapySetting(settingStr, settingInfo["argType"])
+            break
+        end
+    end
+
+    return nativeSetting
+end
+
 --
 -- Device enumeration
 --
@@ -918,20 +933,22 @@ function Device:getSettingInfo()
         lengthPtr)
 end
 
--- TODO: use setting-specific toString() when implemented
 function Device:writeSetting(key, value)
     return processDeviceOutput(lib.SoapySDRDevice_writeSetting(
         self.__deviceHandle,
         Utility.toString(key),
-        Utility.toString(value)))
+        Utility.soapySettingToString(value)))
 end
 
--- TODO: return correct type when implemented
 function Device:readSetting(key)
-    return Utility.processRawString(processDeviceOutput(
-        lib.SoapySDRDevice_readSetting(
+    local keyStr = Utility.toString(key)
+
+    return processDeviceSetting(
+        lib.SoapySDRDevice_readChannelSetting(
             self.__deviceHandle,
-            Utility.toString(key))))
+            keyStr),
+        keyStr,
+        self:getSettingInfo())
 end
 
 function Device:getChannelSettingInfo(direction, channel)
@@ -945,22 +962,26 @@ function Device:getChannelSettingInfo(direction, channel)
         lengthPtr)
 end
 
--- TODO: use setting-specific toString() when implemented
 function Device:writeChannelSetting(direction, channel, key, value)
     return processDeviceOutput(lib.SoapySDRDevice_writeChannelSetting(
         self.__deviceHandle,
         direction,
         channel,
         Utility.toString(key),
-        Utility.toString(value)))
+        Utility.soapySettingToString(value)))
 end
 
 function Device:readChannelSetting(direction, channel, key)
-    return processDeviceOutput(lib.SoapySDRDevice_readChannelSetting(
-        self.__deviceHandle,
-        direction,
-        channel,
-        Utility.toString(key)))
+    local keyStr = Utility.toString(key)
+
+    return processDeviceSetting(
+        lib.SoapySDRDevice_readChannelSetting(
+            self.__deviceHandle,
+            direction,
+            channel,
+            keyStr),
+        keyStr,
+        self:getChannelSettingInfo(direction, channel))
 end
 
 --

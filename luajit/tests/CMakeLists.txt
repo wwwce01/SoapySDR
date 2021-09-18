@@ -33,6 +33,7 @@ endif()
 ## Tests
 ########################################################################
 set(tests
+    TestConvertTypes
     TestDeviceAPI
     TestEnumerateDevices
     TestErrorCodes

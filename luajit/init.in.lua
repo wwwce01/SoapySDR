@@ -15,7 +15,7 @@ local SoapySDR =
     ABI_VERSION = ffi.string(lib.SoapySDR_getABIVersion()),
     LIB_VERSION = ffi.string(lib.SoapySDR_getLibVersion()),
 
-    ArgTypes =
+    ArgInfoType =
     {
         BOOL   = 0,
         INT    = 1,

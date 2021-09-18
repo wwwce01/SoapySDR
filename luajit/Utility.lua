@@ -4,6 +4,7 @@
 local debug = require("debug")
 local ffi = require("ffi")
 local lib = require("SoapySDR.Lib")
+local math = require("math")
 
 local Utility = {}
 
@@ -31,10 +32,19 @@ local ffiUnsignedIntPtrType = ffi.typeof("unsigned int*")
 local ffiDoublePtrType = ffi.typeof("double*")
 
 local ffiBoolType = ffi.typeof("bool")
+local ffiChar = ffi.typeof("char")
+local ffiSignedChar = ffi.typeof("signed char")
+local ffiShortType = ffi.typeof("short")
 local ffiIntType = ffi.typeof("int")
+local ffiLongType = ffi.typeof("long")
+local ffiLongLongType = ffi.typeof("long long")
+local ffiUnsignedChar = ffi.typeof("unsigned char")
+local ffiUnsignedShortType = ffi.typeof("unsigned short")
 local ffiUnsignedIntType = ffi.typeof("unsigned int")
+local ffiUnsignedLongType = ffi.typeof("unsigned long")
+local ffiUnsignedLongLongType = ffi.typeof("unsigned long long")
+local ffiFloatType = ffi.typeof("float")
 local ffiDoubleType = ffi.typeof("double")
-local ffiSizeType = ffi.typeof("size_t")
 
 local ffiComplexFloatType = ffi.typeof("complex float")
 local ffiComplexType = ffi.typeof("complex")
@@ -53,13 +63,19 @@ function Utility.isFFIBool(obj)
     return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiBoolType)
 end
 
+-- TODO: this isn't working with chars for some reason
 function Utility.isFFINumeric(obj)
     if Utility.isNativeLuaType(obj) then return false; end
 
     local ffiType = ffi.typeof(obj)
 
-    return ((ffiType == ffiIntType) or (ffiType == ffiUnsignedIntType) or
-            (ffiType == ffiDoubleType) or (ffiType == ffiSizeType))
+    return ((ffiType == ffiSignedCharType) or (ffiType == ffiUnsignedCharType) or
+            (ffiType == ffiShortType) or (ffiType == ffiUnsignedShortType) or
+            (ffiType == ffiIntType) or (ffiType == ffiUnsignedIntType) or
+            (ffiType == ffiLongType) or (ffiType == ffiUnsignedLongType) or
+            (ffiType == ffiLongLongType) or (ffiType == ffiUnsignedLongLongType) or
+            (ffiType == ffiFloatType) or (ffiType == ffiUnsignedFloatType) or
+            (ffiType == ffiDoubleType) or (ffiType == ffiUnsignedDoubleType))
 end
 
 function Utility.isComplex(obj)
@@ -107,16 +123,27 @@ end
 -- Handling C <-> Lua types
 --
 
+local ffiTrue = ffi.new("bool", true)
+
+function Utility.processBool(bool)
+    return (bool == ffiTrue)
+end
+
 function Utility.toComplex(val)
     if Utility.isComplex(val) then return val
     else return ffi.new("complex", val, 0)
     end
 end
 
--- TODO: setting-specific function, recreate Setting.hpp
 function Utility.toString(val)
     if Utility.isNil(val) then return "" -- By default, would return "nil"
     elseif Utility.isNativeLuaType(val) then return tostring(val)
+    elseif Utility.isFFIBool(val) then return tostring(Utility.processBool(val))
+    elseif (ffi.typeof(val) == ffiFloatType) or (ffi.typeof(val) == ffiDoubleType) then
+        local nativeVal = tonumber(val)
+        if math.floor(nativeVal + 0.5) == nativeVal then return tostring(nativeVal) .. ".0"
+        else                                             return tostring(nativeVal)
+        end
     elseif Utility.isFFINumeric(val) then return tostring(tonumber(val))
     elseif Utility.isFFIRawString(val) then return Utility.processRawString(val)
     else return tostring(val) -- No idea what this is, hopefully this works
@@ -158,10 +185,21 @@ function Utility.toKwargs(arg)
     return ret
 end
 
-local ffiTrue = ffi.new("bool", true)
+function Utility.soapySettingToString(setting)
+    return Utility.toString(setting)
+end
 
-function Utility.processBool(bool)
-    return (bool == ffiTrue)
+-- See Types.hpp
+function Utility.stringToSoapySetting(settingStr, settingType)
+    if settingType == SoapySDR.ArgInfoType.BOOL then
+        if (#settingStr == 0) or (settingStr == tostring(false)) then return false
+        elseif settingStr == tostring(true) then return true
+        else return (tonumber(settingStr) ~= 0)
+        end
+    elseif settingType == SoapySDR.ArgInfoType.INT then return math.floor(tonumber(settingStr) + 0.5)
+    elseif settingType == SoapySDR.ArgInfoType.FLOAT then return tonumber(settingStr)
+    else return settingStr
+    end
 end
 
 function Utility.processRawString(str)
