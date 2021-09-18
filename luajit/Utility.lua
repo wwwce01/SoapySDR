@@ -36,6 +36,9 @@ local ffiUnsignedIntType = ffi.typeof("unsigned int")
 local ffiDoubleType = ffi.typeof("double")
 local ffiSizeType = ffi.typeof("size_t")
 
+local ffiComplexFloatType = ffi.typeof("complex float")
+local ffiComplexType = ffi.typeof("complex")
+
 local ffiArgInfoType = ffi.typeof("SoapySDRArgInfo")
 local ffiKwargsType = ffi.typeof("SoapySDRKwargs")
 local ffiRangeType = ffi.typeof("SoapySDRRange")
@@ -44,16 +47,24 @@ local ffiArgInfoPtrType = ffi.typeof("SoapySDRArgInfo*")
 local ffiKwargsPtrType = ffi.typeof("SoapySDRKwargs*")
 local ffiRangePtrType = ffi.typeof("SoapySDRRange*")
 
+local ffiStreamPtrType = ffi.typeof("SoapySDRStream*")
+
 function Utility.isFFIBool(obj)
     return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiBoolType)
 end
 
 function Utility.isFFINumeric(obj)
+    if Utility.isNativeLuaType(obj) then return false; end
+
     local ffiType = ffi.typeof(obj)
 
-    return (not Utility.isNativeLuaType(obj)) and
-           ((ffiType == ffiIntType) or (ffiType == ffiUnsignedIntType) or
+    return ((ffiType == ffiIntType) or (ffiType == ffiUnsignedIntType) or
             (ffiType == ffiDoubleType) or (ffiType == ffiSizeType))
+end
+
+function Utility.isComplex(obj)
+    return (not Utility.isNativeLuaType(obj)) and
+           ((ffi.typeof(obj) == ffiComplexFloatType) or (ffi.typeof(obj) == ffiComplexType))
 end
 
 function Utility.isFFIRawString(obj)
@@ -80,17 +91,27 @@ function Utility.isFFIRawArgInfoPtr(obj)
     return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiArgInfoPtrType)
 end
 
-function Utility.isFFIKwargsPtr(obj)
+function Utility.isFFIRawKwargsPtr(obj)
     return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiKwargsPtrType)
 end
 
-function Utility.isFFIRangePtr(obj)
+function Utility.isFFIRawRangePtr(obj)
     return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiRangePtrType)
+end
+
+function Utility.isFFIRawStreamPtr(obj)
+    return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiStreamPtrType)
 end
 
 --
 -- Handling C <-> Lua types
 --
+
+function Utility.toComplex(val)
+    if Utility.isComplex(val) then return val
+    else return ffi.new("complex", val, 0)
+    end
+end
 
 -- TODO: setting-specific function, recreate Setting.hpp
 function Utility.toString(val)
@@ -112,7 +133,7 @@ function Utility.kwargsToTable(kwargs)
 end
 
 function Utility.tableToKwargs(tbl)
-    kwargs = ffi.gc(ffi.new("SoapySDRKwargs"), lib.SoapySDRKwargs_clear)
+    local kwargs = ffi.gc(ffi.new("SoapySDRKwargs"), lib.SoapySDRKwargs_clear)
 
     for k,v in pairs(tbl) do
         local code = lib.SoapySDRKwargs_set(kwargs, tostring(k), tostring(v))
@@ -123,7 +144,6 @@ function Utility.tableToKwargs(tbl)
 
     return kwargs
 end
-
 
 function Utility.toKwargs(arg)
     local ret = nil
@@ -156,9 +176,29 @@ function Utility.processRawKwargs(kwargs)
     return ret
 end
 
--- TODO
+function Utility.__processRawArgInfo(argInfo)
+    local ret =
+    {
+        value = ffi.string(argInfo.value),
+        name = ffi.string(argInfo.name),
+        description = ffi.string(argInfo.description),
+        name = ffi.string(argInfo.name),
+        argType = argInfo.type,
+        range = argInfo.range,
+        options = {}
+    }
+    for i = 0, tonumber(argInfo.numOptions)-1 do
+        ret[options][ffi.string(argInfo.optionNames[i])] = ffi.string(argInfo.options[i])
+    end
+
+    return ret
+end
+
 function Utility.processRawArgInfo(argInfo)
-    return nil
+    local ret = Utility.__processRawArgInfo(argInfo)
+    lib.SoapySDRArgInfo_clear(argInfo)
+
+    return ret
 end
 
 function Utility.processRawPrimitiveList(arr, lengthPtr, ffiTypeName)
@@ -188,9 +228,17 @@ function Utility.processRawStringList(stringList, lengthPtr)
     return ret
 end
 
--- TODO
 function Utility.processRawArgInfoList(argInfoList, lengthPtr)
-    return nil
+    local ret = {}
+    local len = tonumber(lengthPtr[0])
+
+    for i = 0,len-1 do
+        ret[i+1] = Utility.__processRawArgInfoList(argInfoList)
+    end
+
+    lib.SoapySDRArgInfoList_clear(argInfoList, len)
+
+    return ret
 end
 
 function Utility.processRawKwargsList(kwargs, lengthPtr)
@@ -209,7 +257,7 @@ end
 function Utility.luaArrayToFFIArray(arr, ffiTypeName)
     local ret = ffi.new(ffiTypeName .. "[?]", #arr)
 
-    for i = 0,#arr do
+    for i = 0,#arr-1 do
         ret[i] = arr[i+1]
     end
 
@@ -228,7 +276,8 @@ function Utility.processOutput(obj, lengthPtr)
     elseif Utility.isFFIRawRange(obj) then return obj
     elseif Utility.isFFIRawArgInfoPtr(obj) then return Utility.processRawArgInfoList(obj, lengthPtr)
     elseif Utility.isFFIRawKwargsPtr(obj) then return Utility.processRawKwargsList(obj, lengthPtr)
-    elseif ifFFIRawRangePtr(obj) then return Utility.processRawPrimitiveList(obj, lengthPtr, "")
+    elseif Utility.isFFIRawRangePtr(obj) then return Utility.processRawPrimitiveList(obj, lengthPtr, "")
+    elseif Utility.isFFIRawStreamPtr(obj) then return obj
     end
 
     print(string.format("Warning: %s returned unhandled type %s. Returning nil.", debug.getinfo(2).name, ffi.typeof(obj)))

@@ -15,6 +15,14 @@ local SoapySDR =
     ABI_VERSION = ffi.string(lib.SoapySDR_getABIVersion()),
     LIB_VERSION = ffi.string(lib.SoapySDR_getLibVersion()),
 
+    ArgTypes =
+    {
+        BOOL   = 0,
+        INT    = 1,
+        FLOAT  = 2,
+        STRING = 3
+    },
+
     Direction =
     {
         TX = 0,
@@ -34,16 +42,6 @@ local SoapySDR =
         ToString = function(code)
             return ffi.string(lib.SoapySDR_errToStr(code))
         end
-    },
-
-    Flags =
-    {
-        END_BURST      = 2,  -- (1 << 1)
-        HAS_TIME       = 4,  -- (1 << 2)
-        END_ABRUPT     = 8,  -- (1 << 3)
-        ONE_PACKET     = 16, -- (1 << 4)
-        MORE_FRAGMENTS = 32, -- (1 << 5)
-        WAIT_TRIGGER   = 64, -- (1 << 6)
     },
 
     Format =
@@ -73,6 +71,16 @@ local SoapySDR =
         FormatToSize = function(format)
             return tonumber(lib.SoapySDR_formatToSize(format))
         end
+    },
+
+    StreamFlags =
+    {
+        END_BURST      = 2,  -- (1 << 1)
+        HAS_TIME       = 4,  -- (1 << 2)
+        END_ABRUPT     = 8,  -- (1 << 3)
+        ONE_PACKET     = 16, -- (1 << 4)
+        MORE_FRAGMENTS = 32, -- (1 << 5)
+        WAIT_TRIGGER   = 64, -- (1 << 6)
     },
 
     enumerateDevices = enumerateDevices,

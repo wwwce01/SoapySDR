@@ -173,7 +173,6 @@ function Device:getStreamArgsInfo(direction, channel)
         lengthPtr)
 end
 
--- TODO: support FFI array
 function Device:setupStream(direction, format, channels, args)
     local ret = processDeviceOutput(lib.SoapySDRDevice_setupStream(
         self.__deviceHandle,
@@ -182,10 +181,6 @@ function Device:setupStream(direction, format, channels, args)
         Utility.luaArrayToFFIArray(channels, "size_t"),
         #channels,
         Utility.toKwargs(args)))
-
-    if ret == nil then
-        error("setupStream returned null stream")
-    end
 
     return ret
 end
@@ -254,7 +249,6 @@ function Device:writeStream(stream, buffs, numElems, flagsIn, timeNs, timeoutUs)
     timeoutUs = timeoutUs or 100000
 
     local flagsPtr = ffi.new("int[1]", {flagsIn})
-    local timeNsPtr = ffi.new("long long[1]")
 
     local ret = processDeviceOutput(lib.SoapySDRDevice_writeStream(
         self.__deviceHandle,
@@ -351,7 +345,7 @@ function Device:hasDCOffset(direction, channel)
 end
 
 function Device:setDCOffset(direction, channel, offset)
-    local complexOffset = ffi.istype(offset, "complex") and offset or ffi.new("complex", offset, 0)
+    local complexOffset = Utility.toComplex(offset)
 
     return processDeviceOutput(lib.SoapySDRDevice_setDCOffset(
         self.__deviceHandle,
@@ -363,7 +357,7 @@ end
 
 function Device:getDCOffset(direction, channel)
     local iPtr = ffi.new("double[1]")
-    local qPtr = fii.new("double[1]")
+    local qPtr = ffi.new("double[1]")
 
     processDeviceOutput(lib.SoapySDRDevice_getDCOffset(
         self.__deviceHandle,
@@ -383,7 +377,7 @@ function Device:hasIQBalance(direction, channel)
 end
 
 function Device:setIQBalance(direction, channel, balance)
-    local complexBalance = ffi.istype(balance, "complex") and balance or ffi.new("complex", balance, 0)
+    local complexBalance = Utility.toComplex(balance)
 
     return processDeviceOutput(lib.SoapySDRDevice_setIQBalance(
         self.__deviceHandle,
@@ -395,7 +389,7 @@ end
 
 function Device:getIQBalance(direction, channel)
     local iPtr = ffi.new("double[1]")
-    local qPtr = fii.new("double[1]")
+    local qPtr = ffi.new("double[1]")
 
     processDeviceOutput(lib.SoapySDRDevice_getIQBalance(
         self.__deviceHandle,
