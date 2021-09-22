@@ -52,7 +52,8 @@ jobs:
           - uses: actions/checkout@v2
           - name: Install dependencies
             run: |
-                sudo apt install -y libpython2-dev libpython3-dev python-numpy python3-numpy doxygen
+                sudo apt install -y libpython2-dev libpython3-dev python-numpy python3-numpy doxygen luajit luarocks
+                sudo luarocks install luaunit
           - name: Build SoapySDR
             run: |
                 mkdir -p ${{github.workspace}}/build
@@ -91,6 +92,13 @@ jobs:
                 ${PYTHON3_EXECUTABLE} -c "from SoapySDR import *; print(SOAPY_SDR_TIMEOUT)"
                 ${PYTHON3_EXECUTABLE} -c "import SoapySDR; print(SoapySDR.errToStr(SoapySDR.SOAPY_SDR_TIMEOUT))"
                 ${PYTHON3_EXECUTABLE} -c "import SoapySDR; print(SoapySDR.Device.make('driver=null'))"
+          - name: Test LuaJIT bindings
+            run: |
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.API_VERSION)'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.ABI_VERSION)'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Error.TIMEOUT)'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Error.ToString(SoapySDR.Error.TIMEOUT))'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Device("driver=null"))'
     osx-ci:
         name: OS X
         runs-on: macos-latest
