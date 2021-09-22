@@ -143,9 +143,13 @@ jobs:
           - uses: actions/checkout@v2
           - name: Install dependencies
             run: |
-                brew install doxygen
+                # Note: we need to install normal Lua as well to get the Luarocks we need
+                brew install doxygen luajit luarocks lua51
                 pip install numpy
                 pip3 install numpy
+
+                eval `luarocks-5.1 path --bin`
+                luarocks-5.1 install luaunit
           - name: Build SoapySDR
             run: |
                 mkdir -p ${{github.workspace}}/build
@@ -165,6 +169,13 @@ jobs:
                 SoapySDRUtil --info
                 SoapySDRUtil --check=null
                 SoapySDRUtil --make="driver=null"
+          - name: Test LuaJIT bindings
+            run: |
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.API_VERSION)'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.ABI_VERSION)'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Error.TIMEOUT)'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Error.ToString(SoapySDR.Error.TIMEOUT))'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Device("driver=null"))'
     windows-ci:
         name: Windows
         runs-on: windows-latest
