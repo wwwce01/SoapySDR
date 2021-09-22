@@ -144,7 +144,7 @@ jobs:
           - name: Install dependencies
             run: |
                 # Note: we need to install normal Lua as well to get the Luarocks we need
-                brew install doxygen luajit luarocks lua51
+                brew install doxygen luajit lua@5.1
                 pip install numpy
                 pip3 install numpy
 
