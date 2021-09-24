@@ -127,6 +127,7 @@ jobs:
                 pip install numpy
                 pip3 install numpy
 
+                # Installing Lua 5.1 dependencies via package is ugly
                 cd ${{runner.workspace}}
                 git clone https://github.com/bluebird75/luaunit.git -b LUAUNIT_V3_4
                 sudo mkdir -p /usr/local/share/lua/5.1
@@ -196,11 +197,18 @@ jobs:
                       build_type: Release
         env:
             INSTALL_PREFIX: 'C:\Program Files\SoapySDR'
+            LUAJIT_INSTALL_PREFIX: 'C:\Program Files\LuaJIT'
         steps:
           - uses: actions/checkout@v2
           - uses: ilammy/msvc-dev-cmd@v1
             with:
                 arch: ${{matrix.arch}}
+          - name: Install dependencies
+            run: |
+                cd ${{runner.workspace}}
+                git clone https://github.com/LuaJIT/LuaJIT.git -b v2.1
+                cd LuaJIT\src
+                .\msvcbuild.bat
           - name: Build SoapySDR
             run: |
                 mkdir ${{github.workspace}}\build
