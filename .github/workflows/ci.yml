@@ -131,7 +131,6 @@ jobs:
                 git clone https://github.com/bluebird75/luaunit.git -b LUAUNIT_V3_4
                 sudo mkdir -p /usr/local/share/lua/5.1
                 sudo cp luaunit/luaunit.lua /usr/local/share/lua/5.1
-                luajit -e 'require("luaunit")'
           - name: Build SoapySDR
             run: |
                 mkdir -p ${{github.workspace}}/build
