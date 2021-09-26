@@ -196,8 +196,10 @@ jobs:
                       arch: x64
                       build_type: Debug
         env:
+            # Easier to have multiple copies of a subpath than deal with CI path parsing issues
             INSTALL_PREFIX: 'C:\Program Files\SoapySDR'
             LUAJIT_INSTALL_PREFIX: 'C:\Program Files\LuaJIT'
+            LUAJIT_SHARE_LUA_51: 'C:\Program Files\LuaJIT\share\lua\5.1'
             LUA_PATH: 'C:\Program Files\LuaJIT\share\lua\5.1;C:\Program Files\SoapySDR\share\lua\5.1;;'
         steps:
           - uses: actions/checkout@v2
@@ -206,7 +208,7 @@ jobs:
                 arch: ${{matrix.arch}}
           - name: Install dependencies
             run: |
-                mkdir -p "$Env:LUAJIT_INSTALL_PREFIX"\share\lua\5.1
+                mkdir -p "$Env:LUAJIT_SHARE_LUA_51"
 
                 cd ${{runner.workspace}}
                 git clone https://github.com/LuaJIT/LuaJIT.git -b v2.1
@@ -218,7 +220,7 @@ jobs:
 
                 cd ${{runner.workspace}}
                 git clone https://github.com/bluebird75/luaunit.git -b LUAUNIT_V3_4
-                cp luaunit/luaunit.lua "$Env:LUAJIT_INSTALL_PREFIX"\share\lua\5.1
+                cp luaunit\luaunit.lua "$Env:LUAJIT_SHARE_LUA_51"
           - name: Build SoapySDR
             run: |
                 $Env:PATH += ";$Env:LUAJIT_INSTALL_PREFIX"
