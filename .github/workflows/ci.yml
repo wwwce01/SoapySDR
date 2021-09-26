@@ -209,8 +209,10 @@ jobs:
                 git clone https://github.com/LuaJIT/LuaJIT.git -b v2.1
                 cd LuaJIT\src
                 .\msvcbuild.bat
-                mkdir -p "$Env:INSTALL_PREFIX"
-                cp -r luajit.exe lua51.dll host jit "$Env:INSTALL_PREFIX"
+                mkdir -p "$Env:LUAJIT_INSTALL_PREFIX"
+                cp luajit.exe "$Env:LUAJIT_INSTALL_PREFIX"
+                cp lua51.dll "$Env:LUAJIT_INSTALL_PREFIX"
+                cp -r jit "$Env:LUAJIT_INSTALL_PREFIX"
           - name: Build SoapySDR
             run: |
                 mkdir ${{github.workspace}}\build
