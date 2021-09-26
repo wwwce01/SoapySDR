@@ -197,11 +197,93 @@ function testDevice()
     device = SoapySDR.Device({driver="null",type="null"})
     luaunit.assertEquals(tostring(device), "null:null")
 
+    --
     -- Identification API
+    --
     luaunit.assertEquals("null", device:getDriverKey())
     luaunit.assertEquals("null", device:getHardwareKey())
     luaunit.assertIsTable(device:getHardwareInfo())
 
+    --
+    -- Clocking API
+    --
+    device:setMasterClockRate(0.0)
+    luaunit.assertEquals(device:getMasterClockRate(), 0.0)
+    luaunit.assertIsTable(device:getMasterClockRates())
+
+    device:setReferenceClockRate(0.0)
+    luaunit.assertEquals(device:getReferenceClockRate(), 0.0)
+    luaunit.assertIsTable(device:getReferenceClockRates())
+
+    luaunit.assertIsTable(device:listClockSources())
+    device:setClockSource("")
+    luaunit.assertEquals(device:getClockSource(), "")
+
+    --
+    -- Time API
+    --
+    luaunit.assertIsTable(device:listTimeSources())
+    device:setTimeSource("")
+    luaunit.assertEquals(device:getTimeSource(), "")
+
+    luaunit.assertIsBoolean(device:hasHardwareTime(""))
+    luaunit.assertEquals(device:getHardwareTime(""), 0)
+    device:setHardwareTime(0, "")
+
+    --
+    -- Sensor API
+    --
+    luaunit.assertIsTable(device:listSensors())
+    luaunit.assertIsTable(device:getSensorInfo(""))
+    luaunit.assertEquals(device:readSensor(""), "")
+
+    --
+    -- Register API
+    --
+    luaunit.assertIsTable(device:listRegisterInterfaces())
+    device:writeRegister("", 0, 0)
+    luaunit.assertEquals(device:readRegister("", 0), 0)
+    -- TODO: writeRegisters, readRegisters
+
+    --
+    -- Settings API
+    --
+    luaunit.assertIsTable(device:getSettingInfo())
+    device:writeSetting("", "")
+    luaunit.assertEquals(device:readSetting(""), "")
+
+    --
+    -- GPIO API
+    --
+    luaunit.assertIsTable(device:listGPIOBanks())
+    device:writeGPIO("", 0)
+    device:writeGPIOMasked("", 0, 0)
+    luaunit.assertEquals(device:readGPIO(""), 0)
+    device:writeGPIODir("", 0)
+    device:writeGPIODirMasked("", 0, 0)
+    luaunit.assertEquals(device:readGPIODir(""), 0)
+
+    --
+    -- I2C API
+    --
+    device:writeI2C(0, "")
+    luaunit.assertEquals(device:readI2C("", 0), "")
+
+    --
+    -- SPI API
+    --
+    luaunit.assertEquals(device:transactSPI(0, 0, 0), 0)
+
+    --
+    -- UART API
+    --
+    luaunit.assertIsTable(device:listUARTs())
+    device:writeUART("", "")
+    luaunit.assertEquals(device:readUART(""), "")
+
+    --
+    -- Test per-direction API with both directions
+    --
     testDeviceWithDirection(device, SoapySDR.Direction.TX)
     testDeviceWithDirection(device, SoapySDR.Direction.RX)
 end

@@ -735,10 +735,10 @@ end
 -- Time API
 --
 
-function Device:getTimeSources()
+function Device:listTimeSources()
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
-        lib.SoapySDRDevice_getTimeSources(
+        lib.SoapySDRDevice_listTimeSources(
             self.__deviceHandle,
             lengthPtr),
         lengthPtr)
@@ -768,13 +768,6 @@ end
 
 function Device:setHardwareTime(time, what)
     return processDeviceOutput(lib.SoapySDRDevice_setHardwareTime(
-        self.__deviceHandle,
-        time,
-        Utility.toString(what)))
-end
-
-function Device:setCommandTime(time, what)
-    return processDeviceOutput(lib.SoapySDRDevice_setCommandTime(
         self.__deviceHandle,
         time,
         Utility.toString(what)))
@@ -911,7 +904,7 @@ function Device:readSetting(key)
     local keyStr = Utility.toString(key)
 
     return processDeviceSetting(
-        lib.SoapySDRDevice_readChannelSetting(
+        lib.SoapySDRDevice_readSetting(
             self.__deviceHandle,
             keyStr),
         keyStr,
@@ -1057,6 +1050,9 @@ function Device:writeUART(which, data)
 end
 
 function Device:readUART(which, timeoutUs)
+    -- To allow for optional parameter
+    timeoutUs = timeoutUs or 100000
+
     return processDeviceOutput(lib.SoapySDRDevice_readUART(
         self.__deviceHandle,
         Utility.toString(which),
