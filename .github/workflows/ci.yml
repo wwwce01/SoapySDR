@@ -198,6 +198,7 @@ jobs:
         env:
             INSTALL_PREFIX: 'C:\Program Files\SoapySDR'
             LUAJIT_INSTALL_PREFIX: 'C:\Program Files\LuaJIT'
+            LUA_PATH: 'C:\Program Files\LuaJIT\share\lua\5.1;C:\Program Files\SoapySDR\share\lua\5.1;;'
         steps:
           - uses: actions/checkout@v2
           - uses: ilammy/msvc-dev-cmd@v1
@@ -205,14 +206,19 @@ jobs:
                 arch: ${{matrix.arch}}
           - name: Install dependencies
             run: |
+                mkdir -p "$Env:LUAJIT_INSTALL_PREFIX"\share\lua\5.1
+
                 cd ${{runner.workspace}}
                 git clone https://github.com/LuaJIT/LuaJIT.git -b v2.1
                 cd LuaJIT\src
                 .\msvcbuild.bat
-                mkdir -p "$Env:LUAJIT_INSTALL_PREFIX"
                 cp luajit.exe "$Env:LUAJIT_INSTALL_PREFIX"
                 cp lua51.dll "$Env:LUAJIT_INSTALL_PREFIX"
                 cp -r jit "$Env:LUAJIT_INSTALL_PREFIX"
+
+                cd ${{runner.workspace}}
+                git clone https://github.com/bluebird75/luaunit.git -b LUAUNIT_V3_4
+                cp luaunit/luaunit.lua "$Env:LUAJIT_INSTALL_PREFIX"\share\lua\5.1
           - name: Build SoapySDR
             run: |
                 $Env:PATH += ";$Env:LUAJIT_INSTALL_PREFIX"
@@ -235,3 +241,11 @@ jobs:
                 SoapySDRUtil --info
                 SoapySDRUtil --check=null
                 SoapySDRUtil --make="driver=null"
+          - name: Test LuaJIT bindings
+            run: |
+                $Env:PATH += ";$Env:INSTALL_PREFIX\bin;$Env:LUAJIT_INSTALL_PREFIX"
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.API_VERSION)'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.ABI_VERSION)'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Error.TIMEOUT)'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Error.ToString(SoapySDR.Error.TIMEOUT))'
+                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Device("driver=null"))'
