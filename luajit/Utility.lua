@@ -292,6 +292,19 @@ function Utility.processRawKwargsList(kwargs, lengthPtr)
     return ret
 end
 
+function Utility.processRawRangeList(rangeList, lengthPtr)
+    local ret = {}
+    local len = tonumber(lengthPtr[0])
+
+    for i = 0,len-1 do
+        ret[i+1] = rangeList[i]
+    end
+
+    lib.SoapySDR_free(rangeList)
+
+    return ret
+end
+
 function Utility.luaArrayToFFIArray(arr, ffiTypeName)
     local ret = ffi.new(ffiTypeName .. "[?]", #arr)
 
@@ -314,7 +327,7 @@ function Utility.processOutput(obj, lengthPtr)
     elseif Utility.isFFIRawRange(obj) then return obj
     elseif Utility.isFFIRawArgInfoPtr(obj) then return Utility.processRawArgInfoList(obj, lengthPtr)
     elseif Utility.isFFIRawKwargsPtr(obj) then return Utility.processRawKwargsList(obj, lengthPtr)
-    elseif Utility.isFFIRawRangePtr(obj) then return Utility.processRawPrimitiveList(obj, lengthPtr, "")
+    elseif Utility.isFFIRawRangePtr(obj) then return Utility.processRawRangeList(obj, lengthPtr)
     elseif Utility.isFFIRawStreamPtr(obj) then return obj
     end
 

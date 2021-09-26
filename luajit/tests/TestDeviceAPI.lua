@@ -145,12 +145,56 @@ local function testDeviceWithDirection(device, direction)
     luaunit.assertEquals(
         ffi.typeof(device:getGainElementRange(direction, 0, "")),
         ffi.typeof("SoapySDRRange"))
+
+    --
+    -- Frequency API
+    --
+    device:setFrequency(direction, 0, 0.0, {})
+    device:setFrequency(direction, 0, 0.0, "")
+
+    device:setFrequencyComponent(direction, 0, "", 0.0, {})
+    device:setFrequencyComponent(direction, 0, "", 0.0, "")
+
+    luaunit.assertEquals(device:getFrequency(direction, 0), 0.0)
+    luaunit.assertEquals(device:getFrequencyComponent(direction, 0, ""), 0.0)
+
+    luaunit.assertIsTable(device:getFrequencyRange(direction, 0))
+    luaunit.assertIsTable(device:getFrequencyRangeComponent(direction, 0, ""))
+    luaunit.assertIsTable(device:getFrequencyArgsInfo(direction, 0))
+
+    --
+    -- Sample rate API
+    --
+    device:setSampleRate(direction, 0, 0.0)
+    luaunit.assertEquals(device:getSampleRate(direction, 0), 0.0)
+    luaunit.assertIsTable(device:getSampleRateRange(direction, 0))
+
+    --
+    -- Bandwidth API
+    --
+    device:setBandwidth(direction, 0, 0.0)
+    luaunit.assertEquals(device:getBandwidth(direction, 0), 0.0)
+    luaunit.assertIsTable(device:getBandwidthRange(direction, 0))
+
+    --
+    -- Sensor API
+    --
+    luaunit.assertIsTable(device:listChannelSensors(direction, 0))
+    luaunit.assertIsTable(device:getChannelSensorInfo(direction, 0, ""))
+    luaunit.assertIsString(device:readChannelSensor(direction, 0, ""))
+
+    --
+    -- Settings API
+    --
+    luaunit.assertIsTable(device:getChannelSettingInfo(direction, 0))
+    device:writeChannelSetting(direction, 0, "", "")
+    luaunit.assertIsString(device:readChannelSetting(direction, 0, ""))
 end
 
 function testDevice()
     -- Make sure either method works.
-    local device = SoapySDR.Device("type=null")
-    device = SoapySDR.Device({type="null"})
+    local device = SoapySDR.Device("driver=null,type=null")
+    device = SoapySDR.Device({driver="null",type="null"})
     luaunit.assertEquals(tostring(device), "null:null")
 
     -- Identification API

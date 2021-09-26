@@ -26,7 +26,7 @@ end
 
 local function processDeviceSetting(settingRet, settingName, allSettingInfo)
     local settingStr = processDeviceOutput(settingRet)
-    local nativeSetting = nil
+    local nativeSetting = ""
 
     for i=1,#allSettingInfo do
         local settingInfo = allSettingInfo[i]
@@ -582,17 +582,6 @@ function Device:getFrequencyComponent(direction, channel, name)
         Utility.toString(name)))
 end
 
-function Device:listFrequencies(direction, channel)
-    local lengthPtr = ffi.new("size_t[1]")
-    return processDeviceOutput(
-        lib.SoapySDRDevice_listFrequencies(
-            self.__deviceHandle,
-            direction,
-            channel,
-            lengthPtr),
-        lengthPtr)
-end
-
 function Device:getFrequencyRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -646,17 +635,6 @@ function Device:getSampleRate(direction, channel)
         channel))
 end
 
-function Device:listSampleRates(direction, channel)
-    local lengthPtr = ffi.new("size_t[1]")
-    return processDeviceOutput(
-        lib.SoapySDRDevice_listSampleRates(
-            self.__deviceHandle,
-            direction,
-            channel,
-            lengthPtr),
-        lengthPtr)
-end
-
 function Device:getSampleRateRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -685,17 +663,6 @@ function Device:getBandwidth(direction, channel)
         self.__deviceHandle,
         direction,
         channel))
-end
-
-function Device:listBandwidths(direction, channel)
-    local lengthPtr = ffi.new("size_t[1]")
-    return processDeviceOutput(
-        lib.SoapySDRDevice_listBandwidths(
-            self.__deviceHandle,
-            direction,
-            channel,
-            lengthPtr),
-        lengthPtr)
 end
 
 function Device:getBandwidthRange(direction, channel)
@@ -843,9 +810,9 @@ function Device:listChannelSensors(direction, channel)
     return processDeviceOutput(
         lib.SoapySDRDevice_listChannelSensors(
             self.__deviceHandle,
-            lengthPtr,
             direction,
-            channel),
+            channel,
+            lengthPtr),
         lengthPtr)
 end
 
@@ -858,7 +825,7 @@ function Device:getChannelSensorInfo(direction, channel, key)
 end
 
 function Device:readChannelSensor(direction, channel, key)
-    processDeviceOutput(lib.SoapySDRDevice_readChannelSensor(
+    return processDeviceOutput(lib.SoapySDRDevice_readChannelSensor(
         self.__deviceHandle,
         direction,
         channel,
@@ -911,7 +878,7 @@ function Device:writeRegisters(name, addr, values)
         #values))
 end
 
-function Device:readRegisters(direction, name, addr)
+function Device:readRegisters(name, addr)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
         lib.SoapySDRDevice_readRegisters(
