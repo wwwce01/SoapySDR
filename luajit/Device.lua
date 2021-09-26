@@ -852,27 +852,16 @@ function Device:readRegister(name, addr)
 end
 
 function Device:writeRegisters(name, addr, values)
-    -- TODO: support LuaJIT arrays (more likely case anyway)
-    if tostring(type(values)) ~= "table" then
-        error("The \"values\" array must be a Lua table/array.")
-    end
-
-    -- TODO: check for LuaJIT array, which is 0-indexed
-    valuesFFI = ffi.new("unsigned[?]", #values)
-    for i = 0,#values do
-        valuesFFI[i] = values[i+1]
-    end
-
     return processDeviceOutput(lib.SoapySDRDevice_writeRegisters(
         self.__deviceHandle,
         Utility.toString(name),
         addr,
-        ffi.cast("unsigned*", valuesFFI),
+        ffi.cast("unsigned*", Utility.luaArrayToFFIArray(values, "unsigned")),
         #values))
 end
 
-function Device:readRegisters(name, addr)
-    local lengthPtr = ffi.new("size_t[1]")
+function Device:readRegisters(name, addr, len)
+    local lengthPtr = ffi.new("size_t[1]", len)
     return processDeviceOutput(
         lib.SoapySDRDevice_readRegisters(
             self.__deviceHandle,

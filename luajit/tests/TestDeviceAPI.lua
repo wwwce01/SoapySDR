@@ -241,9 +241,12 @@ function testDevice()
     -- Register API
     --
     luaunit.assertIsTable(device:listRegisterInterfaces())
+
     device:writeRegister("", 0, 0)
     luaunit.assertEquals(device:readRegister("", 0), 0)
-    -- TODO: writeRegisters, readRegisters
+
+    device:writeRegisters("", 0, {})
+    luaunit.assertIsTable(device:readRegisters("", 0, 0))
 
     --
     -- Settings API

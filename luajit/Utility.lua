@@ -78,6 +78,10 @@ function Utility.isFFINumeric(obj)
             (ffiType == ffiDoubleType) or (ffiType == ffiUnsignedDoubleType))
 end
 
+function Utility.isRawUnsignedPtr(obj)
+    return (not Utility.isNativeLuaType(obj)) and (ffi.typeof(obj) == ffiUnsignedIntPtrType)
+end
+
 function Utility.isComplex(obj)
     return (not Utility.isNativeLuaType(obj)) and
            ((ffi.typeof(obj) == ffiComplexFloatType) or (ffi.typeof(obj) == ffiComplexType))
@@ -292,15 +296,15 @@ function Utility.processRawKwargsList(kwargs, lengthPtr)
     return ret
 end
 
-function Utility.processRawRangeList(rangeList, lengthPtr)
+function Utility.processRawCTypeBuffer(buffer, lengthPtr)
     local ret = {}
     local len = tonumber(lengthPtr[0])
 
     for i = 0,len-1 do
-        ret[i+1] = rangeList[i]
+        ret[i+1] = buffer[i]
     end
 
-    lib.SoapySDR_free(rangeList)
+    lib.SoapySDR_free(buffer)
 
     return ret
 end
@@ -327,7 +331,8 @@ function Utility.processOutput(obj, lengthPtr)
     elseif Utility.isFFIRawRange(obj) then return obj
     elseif Utility.isFFIRawArgInfoPtr(obj) then return Utility.processRawArgInfoList(obj, lengthPtr)
     elseif Utility.isFFIRawKwargsPtr(obj) then return Utility.processRawKwargsList(obj, lengthPtr)
-    elseif Utility.isFFIRawRangePtr(obj) then return Utility.processRawRangeList(obj, lengthPtr)
+    elseif Utility.isFFIRawRangePtr(obj) then return Utility.processRawCTypeBuffer(obj, lengthPtr)
+    elseif Utility.isRawUnsignedPtr(obj) then return Utility.processRawCTypeBuffer(obj, lengthPtr)
     elseif Utility.isFFIRawStreamPtr(obj) then return obj
     end
 
