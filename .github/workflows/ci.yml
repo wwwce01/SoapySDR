@@ -215,6 +215,7 @@ jobs:
                 cp -r jit "$Env:LUAJIT_INSTALL_PREFIX"
           - name: Build SoapySDR
             run: |
+                $Env:PATH += ";$Env:LUAJIT_INSTALL_PREFIX"
                 mkdir ${{github.workspace}}\build
                 cd ${{github.workspace}}\build
                 cmake ${{matrix.cmake_config}} -DENABLE_PYTHON=OFF -DCMAKE_INSTALL_PREFIX="$Env:INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} ${{github.workspace}}
@@ -225,7 +226,7 @@ jobs:
                 cmake --install . --config ${{matrix.build_type}}
           - name: Run unit tests
             run: |
-                $Env:PATH += ";$Env:INSTALL_PREFIX\bin"
+                $Env:PATH += ";$Env:INSTALL_PREFIX\bin;$Env:LUAJIT_INSTALL_PREFIX"
                 cd ${{github.workspace}}\build
                 ctest --output-on-failure -C ${{matrix.build_type}}
           - name: Test SoapySDRUtil
