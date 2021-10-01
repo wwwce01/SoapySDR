@@ -32,4 +32,4 @@ local Logger =
     end
 }
 
-return Logger;
+return Logger

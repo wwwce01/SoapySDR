@@ -15,4 +15,4 @@ local Time =
     end
 }
 
-return Time;
+return Time
