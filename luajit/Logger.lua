@@ -2,7 +2,7 @@
 -- SPDX-License-Identifier: BSL-1.0
 
 ---
--- Logger API for SoapySDR devices
+-- Logger API
 -- @module SoapySDR.Logger
 
 local ffi = require("ffi")

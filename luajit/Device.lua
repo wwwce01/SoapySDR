@@ -1,6 +1,9 @@
 -- Copyright (c) 2021 Nicholas Corgan
 -- SPDX-License-Identifier: BSL-1.0
 
+---
+-- @module SoapySDR
+
 local class = require("SoapySDR.Class")
 
 local ffi = require("ffi")
@@ -43,6 +46,12 @@ end
 -- Device enumeration
 --
 
+--- Enumerate a list of available devices on the system.
+-- @function enumerateDevices
+-- @param args device construction key/value argument filters
+--
+-- This parameter can either be a comma-delimited string (e.g. "type=rtlsdr,serial=12345") or a
+-- table (e.g. {type: "rtlsdr", serial: 12345}).
 local function enumerateDevices(args)
     local devs = nil
     local lengthPtr = ffi.new("size_t[1]")
@@ -65,10 +74,9 @@ local function enumerateDevices(args)
     return devs
 end
 
---
--- Constructor
---
-
+--- Abstraction for an SDR transceiver device.
+-- @type Device
+-- @todo how to do constructor?
 Device = class(
     function(dev,param)
         -- No parameter means no args
@@ -91,22 +99,41 @@ Device = class(
         end
     end)
 
-function Device:__tostring()
-    return string.format("%s:%s", self:getDriverKey(), self:getHardwareKey())
-end
-
 --
 -- Identification API
 --
 
+--- Return a string representation of the device.
+-- Ex. "uhd:B210"
+-- @see Device:getDriverKey
+-- @see Device:getHardwareKey
+function Device:__tostring()
+    return string.format("%s:%s", self:getDriverKey(), self:getHardwareKey())
+end
+
+---
+-- A key that uniquely identifies the device driver.
+-- This key identifies the underlying implementation.
+-- Several variants of a product may share a driver.
 function Device:getDriverKey()
     return processDeviceOutput(lib.SoapySDRDevice_getDriverKey(self.__deviceHandle))
 end
 
+---
+-- A key that uniquely identifies the hardware.
+-- This key should be meaningful to the user
+-- to optimize for the underlying hardware.
 function Device:getHardwareKey()
     return processDeviceOutput(lib.SoapySDRDevice_getHardwareKey(self.__deviceHandle))
 end
 
+---
+-- Query a dictionary of available device information.
+-- This dictionary can any number of values like
+-- vendor name, product name, revisions, serials...
+--
+-- This data is returned in a Lua table and can be iterated
+-- with Lua's pairs(tbl) function.
 function Device:getHardwareInfo()
     return processDeviceOutput(lib.SoapySDRDevice_getHardwareInfo(self.__deviceHandle))
 end
@@ -115,6 +142,12 @@ end
 -- Channels API
 --
 
+---
+-- Set the frontend mapping of available DSP units to RF frontends.
+-- This mapping controls channel mapping and channel availability.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param mapping a vendor-specific mapping string
 function Device:setFrontendMapping(direction, mapping)
     return processDeviceOutput(lib.SoapySDRDevice_setFrontendMapping(
         self.__deviceHandle,
@@ -122,18 +155,38 @@ function Device:setFrontendMapping(direction, mapping)
         Utility.toString(mapping)))
 end
 
+---
+-- Get the mapping configuration string.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @return the vendor-specific mapping string
 function Device:getFrontendMapping(direction)
     return processDeviceOutput(lib.SoapySDRDevice_getFrontendMapping(
         self.__deviceHandle,
         direction))
 end
 
+---
+-- Get a number of channels given the streaming direction
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
 function Device:getNumChannels(direction)
     return processDeviceOutput(lib.SoapySDRDevice_getNumChannels(
         self.__deviceHandle,
         direction))
 end
 
+---
+-- Query a dictionary of available channel information.
+-- This dictionary can any number of values like
+-- decoder type, version, available functions...
+--
+-- This data is returned in a Lua table and can be iterated
+-- with Lua's pairs(tbl) function.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @return channel information
 function Device:getChannelInfo(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getChannelInfo(
         self.__deviceHandle,
@@ -148,9 +201,8 @@ function Device:getFullDuplex(direction, channel)
         channel))
 end
 
---
--- Stream API
---
+--- Stream API
+-- @section stream
 
 function Device:getStreamFormats(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
@@ -296,9 +348,8 @@ function Device:readStreamStatus(stream, timeoutUs)
     return {ret, tonumber(chanMaskPtr[0]), tonumber(flagsPtr[0]), tonumber(timeNsPtr[0])}
 end
 
---
--- Antenna API
---
+--- Antenna API
+-- @section antenna
 
 function Device:listAntennas(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
@@ -326,9 +377,8 @@ function Device:getAntenna(direction, channel)
         channel))
 end
 
---
--- Frontend corrections API
---
+--- Frontend corrections API
+-- @section frontend_corrections
 
 function Device:hasDCOffsetMode(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasDCOffsetMode(
@@ -460,9 +510,8 @@ function Device:getFrequencyCorrection(direction, channel)
         channel))
 end
 
---
--- Gain API
---
+--- Gain API
+-- @section gain
 
 function Device:listGains(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
@@ -544,9 +593,8 @@ function Device:getGainElementRange(direction, channel, name)
         Utility.toString(name)))
 end
 
---
--- Frequency API
---
+--- Frequency API
+-- @section frequency
 
 function Device:setFrequency(direction, channel, frequency, args)
     return processDeviceOutput(lib.SoapySDRDevice_setFrequency(
@@ -616,9 +664,8 @@ function Device:getFrequencyArgsInfo(direction, channel)
         lengthPtr)
 end
 
---
--- Sample Rate API
---
+--- Sample Rate API
+-- @section sample_rate
 
 function Device:setSampleRate(direction, channel, rate)
     return processDeviceOutput(lib.SoapySDRDevice_setSampleRate(
@@ -646,9 +693,8 @@ function Device:getSampleRateRange(direction, channel)
         lengthPtr)
 end
 
---
--- Bandwidth API
---
+--- Bandwidth API
+-- @section bandwidth
 
 function Device:setBandwidth(direction, channel, bw)
     return processDeviceOutput(lib.SoapySDRDevice_setBandwidth(
@@ -676,9 +722,8 @@ function Device:getBandwidthRange(direction, channel)
         lengthPtr)
 end
 
---
--- Clocking API
---
+--- Clocking API
+-- @section clocking
 
 function Device:setMasterClockRate(rate)
     return processDeviceOutput(lib.SoapySDRDevice_setMasterClockRate(
@@ -731,9 +776,8 @@ function Device:getClockSource()
     return processDeviceOutput(lib.SoapySDRDevice_getClockSource(self.__deviceHandle))
 end
 
---
--- Time API
---
+--- Time API
+-- @section time
 
 function Device:listTimeSources()
     local lengthPtr = ffi.new("size_t[1]")
@@ -773,9 +817,8 @@ function Device:setHardwareTime(time, what)
         Utility.toString(what)))
 end
 
---
--- Sensor API
---
+--- Sensor API
+-- @section sensor
 
 function Device:listSensors()
     local lengthPtr = ffi.new("size_t[1]")
@@ -825,9 +868,8 @@ function Device:readChannelSensor(direction, channel, key)
         Utility.toString(key)))
 end
 
---
--- Register API
---
+--- Register API
+-- @section register
 
 function Device:listRegisterInterfaces()
     local lengthPtr = ffi.new("size_t[1]")
@@ -871,9 +913,8 @@ function Device:readRegisters(name, addr, len)
         lengthPtr)
 end
 
---
--- Settings API
---
+--- Settings API
+-- @section setting
 
 function Device:getSettingInfo()
     local lengthPtr = ffi.new("size_t[1]")
@@ -933,9 +974,8 @@ function Device:readChannelSetting(direction, channel, key)
         self:getChannelSettingInfo(direction, channel))
 end
 
---
--- GPIO API
---
+--- GPIO API
+-- @section gpio
 
 function Device:listGPIOBanks()
     local lengthPtr = ffi.new("size_t[1]")
@@ -986,9 +1026,8 @@ function Device:readGPIODir(bank)
         Utility.toString(bank)))
 end
 
---
--- I2C API
---
+--- I2C API
+-- @section i2c
 
 function Device:writeI2C(addr, data)
     local convertedData = Utility.toString(data)
@@ -1008,9 +1047,8 @@ function Device:readI2C(bank, addr)
         lengthPtr))
 end
 
---
--- SPI API
---
+--- SPI API
+-- @section spi
 
 function Device:transactSPI(addr, data, numBits)
     return processDeviceOutput(lib.SoapySDRDevice_transactSPI(
@@ -1020,9 +1058,8 @@ function Device:transactSPI(addr, data, numBits)
         numBits))
 end
 
---
--- UART API
---
+--- UART API
+-- @section uart
 
 function Device:listUARTs()
     local lengthPtr = ffi.new("size_t[1]")
@@ -1047,9 +1084,5 @@ function Device:readUART(which, timeoutUs)
         Utility.toString(which),
         timeoutUs))
 end
-
---
--- Return both of these
---
 
 return {enumerateDevices, Device}

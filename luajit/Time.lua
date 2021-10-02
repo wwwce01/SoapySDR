@@ -2,7 +2,7 @@
 -- SPDX-License-Identifier: BSL-1.0
 
 ---
--- Utility functions to convert time and ticks.
+-- Utility functions to convert time and ticks
 -- @module SoapySDR.Time
 
 local ffi = require("ffi")
