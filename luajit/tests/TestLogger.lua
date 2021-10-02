@@ -24,6 +24,8 @@ function testLogger()
     local logContents = tmpFile:read("*a")
 
     luaunit.assertEquals(logContents, "Warning\nError\n")
+
+    -- TODO: set to nil, check stdio
 end
 
 local runner = luaunit.LuaUnit.new()
