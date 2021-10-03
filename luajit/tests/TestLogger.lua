@@ -25,7 +25,8 @@ function testLogger()
 
     luaunit.assertEquals(logContents, "Warning\nError\n")
 
-    -- TODO: set to nil, check stdio
+    -- Reset to default logger
+    SoapySDR.Logger.registerHandler(nil)
 end
 
 local runner = luaunit.LuaUnit.new()
