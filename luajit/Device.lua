@@ -11,6 +11,7 @@ local lib = require("SoapySDR.Lib")
 local Utility = require("SoapySDR.Utility")
 
 -- TODO: code formatting consistency
+-- TODO: remaining functions, return documentation (starts with cap, ends in period), Device constructor (how?)
 
 --
 -- Device-specific utility
@@ -48,10 +49,14 @@ end
 
 --- Enumerate a list of available devices on the system.
 -- @function enumerateDevices
--- @param args device construction key/value argument filters
+-- @param[opt] args device construction key/value argument filters
 --
--- This parameter can either be a comma-delimited string (e.g. "type=rtlsdr,serial=12345") or a
--- table (e.g. {type: "rtlsdr", serial: 12345}).
+-- If omitted, no filter will be applied, and all accessible devices
+-- will be included.
+--
+-- If given, this parameter can either be a comma-delimited string
+-- (e.g. "type=rtlsdr,serial=12345") or a table (e.g. {type: "rtlsdr",
+-- serial: 12345}).
 local function enumerateDevices(args)
     local devs = nil
     local lengthPtr = ffi.new("size_t[1]")
@@ -159,7 +164,8 @@ end
 -- Get the mapping configuration string.
 -- @param direction the channel direction (RX or TX)
 -- @see SoapySDR.Direction
--- @return the vendor-specific mapping string
+--
+-- @return The vendor-specific mapping string
 function Device:getFrontendMapping(direction)
     return processDeviceOutput(lib.SoapySDRDevice_getFrontendMapping(
         self.__deviceHandle,
@@ -186,7 +192,8 @@ end
 -- @param direction the channel direction (RX or TX)
 -- @see SoapySDR.Direction
 -- @param channel an available channel on the device
--- @return channel information
+--
+-- @return Channel information
 function Device:getChannelInfo(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getChannelInfo(
         self.__deviceHandle,
@@ -194,6 +201,13 @@ function Device:getChannelInfo(direction, channel)
         channel))
 end
 
+---
+-- Find out if the specified channel is full or half duplex.
+-- @param direction the channel direction RX or TX
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return True for full duplex, false for half duplex
 function Device:getFullDuplex(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getFullDuplex(
         self.__deviceHandle,
@@ -201,9 +215,18 @@ function Device:getFullDuplex(direction, channel)
         channel))
 end
 
---- Stream API
--- @section stream
+--
+-- Stream API
+--
 
+---
+-- Query a list of the available stream formats.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return A list of allowed format strings.
+-- @see SoapySDR.Format
 function Device:getStreamFormats(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -215,6 +238,18 @@ function Device:getStreamFormats(direction, channel)
         lengthPtr)
 end
 
+---
+-- Get the hardware's native stream format for this channel.
+-- This is the format used by the underlying transport layer.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @return The native stream buffer format string and the maximum
+-- possible value.
+--
+-- These values are returned in a two-element array-like table and
+-- must be extracted with Lua's unpack() function.
+-- @see SoapySDR.Format
 function Device:getNativeStreamFormat(direction, channel)
     local fullScalePtr = ffi.new("double[1]")
 
@@ -252,18 +287,55 @@ function Device:setupStream(direction, format, channels, args)
     return ret
 end
 
+---
+-- Close an open stream created by setupStream.
+-- The implementation may change switches or power-down components.
+-- @param stream the opaque pointer to a stream handle
+-- @see Device:setupStream
 function Device:closeStream(stream)
     return processDeviceOutput(lib.SoapySDRDevice_closeStream(
         self.__deviceHandle,
         stream))
 end
 
+---
+-- Get the stream's maximum transmission unit (MTU) in number of elements.
+-- The MTU specifies the maximum payload transfer in a stream operation.
+-- This value can be used as a stream buffer allocation size that can
+-- best optimize throughput given the underlying stream implementation.
+--
+-- @param stream the opaque pointer to a stream handle
+--
+-- @return The MTU in number of stream elements (always > 0)
 function Device:getStreamMTU(stream)
     return processDeviceOutput(lib.SoapySDRDevice_getStreamMTU(
         self.__deviceHandle,
         stream))
 end
 
+---
+-- Activate a stream.
+-- Call activate to prepare a stream before using read/write().
+-- The implementations control switches or stimulate data flow.
+--
+-- The timeNs is only valid when the flags have HAS_TIME.
+-- The numElems count can be used to request a finite burst size.
+-- The END_BURST flag can signal end on the finite burst.
+-- Not all implementations will support the full range of options.
+-- In this case, the implementation returns NOT_SUPPORTED.
+--
+-- @param stream the opaque pointer to a stream handle
+-- @param[opt] flags optional flag indicators about the stream.
+-- Defaults to 0 if nil or unspecified.
+-- @see SoapySDR.StreamFlags
+-- @param[opt] timeNs optional activation time in nanoseconds
+-- Defaults to 0 if nil or unspecified.
+-- @param[opt] numElems optional element count for burst control
+-- Defaults to 0 if nil or unspecified.
+--
+-- @return 0 for success or error code on failure.
+-- @see SoapySDR.Error
+-- @see Device:getStreamArgsInfo
 function Device:activateStream(stream, flags, timeNs, numElems)
     -- To allow for optional parameters
     flags = flags or 0
@@ -278,6 +350,25 @@ function Device:activateStream(stream, flags, timeNs, numElems)
         numElems))
 end
 
+---
+-- Deactivate a stream.
+-- Call deactivate when not using using read/write().
+-- The implementation control switches or halt data flow.
+--
+-- The timeNs is only valid when the flags have HAS_TIME.
+-- Not all implementations will support the full range of options.
+-- In this case, the implementation returns NOT_SUPPORTED.
+--
+-- @param stream the opaque pointer to a stream handle
+-- @param[opt] flags optional flag indicators about the stream.
+-- Defaults to 0 if nil or unspecified.
+-- @see SoapySDR.StreamFlags
+-- @param[opt] timeNs optional deactivation time in nanoseconds.
+-- Defaults to 0 if nil or unspecified.
+--
+-- @return 0 for success or error code on failure
+-- @see SoapySDR.Error
+-- @see Device:getStreamArgsInfo
 function Device:deactivateStream(stream, flags, timeNs)
     -- To allow for optional parameters
     flags = flags or 0
@@ -348,9 +439,17 @@ function Device:readStreamStatus(stream, timeoutUs)
     return {ret, tonumber(chanMaskPtr[0]), tonumber(flagsPtr[0]), tonumber(timeNsPtr[0])}
 end
 
---- Antenna API
--- @section antenna
+--
+-- Antenna API
+--
 
+---
+-- Get a list of available antennas to select on a given chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return A list of available antenna names.
 function Device:listAntennas(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -362,6 +461,13 @@ function Device:listAntennas(direction, channel)
         lengthPtr)
 end
 
+---
+-- Set the selected antenna on a chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param name the name of an available antenna
+-- @see Device:listAntennas
 function Device:setAntenna(direction, channel, name)
     return processDeviceOutput(lib.SoapySDRDevice_setAntenna(
         self.__deviceHandle,
@@ -370,6 +476,13 @@ function Device:setAntenna(direction, channel, name)
         Utility.toString(name)))
 end
 
+---
+-- Get the selected antenna on a chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @return The name of an available antenna.
+-- @see Device:listAntennas
 function Device:getAntenna(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getAntenna(
         self.__deviceHandle,
@@ -377,9 +490,16 @@ function Device:getAntenna(direction, channel)
         channel))
 end
 
---- Frontend corrections API
--- @section frontend_corrections
+--
+-- Frontend corrections API
+--
 
+---
+-- Does the device support automatic DC offset corrections?
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @return True if automatic corrections are supported
 function Device:hasDCOffsetMode(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasDCOffsetMode(
         self.__deviceHandle,
@@ -387,6 +507,13 @@ function Device:hasDCOffsetMode(direction, channel)
         channel))
 end
 
+---
+-- Set the automatic DC offset corrections mode.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param automatic true for automatic offset correction
+-- @see Device:hasDCOffsetMode
 function Device:setDCOffsetMode(direction, channel, automatic)
     return processDeviceOutput(lib.SoapySDRDevice_setDCOffsetMode(
         self.__deviceHandle,
@@ -395,6 +522,13 @@ function Device:setDCOffsetMode(direction, channel, automatic)
         automatic))
 end
 
+---
+-- Get the automatic DC offset corrections mode.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @return True for automatic offset correction
+-- @see Device:hasDCOffsetMode
 function Device:getDCOffsetMode(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getDCOffsetMode(
         self.__deviceHandle,
@@ -402,6 +536,12 @@ function Device:getDCOffsetMode(direction, channel)
         channel))
 end
 
+---
+-- Does the device support frontend DC offset correction?
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @return True if DC offset corrections are supported
 function Device:hasDCOffset(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasDCOffset(
         self.__deviceHandle,
@@ -434,6 +574,12 @@ function Device:getDCOffset(direction, channel)
     return ffi.new("complex", iPtr[0], qPtr[0])
 end
 
+---
+-- Does the device support automatic frontend IQ balance correction?
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @return True if IQ balance corrections are supported
 function Device:hasIQBalance(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasIQBalance(
         self.__deviceHandle,
@@ -466,6 +612,12 @@ function Device:getIQBalance(direction, channel)
     return ffi.new("complex", iPtr[0], qPtr[0])
 end
 
+---
+-- Does the device support automatic frontend IQ balance correction?
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @return True if IQ balance corrections are supported
 function Device:hasIQBalanceMode(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasIQBalanceMode(
         self.__deviceHandle,
@@ -473,6 +625,12 @@ function Device:hasIQBalanceMode(direction, channel)
         channel))
 end
 
+---
+-- Set the automatic frontend IQ balance correction mode.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param automatic true for automatic correction
 function Device:setIQBalanceMode(direction, channel, automatic)
     return processDeviceOutput(lib.SoapySDRDevice_setIQBalanceMode(
         self.__deviceHandle,
@@ -481,6 +639,12 @@ function Device:setIQBalanceMode(direction, channel, automatic)
         automatic))
 end
 
+---
+-- Test the automatic front IQ balance correction mode.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @return True for automatic correction
 function Device:getIQBalanceMode(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getIQBalanceMode(
         self.__deviceHandle,
@@ -488,6 +652,12 @@ function Device:getIQBalanceMode(direction, channel)
         channel))
 end
 
+---
+-- Does the device support frontend frequency correction?
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @Return True if frequency corrections are supported
 function Device:hasFrequencyCorrection(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasFrequencyCorrection(
         self.__deviceHandle,
@@ -495,6 +665,12 @@ function Device:hasFrequencyCorrection(direction, channel)
         channel))
 end
 
+---
+-- Set the frontend frequency correction value.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param value the correction in PPM
 function Device:setFrequencyCorrection(direction, channel, value)
     return processDeviceOutput(lib.SoapySDRDevice_setFrequencyCorrection(
         self.__deviceHandle,
@@ -503,6 +679,12 @@ function Device:setFrequencyCorrection(direction, channel, value)
         value))
 end
 
+---
+-- Get the frontend frequency correction value.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @return The correction value in PPM
 function Device:getFrequencyCorrection(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getFrequencyCorrection(
         self.__deviceHandle,
