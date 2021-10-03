@@ -42,7 +42,7 @@ endmacro( CSHARP_ADD_EXECUTABLE )
 
 # Private macro
 macro( CSHARP_ADD_PROJECT type name )
-  set( refs "/reference:System.dll;/reference:System.Core.dll" )
+    set( refs "/reference:System.dll;/reference:System.Numerics.dll" )
   set( sources )
   set( sources_dep )
 
@@ -56,7 +56,6 @@ macro( CSHARP_ADD_PROJECT type name )
 
   # Step through each argument
   foreach( it ${ARGN} )
-    message(STATUS "it=${it}")
     if( ${it} MATCHES "(.*)(dll)" )
        # Argument is a dll, add reference
        list( APPEND refs /reference:${it} )
@@ -67,25 +66,20 @@ macro( CSHARP_ADD_PROJECT type name )
          list( APPEND sources_dep ${CMAKE_CURRENT_SOURCE_DIR}/${it} )
       endif( )
     endif ( )
-    message(STATUS "sources now ${sources}")
   endforeach( )
 
   # Perform platform specific actions
   if (WIN32)
     string( REPLACE "/" "\\" sources ${sources} )
-  else (UNIX)
-    string( REPLACE "\\" "/" sources ${sources} )
   endif (WIN32)
 
-  string(REPLACE ";" " " sources ${sources})
-
-  message(STATUS "sources=${sources}")
+  #string(REPLACE ";" " " sources ${sources})
 
   # Add custom target and command
   if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-      SET(csharp_args /t:${type} /out:${name}.${output} /platform:${CSHARP_PLATFORM} -debug ${CSHARP_SDK} ${refs} ${sources})
+      SET(csharp_args /unsafe /t:${type} /out:${name}.${output} /platform:${CSHARP_PLATFORM} -debug ${CSHARP_SDK} ${refs} ${sources})
   else()
-      SET(csharp_args /t:${type} /out:${name}.${output} /platform:${CSHARP_PLATFORM} ${CSHARP_SDK} ${refs} ${sources})
+      SET(csharp_args /unsafe /t:${type} /out:${name}.${output} /platform:${CSHARP_PLATFORM} ${CSHARP_SDK} ${refs} ${sources})
   endif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   add_custom_command(
     COMMENT "Building C# ${nice_name} ${name}.${output}"

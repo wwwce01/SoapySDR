@@ -16,7 +16,7 @@ public enum"
 
 // TODO: internal class?
 %typemap(cscode) SoapySDR::CSharp::StreamHandle %{
-    public override ToString()
+    public override string ToString()
     {
         return string.Format("Opaque SoapySDR stream handle at {0}", GetPointer());
     }

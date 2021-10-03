@@ -12,7 +12,7 @@ namespace SoapySDR
         protected bool _active = false;
 
         public string Format { get; }
-        public uint[] Channels = { get; }
+        public uint[] Channels { get; }
         public Kwargs[] StreamArgs { get; }
         public bool Active { get { return _active; } }
 
