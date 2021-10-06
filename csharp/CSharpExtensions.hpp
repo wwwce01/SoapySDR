@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Nicholas Corgan
+// Copyright (c) 2020-2021 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 #pragma once
@@ -139,10 +139,10 @@ namespace SoapySDR { namespace CSharp {
         TIMEOUT = -1,
         STREAM_ERROR = -2,
         CORRUPTION = -3,
-        OVERFLOW = -4,
+        OVERFLOW_ = -4,
         NOT_SUPPORTED = -5,
         TIME_ERROR = -6,
-        UNDERFLOW = -7
+        UNDERFLOW_ = -7
     };
 
     // Note: we need to repeat the literal enum values or

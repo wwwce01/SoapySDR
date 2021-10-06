@@ -57,46 +57,50 @@ set(SWIG_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(SWIG_CSHARP_INCLUDE_DIRS ${SoapySDR_INCLUDE_DIRS})
 set(SWIG_CSHARP_LIBRARIES SoapySDR)
 
-message(STATUS "SWIG_MODULE_DIR=${SWIG_MODULE_DIR}")
-message(STATUS "SWIG_CSHARP_INCLUDE_DIRS=${SWIG_CSHARP_INCLUDE_DIRS}")
-message(STATUS "SWIG_CSHARP_LIBRARIES=${SWIG_CSHARP_LIBRARIES}")
-
 SWIG_BUILD_CSHARP_MODULE(SoapySDR SoapySDRCSharp SoapySDR TRUE SoapySDR)
 
 ########################################################################
 # Build C# assembly
 ########################################################################
 
+set(csharp_swig_outputs
+    ${CSHARP_SOURCE_DIRECTORY}/CSharpArgInfo.cs
+    ${CSHARP_SOURCE_DIRECTORY}/ArgInfoList.cs
+    ${CSHARP_SOURCE_DIRECTORY}/BuildInfo.cs
+    ${CSHARP_SOURCE_DIRECTORY}/Device.cs
+    ${CSHARP_SOURCE_DIRECTORY}/DeviceList.cs
+    ${CSHARP_SOURCE_DIRECTORY}/Direction.cs
+    ${CSHARP_SOURCE_DIRECTORY}/DoubleList.cs
+    ${CSHARP_SOURCE_DIRECTORY}/ErrorCode.cs
+    ${CSHARP_SOURCE_DIRECTORY}/Kwargs.cs
+    ${CSHARP_SOURCE_DIRECTORY}/KwargsList.cs
+    ${CSHARP_SOURCE_DIRECTORY}/LogHandlerBase.cs
+    ${CSHARP_SOURCE_DIRECTORY}/LogLevel.cs
+    ${CSHARP_SOURCE_DIRECTORY}/Range.cs
+    ${CSHARP_SOURCE_DIRECTORY}/RangeList.cs
+    ${CSHARP_SOURCE_DIRECTORY}/SizeList.cs
+    ${CSHARP_SOURCE_DIRECTORY}/SoapySDR.cs
+    ${CSHARP_SOURCE_DIRECTORY}/SoapySDRPINVOKE.cs
+    ${CSHARP_SOURCE_DIRECTORY}/StreamFlags.cs
+    ${CSHARP_SOURCE_DIRECTORY}/StreamFormats.cs
+    ${CSHARP_SOURCE_DIRECTORY}/StreamHandle.cs
+    ${CSHARP_SOURCE_DIRECTORY}/StreamResult.cs
+    ${CSHARP_SOURCE_DIRECTORY}/StreamResultPair.cs
+    ${CSHARP_SOURCE_DIRECTORY}/StringList.cs
+    ${CSHARP_SOURCE_DIRECTORY}/Time.cs
+    ${CSHARP_SOURCE_DIRECTORY}/UnsignedList.cs)
+
+set_source_files_properties(
+    FILES ${csharp_swig_outputs}
+    PROPERTIES GENERATED TRUE)
+
 set(csharp_srcs
     ${CMAKE_CURRENT_SOURCE_DIR}/Logger.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Stream.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/TxStream.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Utility.cs
-
-    # SWIG-generated
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/ArgInfo.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/ArgInfoList.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/BuildInfo.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/Device.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/DeviceList.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/Direction.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/DoubleList.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/ErrorCode.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/Kwargs.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/KwargsList.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/LogHandlerBase.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/LogLevel.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/Range.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/RangeList.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/SizeList.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/SoapySDR.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/SoapySDRPINVOKE.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/StreamFlags.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/StreamFormats.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/StreamHandle.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/StreamResult.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/StreamResultPair.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/StringList.cs
-    ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/Time.cs)
+    
+    ${csharp_swig_outputs})
 
 add_library(SoapySDR.CSharp SHARED ${csharp_srcs})
+add_dependencies(SoapySDR.CSharp ${SWIG_MODULE_SoapySDRCSharp_REAL_NAME})
