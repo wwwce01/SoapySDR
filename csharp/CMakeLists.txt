@@ -105,11 +105,10 @@ add_library(SoapySDR.CSharp SHARED ${csharp_srcs})
 set_property(TARGET SoapySDR.CSharp PROPERTY COMPILE_FLAGS /unsafe)
 set_property(TARGET SoapySDR.CSharp PROPERTY DOTNET_TARGET_FRAMEWORK_VERSION "v4.7.2")
 set_property(
-	TARGET SoapySDR.CSharp
-	PROPERTY VS_DOTNET_REFERENCES
-	"System"
-    "System.Runtime"
-	"System.Core"
-	"System.Numerics")
+    TARGET SoapySDR.CSharp
+    PROPERTY VS_DOTNET_REFERENCES
+    "System"
+    "System.Core"
+    "System.Numerics")
 
 add_dependencies(SoapySDR.CSharp ${SWIG_MODULE_SoapySDRCSharp_REAL_NAME})
