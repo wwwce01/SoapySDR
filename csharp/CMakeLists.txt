@@ -1,16 +1,11 @@
 ########################################################################
 # Project setup
 ########################################################################
-cmake_minimum_required(VERSION 2.8)
-project(SoapySDRCSharp CXX)
+cmake_minimum_required(VERSION 3.8.2)
+project(SoapySDRCSharp CXX CSharp)
 enable_testing()
 
 find_package(SoapySDR CONFIG REQUIRED)
-
-########################################################################
-# Find C# compiler
-########################################################################
-find_package(CSharp)
 
 ########################################################################
 # Find SWIG
@@ -45,8 +40,8 @@ endif()
 ########################################################################
 include(FeatureSummary)
 include(CMakeDependentOption)
-cmake_dependent_option(ENABLE_CSHARP "Enable C# bindings" ON "ENABLE_LIBRARY;CSHARP_FOUND;SWIG_FOUND" OFF)
-add_feature_info(CSharp ENABLE_CSHARP "C# bindings (${CSHARP_TYPE} ${CSHARP_VERSION})")
+cmake_dependent_option(ENABLE_CSHARP "Enable C# bindings" ON "ENABLE_LIBRARY;SWIG_FOUND" OFF)
+add_feature_info(CSharp ENABLE_CSHARP "C# bindings")
 if (NOT ENABLE_CSHARP)
     return()
 endif()
@@ -104,5 +99,4 @@ set(csharp_srcs
     ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/StringList.cs
     ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources/Time.cs)
 
-CSHARP_BUILD_DLL(SoapySDR.CSharp "SoapySDRCSharp" "${csharp_srcs}")
-add_dependencies(SoapySDR.CSharp ${csharp_srcs})
+add_library(SoapySDR.CSharp SHARED ${csharp_srcs})

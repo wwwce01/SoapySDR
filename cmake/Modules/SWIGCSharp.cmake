@@ -33,41 +33,16 @@
 #                              link against.
 #
 #  * SWIG_CSHARP_FLAGS:        Flags to pass into the SWIG command (optional).
-#
-# CSHARP_BUILD_DLL: Build a C# DLL. Meant to be used after the
-#                   previous macro.
-#
-# Parameters:
-#  * dll_name: the name of the DLL to be produced (no extension)
-#  * swig_modules: SWIG modules made with SWIG_BUILD_CSHARP_MODULE
-#
-# CSHARP_BUILD_EXE: Build a C# program. Meant to be used after the
-#                   previous macro.
-#
-# Parameters:
-#  * exe_name: program name (no extension)
-#  * swig_dll: SWIG-generated C# DLL to be used as a reference
-#
-# Example (mymodule1.i, mymodule2.i):
-#  * In CMake:
-#        SWIG_BUILD_CSHARP_MODULE(mymodule1 mymodule1 MyModule1 TRUE)
-#        SWIG_BUILD_CSHARP_MODULE(mymodule2 mymodule2 MyModule2 TRUE)
-#        CSHARP_BUILD_DLL(mymodule.dll "mymodule1;mymodule2")
-#
-#  * From C#:
-#        MyModule1.FunctionName()
-#        MyModule2.FunctionName()
 ########################################################################
 
-MACRO(SWIG_CSHARP_INIT)
+macro(SWIG_CSHARP_INIT)
     set(CSHARP_SOURCE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources)
     set(CMAKE_SWIG_OUTDIR       ${CSHARP_SOURCE_DIRECTORY})
     file(MAKE_DIRECTORY         ${CSHARP_SOURCE_DIRECTORY})
     set(CSHARP_BINARY_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-ENDMACRO(SWIG_CSHARP_INIT)
+endmacro()
 
-MACRO(SWIG_BUILD_CSHARP_MODULE swig_filename nativelib_name csharp_module_name cplusplus namespace)
-    include(UseCSharp)
+macro(SWIG_BUILD_CSHARP_MODULE swig_filename nativelib_name csharp_module_name cplusplus namespace)
     include(UseSWIG)
 
     set(SWIG_INCLUDE_DIRS
@@ -124,41 +99,8 @@ MACRO(SWIG_BUILD_CSHARP_MODULE swig_filename nativelib_name csharp_module_name c
     endif()
 
     # Install files
-    if(WIN32)
-        install(
-            TARGETS ${SWIG_MODULE_${nativelib_name}_REAL_NAME}
-            DESTINATION bin
-            COMPONENT CSharp
-        )
-    else()
-        install(
-            TARGETS ${SWIG_MODULE_${nativelib_name}_REAL_NAME}
-            DESTINATION lib
-            COMPONENT CSharp
-        )
-    endif()
-ENDMACRO(SWIG_BUILD_CSHARP_MODULE)
-
-MACRO(CSHARP_BUILD_DLL dll_name swig_modules sources)
-    CSHARP_ADD_LIBRARY(
-        ${dll_name} ${sources}
-    )
-    add_dependencies(${dll_name} ${swig_modules})
-
     install(
-        FILES ${CSHARP_BINARY_DIRECTORY}/${dll_name}.dll
+        TARGETS ${SWIG_MODULE_${nativelib_name}_REAL_NAME}
         DESTINATION bin
-        COMPONENT CSharp
-    )
-ENDMACRO(CSHARP_BUILD_DLL)
-
-MACRO(CSHARP_BUILD_EXE exe_name swig_dll)
-    CSHARP_ADD_EXECUTABLE(${exe_name} ${CSHARP_SOURCE_DIRECTORY}/${exe_name}.cs ${CMAKE_CURRENT_BINARY_DIR}/${swig_dll}.dll)
-    add_dependencies(${exe_name} ${swig_dll})
-
-    install(
-        FILES ${CMAKE_CURRENT_BINARY_DIR}/${exe_name}
-        DESTINATION bin
-        COMPONENT CSharp
-    )
-ENDMACRO(CSHARP_BUILD_EXE)
+        COMPONENT CSharp)
+endmacro()
