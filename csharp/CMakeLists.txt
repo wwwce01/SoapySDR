@@ -64,7 +64,7 @@ SWIG_BUILD_CSHARP_MODULE(SoapySDR SoapySDRCSharp SoapySDR TRUE SoapySDR)
 ########################################################################
 
 set(csharp_swig_outputs
-    ${CSHARP_SOURCE_DIRECTORY}/CSharpArgInfo.cs
+    ${CSHARP_SOURCE_DIRECTORY}/ArgInfo.cs
     ${CSHARP_SOURCE_DIRECTORY}/ArgInfoList.cs
     ${CSHARP_SOURCE_DIRECTORY}/BuildInfo.cs
     ${CSHARP_SOURCE_DIRECTORY}/Device.cs
@@ -87,8 +87,7 @@ set(csharp_swig_outputs
     ${CSHARP_SOURCE_DIRECTORY}/StreamResult.cs
     ${CSHARP_SOURCE_DIRECTORY}/StreamResultPair.cs
     ${CSHARP_SOURCE_DIRECTORY}/StringList.cs
-    ${CSHARP_SOURCE_DIRECTORY}/Time.cs
-    ${CSHARP_SOURCE_DIRECTORY}/UnsignedList.cs)
+    ${CSHARP_SOURCE_DIRECTORY}/Time.cs)
 
 set_source_files_properties(
     FILES ${csharp_swig_outputs}

@@ -13,7 +13,7 @@ namespace SoapySDR
 
         public string Format { get; }
         public uint[] Channels { get; }
-        public Kwargs[] StreamArgs { get; }
+        public Kwargs StreamArgs { get; }
         public bool Active { get { return _active; } }
 
         // We already used these parameters to create the stream,
