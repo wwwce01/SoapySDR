@@ -7,7 +7,7 @@ namespace SoapySDR
 {
     public class Stream
     {
-        protected Device _device = null;
+        internal DeviceInternal _device = null;
         protected StreamHandle _streamHandle = null;
         protected bool _active = false;
 
@@ -19,7 +19,7 @@ namespace SoapySDR
         // We already used these parameters to create the stream,
         // this is just for the sake of getters.
         internal Stream(
-            Device device,
+            DeviceInternal device,
             string format,
             uint[] channels,
             Kwargs kwargs,
@@ -35,15 +35,11 @@ namespace SoapySDR
 
         ~Stream()
         {
-            if(_active)       Deactivate();
-            if(_streamHandle) Close();
+            if(_active)               Deactivate();
+            if(_streamHandle != null) Close();
         }
 
-        public uint MTU
-        {
-            // By convention, don't throw from property getters
-            get { return _active ? _device.getStreamMTU(_streamHandle) : 0; }
-        }
+        public ulong MTU => _active ? _device.GetStreamMTU(_streamHandle) : 0U;
 
         public ErrorCode Activate(
             StreamFlags flags,
@@ -51,11 +47,11 @@ namespace SoapySDR
             ulong numElems = 0)
         {
             ErrorCode ret = ErrorCode.NONE;
-            if(_streamHandle)
+            if(_streamHandle != null)
             {
                 if(!_active)
                 {
-                    ret = _device.__ActivateStream(
+                    ret = _device.ActivateStream(
                         _streamHandle,
                         flags,
                         timeNs,
@@ -71,15 +67,15 @@ namespace SoapySDR
         }
 
         public ErrorCode Deactivate(
-            StreamFlags flags = StreamFlags(0),
+            StreamFlags flags = StreamFlags.NONE,
             long timeNs = 0)
         {
             ErrorCode ret = ErrorCode.NONE;
-            if(_streamHandle)
+            if(_streamHandle != null)
             {
                 if(!_active)
                 {
-                    ret = _device.__DeactivateStream(
+                    ret = _device.DeactivateStream(
                         _streamHandle,
                         flags,
                         timeNs);
@@ -96,10 +92,11 @@ namespace SoapySDR
         public ErrorCode ReadStatus(int timeoutUs, out StreamResult result)
         {
             ErrorCode ret = ErrorCode.NONE;
+            result = new StreamResult();
 
-            if(_streamHandle)
+            if(_streamHandle != null)
             {
-                var deviceOutput = _device.__ReadStatus(_streamHandle, timeoutUs);
+                var deviceOutput = _device.ReadStreamStatus(_streamHandle, timeoutUs);
 
                 result = deviceOutput.second;
                 ret = deviceOutput.first;
@@ -110,7 +107,7 @@ namespace SoapySDR
 
         public void Close()
         {
-            if(_streamHandle) _device.__CloseStream(_streamHandle);
+            if(_streamHandle != null) _device.CloseStream(_streamHandle);
             else throw new NotSupportedException("Stream is already closed");
         }
 
@@ -118,20 +115,20 @@ namespace SoapySDR
         public override bool Equals(object other)
         {
             // In theory, ReferenceEquals is enough, but throwing for mis-matched type is convention
-            if(GetClass().Equals(other.GetClass())) return object.ReferenceEquals(this, other);
-            else throw new ArgumentException("Not a "+GetClass().ToString());
+            if(GetType().Equals(other.GetType())) return object.ReferenceEquals(this, other);
+            else throw new ArgumentException("Not a "+GetType().ToString());
         }
 
         public override int GetHashCode()
         {
-            return (GetClass().GetHashCode() ^ _streamHandle?.GetHashCode());
+            return (GetType().GetHashCode() ^ (int)_streamHandle?.GetHashCode());
         }
 
         public override string ToString()
         {
             return string.Format("{0}:{1} {2} stream (format: {3}, channels: {4})",
-                _device.DriverKey,
-                _device.HardwareKey,
+                _device.GetDriverKey(),
+                _device.GetHardwareKey(),
                 (_active ? "active" : "inactive"),
                 Format,
                 Channels);

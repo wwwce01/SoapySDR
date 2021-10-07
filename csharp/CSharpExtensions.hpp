@@ -34,12 +34,13 @@ namespace SoapySDR { namespace CSharp {
 
     enum class StreamFlags
     {
-        END_BURST    = (1 << 1),
-        HAS_TIME     = (1 << 2),
-        END_ABRUPT   = (1 << 3),
-        ONE_PACKET   = (1 << 4),
+        NONE           = 0,
+        END_BURST      = (1 << 1),
+        HAS_TIME       = (1 << 2),
+        END_ABRUPT     = (1 << 3),
+        ONE_PACKET     = (1 << 4),
         MORE_FRAGMENTS = (1 << 5),
-        WAIT_TRIGGER = (1 << 6)
+        WAIT_TRIGGER   = (1 << 6)
     };
 
     struct StreamFormats

@@ -10,7 +10,7 @@ namespace SoapySDR
         // We already used these parameters to create the stream,
         // this is just for the sake of getters.
         internal TxStream(
-            Device device,
+            DeviceInternal device,
             string format,
             uint[] channels,
             Kwargs kwargs,
@@ -40,7 +40,7 @@ namespace SoapySDR
         {
             ErrorCode ret = ErrorCode.NONE;
 
-            if(_streamHandle)
+            if(_streamHandle != null)
             {
                 Utility.ValidateBuffs(_streamHandle, buffs);
 
@@ -49,10 +49,10 @@ namespace SoapySDR
 
                 Utility.ManagedArraysToSizeList(
                     buffs,
-                    handles,
-                    buffsAsSizes);
+                    out handles,
+                    out buffsAsSizes);
 
-                var deviceOutput = _device.__WriteStream(
+                var deviceOutput = _device.WriteStream(
                     _streamHandle,
                     buffsAsSizes,
                     (uint)buffs.Length,
@@ -75,7 +75,7 @@ namespace SoapySDR
             out StreamResult result)
         {
             return Write(
-                new IntPtr{buff},
+                new IntPtr[] { ptr },
                 numElems,
                 timeNs,
                 timeoutUs,
@@ -91,13 +91,13 @@ namespace SoapySDR
         {
             ErrorCode ret = ErrorCode.NONE;
 
-            if(_streamHandle)
+            if(_streamHandle != null)
             {
                 var buffsAsSizes = new SizeList();
-                foreach(var buff in buffs) buffsAsSizes.Add((UIntPtr)((void*)buff));
+                foreach(var ptr in ptrs) buffsAsSizes.Add((uint)(UIntPtr)(void*)ptr);
 
-                var deviceOutput = _device.__WriteStream(
-                    streamHandle,
+                var deviceOutput = _device.WriteStream(
+                    _streamHandle,
                     buffsAsSizes,
                     numElems,
                     timeNs,
@@ -116,8 +116,8 @@ namespace SoapySDR
         public override string ToString()
         {
             return string.Format("{0}:{1} {2} TX stream (format: {3}, channels: {4})",
-                _device.DriverKey,
-                _device.HardwareKey,
+                _device.GetDriverKey(),
+                _device.GetHardwareKey(),
                 (_active ? "active" : "inactive"),
                 Format,
                 Channels);

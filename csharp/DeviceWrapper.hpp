@@ -48,7 +48,7 @@ namespace SoapySDR { namespace CSharp {
             // Parallel support
             //
 
-            static DeviceVector __ParallelMake(const SoapySDR::KwargsList& kwargsList)
+            static DeviceVector ParallelMake(const SoapySDR::KwargsList& kwargsList)
             {
                 const auto devs = SoapySDR::Device::make(kwargsList);
                 DeviceVector csharpDevs;
@@ -63,7 +63,7 @@ namespace SoapySDR { namespace CSharp {
                 return csharpDevs;
             }
 
-            static DeviceVector __ParallelMake(const std::vector<std::string>& argsList)
+            static DeviceVector ParallelMake(const std::vector<std::string>& argsList)
             {
                 const auto devs = SoapySDR::Device::make(argsList);
                 DeviceVector csharpDevs;
@@ -82,14 +82,14 @@ namespace SoapySDR { namespace CSharp {
             // Identification API (all private, to be used as properties)
             //
 
-            inline std::string __GetDriverKey() const
+            inline std::string GetDriverKey() const
             {
                 assert(_deviceSPtr);
 
                 return _deviceSPtr->getDriverKey();
             }
 
-            inline std::string __GetHardwareKey() const
+            inline std::string GetHardwareKey() const
             {
                 assert(_deviceSPtr);
 
@@ -97,7 +97,7 @@ namespace SoapySDR { namespace CSharp {
             }
 
             // TODO: expose Kwargs?
-            inline SoapySDR::Kwargs __GetHardwareInfo() const
+            inline SoapySDR::Kwargs GetHardwareInfo() const
             {
                 assert(_deviceSPtr);
 
@@ -153,7 +153,7 @@ namespace SoapySDR { namespace CSharp {
             // Stream API
             //
 
-            inline std::vector<std::string> __GetStreamFormats(
+            inline std::vector<std::string> GetStreamFormats(
                 SoapySDR::CSharp::Direction direction,
                 const size_t channel) const
             {
@@ -172,7 +172,8 @@ namespace SoapySDR { namespace CSharp {
                 return _deviceSPtr->getNativeStreamFormat(int(direction), channel, fullScaleOut);
             }
 
-            inline SoapySDR::ArgInfoList __GetStreamArgsInfo(
+/*
+            inline SoapySDR::ArgInfoList GetStreamArgsInfo(
                 SoapySDR::CSharp::Direction direction,
                 const size_t channel) const
             {
@@ -180,8 +181,9 @@ namespace SoapySDR { namespace CSharp {
 
                 return _deviceSPtr->getStreamArgsInfo(int(direction), channel);
             }
+*/
 
-            SoapySDR::CSharp::StreamHandle __SetupStream(
+            SoapySDR::CSharp::StreamHandle SetupStream(
                 SoapySDR::CSharp::Direction direction,
                 const std::string& format,
                 const std::vector<size_t>& channels,
@@ -196,21 +198,21 @@ namespace SoapySDR { namespace CSharp {
                 return streamHandle;
             }
 
-            inline void __CloseStream(const SoapySDR::CSharp::StreamHandle& streamHandle)
+            inline void CloseStream(const SoapySDR::CSharp::StreamHandle& streamHandle)
             {
                 assert(_deviceSPtr);
 
                 _deviceSPtr->closeStream(streamHandle.stream);
             }
 
-            inline size_t __GetStreamMTU(const SoapySDR::CSharp::StreamHandle& streamHandle)
+            inline size_t GetStreamMTU(const SoapySDR::CSharp::StreamHandle& streamHandle)
             {
                 assert(_deviceSPtr);
 
                 return _deviceSPtr->getStreamMTU(streamHandle.stream);
             }
 
-            inline SoapySDR::CSharp::ErrorCode __ActivateStream(
+            inline SoapySDR::CSharp::ErrorCode ActivateStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const SoapySDR::CSharp::StreamFlags flags,
                 const long long timeNs,
@@ -225,7 +227,7 @@ namespace SoapySDR { namespace CSharp {
                     numElems));
             }
 
-            inline SoapySDR::CSharp::ErrorCode __DeactivateStream(
+            inline SoapySDR::CSharp::ErrorCode DeactivateStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const SoapySDR::CSharp::StreamFlags flags,
                 const long long timeNs)
@@ -242,7 +244,7 @@ namespace SoapySDR { namespace CSharp {
             // TODO: SWIG typemap hackery can get us the "out StreamResult" we want
             //
 
-            StreamResultPair __ReadStream(
+            StreamResultPair ReadStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const std::vector<size_t>& buffs,
                 const size_t numElems,
@@ -274,7 +276,7 @@ namespace SoapySDR { namespace CSharp {
                 return resultPair;
             }
 
-            StreamResultPair __WriteStream(
+            StreamResultPair WriteStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const std::vector<size_t>& buffs,
                 const size_t numElems,
@@ -305,7 +307,7 @@ namespace SoapySDR { namespace CSharp {
                 return resultPair;
             }
 
-            StreamResultPair __ReadStreamStatus(
+            StreamResultPair ReadStreamStatus(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const long timeoutUs)
             {
@@ -331,7 +333,7 @@ namespace SoapySDR { namespace CSharp {
             // Antenna API
             //
 
-            inline std::vector<std::string> __ListAntennas(
+            inline std::vector<std::string> ListAntennas(
                 SoapySDR::CSharp::Direction direction,
                 const size_t channel) const
             {
@@ -503,12 +505,12 @@ namespace SoapySDR { namespace CSharp {
                 return (_deviceSPtr->getDriverKey() + ":" + _deviceSPtr->getHardwareKey());
             }
 
-            inline bool __Equals(const SoapySDR::CSharp::Device& other) const
+            inline bool Equals(const SoapySDR::CSharp::Device& other) const
             {
                 return (__ToString() == other.__ToString());
             }
 
-            inline uintptr_t __GetPointer() const
+            inline uintptr_t GetPointer() const
             {
                 return reinterpret_cast<uintptr_t>(_deviceSPtr.get());
             }

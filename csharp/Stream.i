@@ -8,13 +8,15 @@
 %csmethodmodifiers SoapySDR::CSharp::StreamHandle::GetFormat "internal";
 %csmethodmodifiers SoapySDR::CSharp::StreamHandle::GetPointer "internal";
 %nodefaultctor SoapySDR::CSharp::StreamFormats;
-%nodefaultctor SoapySDR::CSharp::Time;
 
 // Allows bitwise operations
+%typemap(csimports) SoapySDR::CSharp::StreamFlags "
+using System;"
 %typemap(csclassmodifiers) SoapySDR::CSharp::StreamFlags "[Flags]
 public enum"
 
-// TODO: internal class?
+%typemap(csimports) SoapySDR::CSharp::StreamHandle "
+using System;"
 %typemap(cscode) SoapySDR::CSharp::StreamHandle %{
     public override string ToString()
     {
@@ -24,12 +26,12 @@ public enum"
     public override bool Equals(object other)
     {
         var otherAsStreamHandle = other as StreamHandle;
-        if(otherAsStreamHandle) return (GetHashCode() == other.GetHashCode());
-        else throw new ArgumentException("Not a StreamHandle");
+        if(otherAsStreamHandle != null) return (GetHashCode() == other.GetHashCode());
+        else                            throw new ArgumentException("Not a StreamHandle");
     }
 
     public override int GetHashCode()
     {
-        return (GetClass.GetHashCode() ^ GetPointer().GetHashCode());
+        return (GetType().GetHashCode() ^ GetPointer().GetHashCode());
     }
 %}

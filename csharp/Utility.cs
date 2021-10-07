@@ -12,9 +12,9 @@ namespace SoapySDR
         // TODO: compare stream type to buffer type
         internal static void ValidateBuffs<T>(
             StreamHandle streamHandle,
-            ref T[][] buffs) where T: unmanaged
+            T[][] buffs) where T: unmanaged
         {
-            var numChannels = streamHandle.GetChannels().Length;
+            var numChannels = streamHandle.GetChannels().Count;
             var format = streamHandle.GetFormat();
 
             if(buffs == null)
@@ -23,20 +23,20 @@ namespace SoapySDR
             }
             else if(buffs.Length != numChannels)
             {
-                throw new ArgumentException(string.format("Expected {0} channels. Found {1} buffers.", numChannels, buffs.Length));
+                throw new ArgumentException(string.Format("Expected {0} channels. Found {1} buffers.", numChannels, buffs.Length));
             }
             else if(!format.Equals(GetFormatString<T>()))
             {
-                throw new ArgumentException(string.format("Expected format \"{0}\". Found format \"{1}\"", GetFormatString<T>(), format));
+                throw new ArgumentException(string.Format("Expected format \"{0}\". Found format \"{1}\"", GetFormatString<T>(), format));
             }
 
-            HashSet<int> uniqueSizes = new HashSet<T>();
+            HashSet<int> uniqueSizes = new HashSet<int>();
 
             for(int buffIndex = 0; buffIndex < buffs.Length; ++buffIndex)
             {
                 if(buffs[buffIndex] == null)
                 {
-                    throw new ArgumentNullException(string.format("buffs[{0}]", buffIndex));
+                    throw new ArgumentNullException(string.Format("buffs[{0}]", buffIndex));
                 }
 
                 uniqueSizes.Add(buffs[buffIndex].Length);
@@ -62,7 +62,7 @@ namespace SoapySDR
                     buffs[buffIndex],
                     System.Runtime.InteropServices.GCHandleType.Pinned);
 
-                var uptr = UIntPtr(((void*)handles[buffIndex].AddrOfPinnedObject()));
+                var uptr = (System.UIntPtr)(void*)handles[buffIndex].AddrOfPinnedObject();
                 sizeList.Add((uint)uptr);
             }
         }
@@ -75,14 +75,12 @@ namespace SoapySDR
             if(typeof(T).Equals(typeof(sbyte)))       return StreamFormats.S8;
             else if(typeof(T).Equals(typeof(short)))  return StreamFormats.S16;
             else if(typeof(T).Equals(typeof(int)))    return StreamFormats.S32;
-            else if(typeof(T).Equals(typeof(long)))   return StreamFormats.S64;
             else if(typeof(T).Equals(typeof(byte)))   return StreamFormats.U8;
             else if(typeof(T).Equals(typeof(ushort))) return StreamFormats.U16;
             else if(typeof(T).Equals(typeof(uint)))   return StreamFormats.U32;
-            else if(typeof(T).Equals(typeof(ulong)))  return StreamFormats.U64;
             else if(typeof(T).Equals(typeof(float)))  return StreamFormats.F32;
             else if(typeof(T).Equals(typeof(double))) return StreamFormats.F64;
-            else throw new Exception(string.format("Type {0} not covered by GetFormatString", type));
+            else throw new Exception(string.Format("Type {0} not covered by GetFormatString", type));
         }
     }
 }

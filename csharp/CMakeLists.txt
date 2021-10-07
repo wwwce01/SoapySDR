@@ -64,11 +64,11 @@ SWIG_BUILD_CSHARP_MODULE(SoapySDR SoapySDRCSharp SoapySDR TRUE SoapySDR)
 ########################################################################
 
 set(csharp_swig_outputs
-    ${CSHARP_SOURCE_DIRECTORY}/ArgInfo.cs
-    ${CSHARP_SOURCE_DIRECTORY}/ArgInfoList.cs
+    ${CSHARP_SOURCE_DIRECTORY}/ArgInfoInternal.cs
+    ${CSHARP_SOURCE_DIRECTORY}/ArgInfoInternalList.cs
     ${CSHARP_SOURCE_DIRECTORY}/BuildInfo.cs
-    ${CSHARP_SOURCE_DIRECTORY}/Device.cs
-    ${CSHARP_SOURCE_DIRECTORY}/DeviceList.cs
+    ${CSHARP_SOURCE_DIRECTORY}/DeviceInternal.cs
+    ${CSHARP_SOURCE_DIRECTORY}/DeviceInternalList.cs
     ${CSHARP_SOURCE_DIRECTORY}/Direction.cs
     ${CSHARP_SOURCE_DIRECTORY}/DoubleList.cs
     ${CSHARP_SOURCE_DIRECTORY}/ErrorCode.cs
@@ -94,6 +94,8 @@ set_source_files_properties(
     PROPERTIES GENERATED TRUE)
 
 set(csharp_srcs
+    ${CMAKE_CURRENT_SOURCE_DIR}/ArgInfo.cs
+    ${CMAKE_CURRENT_SOURCE_DIR}/Device.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Logger.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Stream.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/TxStream.cs

@@ -49,9 +49,15 @@
 %include <std_string.i>
 %include <std_vector.i>
 %include <std_map.i>
+
+// We need this extra layer of indirection because we want to hide a vector property
+%typemap(csclassmodifiers) SoapySDR::ArgInfo "internal class"
+%rename(ArgInfoInternal) SoapySDR::ArgInfo;
+
 %ignore SoapySDR::Detail::StringToSetting; //ignore SFINAE overloads
 %include <SoapySDR/Types.hpp>
 
+// TODO: hide, SWIG-generated maps are ugly
 %template(Kwargs) std::map<std::string, std::string>;
 
 // NOTE: hide vectors, SWIG-generated C# vectors are ugly
@@ -60,7 +66,7 @@
 %template(KwargsList) std::vector<SoapySDR::Kwargs>;
 
 %typemap(csclassmodifiers) std::vector<SoapySDR::ArgInfo> "internal class"
-%template(ArgInfoList) std::vector<SoapySDR::ArgInfo>;
+%template(ArgInfoInternalList) std::vector<SoapySDR::ArgInfo>;
 
 %typemap(csclassmodifiers) std::vector<std::string> "internal class"
 %template(StringList) std::vector<std::string>;
