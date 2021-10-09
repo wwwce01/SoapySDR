@@ -3,19 +3,6 @@
 
 #pragma once
 
-#include <vector>
-
-// SWIG seems to struggle with size_t/uintptr_t, even with custom typemap stuff.
-#if defined(_WIN64) || defined(SWIG64)
-using SizeVector = std::vector<unsigned long long>;
-#else
-using SizeVector = std::vector<unsigned int>;
-#endif
-
-using UIntPtrT = typename SizeVector::value_type;
-
-static_assert(sizeof(UIntPtrT) == sizeof(void*), "Bad typecasting");
-
 #include "CSharpExtensions.hpp"
 
 #include <SoapySDR/Device.hpp>

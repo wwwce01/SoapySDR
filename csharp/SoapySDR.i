@@ -3,8 +3,6 @@
 
 %module(directors="1") SoapySDR
 
-#warning Deal with size_t/uintptr_t pain
-
 %include <typemaps.i>
 %include <std_vector.i>
 
@@ -31,7 +29,7 @@
 // We only expect to throw DirectorExceptions from within
 // SoapySDR_csharpLogHandlerBase calls.  Catching them permits us to
 // propagate exceptions thrown in the C# log handler callback back to
-// C#. TODO: restore, appears to need to be done differently
+// C#.
 %exception
 {
     try{$action}
@@ -48,22 +46,29 @@
 ////////////////////////////////////////////////////////////////////////
 // Commonly used data types
 ////////////////////////////////////////////////////////////////////////
+%include <stdint.i>
 %include <std_complex.i>
 %include <std_string.i>
 %include <std_vector.i>
 %include <std_map.i>
 
-// We need this extra layer of indirection because we want to hide a vector property
 %typemap(csclassmodifiers) SoapySDR::ArgInfo "internal class"
 %rename(ArgInfoInternal) SoapySDR::ArgInfo;
 
-%ignore SoapySDR::Detail::StringToSetting; //ignore SFINAE overloads
+%ignore SoapySDR::Detail::StringToSetting;
 %include <SoapySDR/Types.hpp>
 
-// TODO: hide, SWIG-generated maps are ugly
-%template(Kwargs) std::map<std::string, std::string>;
+#ifdef SIZE_T_IS_UNSIGNED_INT
+%typemap(csclassmodifiers) std::vector<uint32_t> "internal class"
+%template(SizeList) std::vector<uint32_t>;
+#else
+%typemap(csclassmodifiers) std::vector<uint64_t> "internal class"
+%template(SizeList) std::vector<uint64_t>;
+#endif
 
-// NOTE: hide vectors, SWIG-generated C# vectors are ugly
+// Hide SWIG-generated STL types, they're ugly and half-done
+
+%template(Kwargs) std::map<std::string, std::string>;
 
 %typemap(csclassmodifiers) std::vector<SoapySDR::Kwargs> "internal class"
 %template(KwargsList) std::vector<SoapySDR::Kwargs>;
@@ -76,15 +81,6 @@
 
 %typemap(csclassmodifiers) std::vector<SoapySDR::Range> "internal class"
 %template(RangeList) std::vector<SoapySDR::Range>;
-
-%typemap(csclassmodifiers) std::vector<unsigned int> "internal class"
-%template(UIntList) std::vector<unsigned int>;
-
-%typemap(csclassmodifiers) std::vector<unsigned long> "internal class"
-%template(ULongList) std::vector<unsigned long>;
-
-%typemap(csclassmodifiers) std::vector<unsigned long long> "internal class"
-%template(ULongLongList) std::vector<unsigned long long>;
 
 %typemap(csclassmodifiers) std::vector<double> "internal class"
 %template(DoubleList) std::vector<double>;

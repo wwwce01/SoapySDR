@@ -21,8 +21,8 @@ CHECK_CXX_SOURCE_COMPILES("
     size_t *x = (unsigned int *)(NULL);
     return 0; }" SIZE_T_IS_UNSIGNED_INT)
 
-if (NOT SIZE_T_IS_UNSIGNED_INT)
-    list(APPEND CMAKE_SWIG_FLAGS -DSWIG64)
+if (SIZE_T_IS_UNSIGNED_INT)
+    list(APPEND CMAKE_SWIG_FLAGS -DSIZE_T_IS_UNSIGNED_INT)
 endif (SIZE_T_IS_UNSIGNED_INT)
 
 ########################################################################
@@ -78,6 +78,7 @@ set(csharp_swig_outputs
     ${CSHARP_SOURCE_DIRECTORY}/LogLevel.cs
     ${CSHARP_SOURCE_DIRECTORY}/Range.cs
     ${CSHARP_SOURCE_DIRECTORY}/RangeList.cs
+    ${CSHARP_SOURCE_DIRECTORY}/SizeList.cs
     ${CSHARP_SOURCE_DIRECTORY}/SoapySDR.cs
     ${CSHARP_SOURCE_DIRECTORY}/SettingConversion.cs
     ${CSHARP_SOURCE_DIRECTORY}/SoapySDRPINVOKE.cs
@@ -87,10 +88,7 @@ set(csharp_swig_outputs
     ${CSHARP_SOURCE_DIRECTORY}/StreamResult.cs
     ${CSHARP_SOURCE_DIRECTORY}/StreamResultPair.cs
     ${CSHARP_SOURCE_DIRECTORY}/StringList.cs
-    ${CSHARP_SOURCE_DIRECTORY}/Time.cs
-    ${CSHARP_SOURCE_DIRECTORY}/UIntList.cs
-    ${CSHARP_SOURCE_DIRECTORY}/ULongList.cs
-    ${CSHARP_SOURCE_DIRECTORY}/ULongLongList.cs)
+    ${CSHARP_SOURCE_DIRECTORY}/Time.cs)
 
 set_source_files_properties(
     FILES ${csharp_swig_outputs}

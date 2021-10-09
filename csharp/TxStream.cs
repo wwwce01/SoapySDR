@@ -15,7 +15,7 @@ namespace SoapySDR
         ):
             base(device, format, channels, kwargs)
         {
-            _streamHandle = device.SetupStream(Direction.TX, format, new UIntList(channels), kwargs);
+            _streamHandle = device.SetupStream(Direction.TX, format, new SizeList(channels), kwargs);
         }
 
         public unsafe ErrorCode Write<T>(
@@ -43,7 +43,7 @@ namespace SoapySDR
                 Utility.ValidateBuffs(_streamHandle, buffs);
 
                 System.Runtime.InteropServices.GCHandle[] handles = null;
-                UIntList buffsAsSizes = null;
+                SizeList buffsAsSizes = null;
 
                 Utility.ManagedArraysToSizeList(
                     buffs,
@@ -91,8 +91,9 @@ namespace SoapySDR
 
             if(_streamHandle != null)
             {
-                var buffsAsSizes = new UIntList();
-                foreach(var ptr in ptrs) buffsAsSizes.Add((uint)(UIntPtr)(void*)ptr);
+                var buffsAsSizes = new SizeList();
+                // TODO: still 32-bit vs 64-bit issue here
+                foreach(var ptr in ptrs) buffsAsSizes.Add((ulong)(UIntPtr)(void*)ptr);
 
                 var deviceOutput = _device.WriteStream(
                     _streamHandle,

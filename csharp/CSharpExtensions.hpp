@@ -6,13 +6,15 @@
 #include <vector>
 
 // SWIG seems to struggle with size_t/uintptr_t, even with custom typemap stuff.
-#if defined(_WIN64)
-using SizeVector = std::vector<unsigned long long>;
+#if defined(SIZE_T_IS_UNSIGNED_INT)
+using UIntPtrT = uint32_t;
 #else
-using SizeVector = std::vector<unsigned int>;
+using UIntPtrT = uint64_t;
 #endif
 
-using UIntPtrT = typename SizeVector::value_type;
+using SizeVector = std::vector<UIntPtrT>;
+
+static_assert(sizeof(UIntPtrT) == sizeof(void*), "Can't reinterpret_cast size type to void*");
 
 #include <SoapySDR/Constants.h>
 #include <SoapySDR/Device.hpp>
