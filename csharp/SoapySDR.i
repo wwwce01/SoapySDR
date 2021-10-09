@@ -99,5 +99,17 @@
 
 %include "CSharpExtensions.hpp"
 
+%typemap(csclassmodifiers) SoapySDR::CSharp::SettingConversion "internal class"
+
+%template(LongToString) SoapySDR::CSharp::SettingConversion::SettingToString<int64_t>;
+%template(ULongToString) SoapySDR::CSharp::SettingConversion::SettingToString<uint64_t>;
+%template(BoolToString) SoapySDR::CSharp::SettingConversion::SettingToString<bool>;
+%template(DoubleToString) SoapySDR::CSharp::SettingConversion::SettingToString<double>;
+
+%template(StringToLong) SoapySDR::CSharp::SettingConversion::StringToSetting<int64_t>;
+%template(StringToULong) SoapySDR::CSharp::SettingConversion::StringToSetting<uint64_t>;
+%template(StringToBool) SoapySDR::CSharp::SettingConversion::StringToSetting<bool>;
+%template(StringToDouble) SoapySDR::CSharp::SettingConversion::StringToSetting<double>;
+
 %include "Device.i"
 %include "Logger.i"

@@ -79,6 +79,7 @@ set(csharp_swig_outputs
     ${CSHARP_SOURCE_DIRECTORY}/Range.cs
     ${CSHARP_SOURCE_DIRECTORY}/RangeList.cs
     ${CSHARP_SOURCE_DIRECTORY}/SoapySDR.cs
+    ${CSHARP_SOURCE_DIRECTORY}/SettingConversion.cs
     ${CSHARP_SOURCE_DIRECTORY}/SoapySDRPINVOKE.cs
     ${CSHARP_SOURCE_DIRECTORY}/StreamFlags.cs
     ${CSHARP_SOURCE_DIRECTORY}/StreamFormats.cs

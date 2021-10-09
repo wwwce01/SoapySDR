@@ -23,13 +23,18 @@ namespace SoapySDR
             set => argInfo.key = value;
         }
 
+        public object Value
+        {
+            // TODO: convert
+            get => ValueString;
+            set => ValueString = (string)value;
+        }
+
         public string ValueString
         {
             get => argInfo.value;
             set => argInfo.value = value;
         }
-
-        // TODO: value object w/conversion
 
         public string Name
         {

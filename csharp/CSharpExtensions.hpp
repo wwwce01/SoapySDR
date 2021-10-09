@@ -6,7 +6,7 @@
 #include <vector>
 
 // SWIG seems to struggle with size_t/uintptr_t, even with custom typemap stuff.
-#if defined(WIN64) || defined(_WIN64)
+#if defined(_WIN64)
 using SizeVector = std::vector<unsigned long long>;
 #else
 using SizeVector = std::vector<unsigned int>;
@@ -18,8 +18,10 @@ using UIntPtrT = typename SizeVector::value_type;
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Formats.hpp>
 #include <SoapySDR/Time.hpp>
+#include <SoapySDR/Types.hpp>
 #include <SoapySDR/Version.hpp>
 
+#include <cstdint>
 #include <string>
 
 // TODO: CamelCase enums? C# naming convention?
@@ -170,6 +172,21 @@ namespace SoapySDR { namespace CSharp {
         DEBUG    = 7,
         TRACE    = 8,
         SSI      = 9
+    };
+
+    struct SettingConversion
+    {
+        template <typename T>
+        static inline std::string SettingToString(const T& setting)
+        {
+            return SoapySDR::SettingToString<T>(setting);
+        }
+
+        template <typename T>
+        static inline T StringToSetting(const std::string& setting)
+        {
+            return SoapySDR::StringToSetting<T>(setting);
+        }
     };
 }}
 
