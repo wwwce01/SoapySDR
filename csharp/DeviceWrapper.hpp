@@ -58,41 +58,7 @@ namespace SoapySDR { namespace CSharp {
             {}
 
             //
-            // Parallel support
-            //
-
-            static DeviceVector ParallelMake(const SoapySDR::KwargsList& kwargsList)
-            {
-                const auto devs = SoapySDR::Device::make(kwargsList);
-                DeviceVector csharpDevs;
-
-                // Note: transfers ownership to C# class
-                std::transform(
-                    devs.begin(),
-                    devs.end(),
-                    std::back_inserter(csharpDevs),
-                    [](SoapySDR::Device* pDev){ return Device(pDev); });
-
-                return csharpDevs;
-            }
-
-            static DeviceVector ParallelMake(const std::vector<std::string>& argsList)
-            {
-                const auto devs = SoapySDR::Device::make(argsList);
-                DeviceVector csharpDevs;
-
-                // Note: transfers ownership to C# class
-                std::transform(
-                    devs.begin(),
-                    devs.end(),
-                    std::back_inserter(csharpDevs),
-                    [](SoapySDR::Device* pDev){ return Device(pDev); });
-
-                return csharpDevs;
-            }
-
-            //
-            // Identification API (all private, to be used as properties)
+            // Identification API
             //
 
             inline std::string GetDriverKey() const
@@ -109,7 +75,6 @@ namespace SoapySDR { namespace CSharp {
                 return _deviceSPtr->getHardwareKey();
             }
 
-            // TODO: expose Kwargs?
             inline SoapySDR::Kwargs GetHardwareInfo() const
             {
                 assert(_deviceSPtr);
@@ -185,7 +150,6 @@ namespace SoapySDR { namespace CSharp {
                 return _deviceSPtr->getNativeStreamFormat(int(direction), channel, fullScaleOut);
             }
 
-/*
             inline SoapySDR::ArgInfoList GetStreamArgsInfo(
                 SoapySDR::CSharp::Direction direction,
                 const unsigned long long channel) const
@@ -194,7 +158,6 @@ namespace SoapySDR { namespace CSharp {
 
                 return _deviceSPtr->getStreamArgsInfo(int(direction), channel);
             }
-*/
 
             SoapySDR::CSharp::StreamHandle SetupStream(
                 SoapySDR::CSharp::Direction direction,
@@ -391,6 +354,15 @@ namespace SoapySDR { namespace CSharp {
                 assert(_deviceSPtr);
 
                 return _deviceSPtr->setDCOffsetMode(int(direction), channel, automatic);
+            }
+
+            inline bool GetDCOffsetMode(
+                SoapySDR::CSharp::Direction direction,
+                const unsigned long long channel)
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getDCOffsetMode(int(direction), channel);
             }
 
             inline bool HasDCOffset(

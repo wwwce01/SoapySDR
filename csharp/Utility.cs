@@ -82,5 +82,29 @@ namespace SoapySDR
             else if(typeof(T).Equals(typeof(double))) return StreamFormats.F64;
             else throw new Exception(string.Format("Type {0} not covered by GetFormatString", type));
         }
+
+        internal static Kwargs AnyMapToKwargs(IDictionary<string, string> input)
+        {
+            Kwargs kwargs;
+
+            var output = new Kwargs();
+            foreach(var pair in input)
+            {
+                output.Add(pair.Key, pair.Value);
+            }
+
+            return output;
+        }
+
+        internal static KwargsList AnyMapArrayToKwargsList(IDictionary<string, string>[] inputs)
+        {
+            var outputs = new KwargsList();
+            foreach(var input in inputs)
+            {
+                outputs.Add(AnyMapToKwargs(input));
+            }
+
+            return outputs;
+        }
     }
 }

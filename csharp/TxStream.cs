@@ -7,17 +7,15 @@ namespace SoapySDR
 {
     public class TxStream: Stream
     {
-        // We already used these parameters to create the stream,
-        // this is just for the sake of getters.
         internal TxStream(
             DeviceInternal device,
             string format,
             uint[] channels,
-            Kwargs kwargs,
-            StreamHandle streamHandle
+            Kwargs kwargs
         ):
-            base(device, format, channels, kwargs, streamHandle)
+            base(device, format, channels, kwargs)
         {
+            _streamHandle = device.SetupStream(Direction.TX, format, new UIntList(channels), kwargs);
         }
 
         public unsafe ErrorCode Write<T>(
@@ -111,7 +109,13 @@ namespace SoapySDR
             return ret;
         }
 
-        // Note: Stream's Equals() and GetHashCode() work here too
+        //
+        // Object overrides
+        //
+
+        public override bool Equals(object other) => base.Equals(other);
+
+        public override int GetHashCode() => base.GetHashCode();
 
         public override string ToString()
         {

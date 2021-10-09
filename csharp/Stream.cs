@@ -22,11 +22,9 @@ namespace SoapySDR
             DeviceInternal device,
             string format,
             uint[] channels,
-            Kwargs kwargs,
-            StreamHandle streamHandle)
+            Kwargs kwargs)
         {
             _device = device;
-            _streamHandle = streamHandle;
 
             Format = format;
             Channels = channels;
@@ -111,6 +109,10 @@ namespace SoapySDR
             else throw new NotSupportedException("Stream is already closed");
         }
 
+        //
+        // Object overrides
+        //
+
         // For completeness, but a stream is only ever equal to itself
         public override bool Equals(object other)
         {
@@ -119,10 +121,7 @@ namespace SoapySDR
             else throw new ArgumentException("Not a "+GetType().ToString());
         }
 
-        public override int GetHashCode()
-        {
-            return (GetType().GetHashCode() ^ (int)_streamHandle?.GetHashCode());
-        }
+        public override int GetHashCode() => GetType().GetHashCode() ^ (int)_streamHandle?.GetHashCode();
 
         public override string ToString()
         {
