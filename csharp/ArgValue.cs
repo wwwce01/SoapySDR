@@ -14,7 +14,11 @@ namespace SoapySDR
         public ArgValue(object value)
         {
             // Hopefully in order of likelihood
-            if (value is bool)
+            if(value is string)
+            {
+                _value = (string)value;
+            }
+            else if (value is bool)
             {
                 _value = SettingConversion.BoolToString((bool)value);
             }
@@ -100,7 +104,21 @@ namespace SoapySDR
 
         public object ToType(Type conversionType, IFormatProvider provider)
         {
-            throw new NotImplementedException();
+            if (conversionType.Equals(typeof(string))) return ToString(provider);
+            if (conversionType.Equals(typeof(bool))) return ToBoolean(provider);
+            if (conversionType.Equals(typeof(sbyte))) return ToSByte(provider);
+            if (conversionType.Equals(typeof(short))) return ToInt16(provider);
+            if (conversionType.Equals(typeof(int))) return ToInt32(provider);
+            if (conversionType.Equals(typeof(long))) return ToInt64(provider);
+            if (conversionType.Equals(typeof(byte))) return ToByte(provider);
+            if (conversionType.Equals(typeof(ushort))) return ToUInt16(provider);
+            if (conversionType.Equals(typeof(uint))) return ToUInt32(provider);
+            if (conversionType.Equals(typeof(ulong))) return ToUInt64(provider);
+            if (conversionType.Equals(typeof(float))) return ToSingle(provider);
+            if (conversionType.Equals(typeof(double))) return ToDouble(provider);
+            if (conversionType.Equals(typeof(decimal))) return ToDecimal(provider);
+
+            throw new NotImplementedException(conversionType.FullName);
         }
 
         public ushort ToUInt16(IFormatProvider provider)
