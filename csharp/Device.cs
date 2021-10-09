@@ -85,11 +85,7 @@ namespace SoapySDR
 
         public override string ToString() => device.__ToString();
 
-        public override bool Equals(object obj)
-        {
-            var objAsDevice = obj as Device;
-            return (objAsDevice != null) ? device.Equals(objAsDevice.device) : false;
-        }
+        public override bool Equals(object obj) => (obj is Device) && ((Device)obj).device.Equals(device);
 
         public override int GetHashCode() => GetType().GetHashCode() ^ device.GetPointer().GetHashCode();
     }

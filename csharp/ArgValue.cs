@@ -5,7 +5,7 @@ using System;
 
 namespace SoapySDR
 {
-    public class ArgValue : System.IConvertible
+    internal class ArgValue : System.IConvertible
     {
         private string _value;
 
@@ -36,6 +36,21 @@ namespace SoapySDR
             }
             else _value = value.ToString(); // Good luck
         }
+
+        public object ToArgType(ArgInfo.ArgType argType)
+        {
+            switch (argType)
+            {
+                case ArgInfo.ArgType.BOOL: return ToType(typeof(bool), null);
+                case ArgInfo.ArgType.INT: return ToType(typeof(long), null);
+                case ArgInfo.ArgType.FLOAT: return ToType(typeof(double), null);
+                default: return _value;
+            }
+        }
+
+        //
+        // IConvertible overrides
+        //
 
         public TypeCode GetTypeCode()
         {
@@ -135,5 +150,15 @@ namespace SoapySDR
         {
             return SettingConversion.StringToULong(_value);
         }
+
+        //
+        // Object overrides
+        //
+
+        public override string ToString() => ToString(null);
+
+        public override int GetHashCode() => (GetType().GetHashCode() ^ _value.GetHashCode());
+
+        public override bool Equals(object obj) => (obj is ArgValue) && ((ArgValue)obj)._value.Equals(_value);
     }
 }

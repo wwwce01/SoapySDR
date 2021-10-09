@@ -31,10 +31,10 @@ namespace SoapySDR
             set => argInfo.key = value;
         }
 
-        public ArgValue Value
+        public object Value
         {
-            get => new ArgValue(argInfo.value);
-            set => argInfo.value = Value.ToString();
+            get => new ArgValue(argInfo.value).ToArgType(Type);
+            set => argInfo.value = new ArgValue(value).ToString(null);
         }
 
         public string ValueString
