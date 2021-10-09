@@ -5,14 +5,6 @@
 %include <stdint.i>
 %include <typemaps.i>
 
-#ifdef SIZE_T_IS_UNSIGNED_INT
-%apply uint32_t { size_t };
-%apply uint32_t { uintptr_t };
-#else
-%apply uint64_t { size_t };
-%apply uint64_t { uintptr_t };
-#endif
-
 //
 // Wrapper class
 //

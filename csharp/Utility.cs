@@ -51,10 +51,10 @@ namespace SoapySDR
         internal static unsafe void ManagedArraysToSizeList<T>(
             T[][] buffs,
             out GCHandle[] handles,
-            out SizeList sizeList)
+            out UIntList sizeList)
         {
             handles = new GCHandle[buffs.Length];
-            sizeList = new SizeList();
+            sizeList = new UIntList();
 
             for(int buffIndex = 0; buffIndex < buffs.Length; ++buffIndex)
             {

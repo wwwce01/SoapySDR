@@ -3,6 +3,19 @@
 
 #pragma once
 
+#include <vector>
+
+// SWIG seems to struggle with size_t/uintptr_t, even with custom typemap stuff.
+#if defined(_WIN64) || defined(SWIG64)
+using SizeVector = std::vector<unsigned long long>;
+#else
+using SizeVector = std::vector<unsigned int>;
+#endif
+
+using UIntPtrT = typename SizeVector::value_type;
+
+static_assert(sizeof(UIntPtrT) == sizeof(void*), "Bad typecasting");
+
 #include "CSharpExtensions.hpp"
 
 #include <SoapySDR/Device.hpp>
@@ -133,7 +146,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline SoapySDR::Kwargs GetChannelInfo(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -142,7 +155,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline bool GetFullDuplex(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -155,7 +168,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline std::vector<std::string> GetStreamFormats(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -164,7 +177,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline std::string GetNativeStreamFormat(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel,
+                const unsigned long long channel,
                 double &fullScaleOut) const
             {
                 assert(_deviceSPtr);
@@ -175,7 +188,7 @@ namespace SoapySDR { namespace CSharp {
 /*
             inline SoapySDR::ArgInfoList GetStreamArgsInfo(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -186,7 +199,7 @@ namespace SoapySDR { namespace CSharp {
             SoapySDR::CSharp::StreamHandle SetupStream(
                 SoapySDR::CSharp::Direction direction,
                 const std::string& format,
-                const std::vector<size_t>& channels,
+                const SizeVector& channels,
                 const SoapySDR::Kwargs& kwargs)
             {
                 assert(_deviceSPtr);
@@ -216,7 +229,7 @@ namespace SoapySDR { namespace CSharp {
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const SoapySDR::CSharp::StreamFlags flags,
                 const long long timeNs,
-                const size_t numElems)
+                const unsigned long long numElems)
             {
                 assert(_deviceSPtr);
 
@@ -240,14 +253,10 @@ namespace SoapySDR { namespace CSharp {
                     timeNs));
             }
 
-            //
-            // TODO: SWIG typemap hackery can get us the "out StreamResult" we want
-            //
-
             StreamResultPair ReadStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
-                const std::vector<size_t>& buffs,
-                const size_t numElems,
+                const SizeVector& buffs,
+                const unsigned long long numElems,
                 const SoapySDR::CSharp::StreamFlags flags,
                 const long long timeNs,
                 const long timeoutUs)
@@ -263,7 +272,7 @@ namespace SoapySDR { namespace CSharp {
                     buffs.begin(),
                     buffs.end(),
                     std::back_inserter(buffPtrs),
-                    [](const size_t buffNum)
+                    [](const typename SizeVector::value_type buffNum)
                     { return reinterpret_cast<void*>(buffNum); });
 
                 auto intFlags = int(flags);
@@ -278,8 +287,8 @@ namespace SoapySDR { namespace CSharp {
 
             StreamResultPair WriteStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
-                const std::vector<size_t>& buffs,
-                const size_t numElems,
+                const SizeVector& buffs,
+                const unsigned long long numElems,
                 const long long timeNs,
                 const long timeoutUs)
             {
@@ -294,7 +303,7 @@ namespace SoapySDR { namespace CSharp {
                     buffs.begin(),
                     buffs.end(),
                     std::back_inserter(buffPtrs),
-                    [](const size_t buffNum)
+                    [](const typename SizeVector::value_type buffNum)
                     { return reinterpret_cast<const void*>(buffNum); });
 
                 int intFlags = 0;
@@ -335,7 +344,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline std::vector<std::string> ListAntennas(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -344,7 +353,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline void SetAntenna(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel,
+                const unsigned long long channel,
                 const std::string& name)
             {
                 assert(_deviceSPtr);
@@ -354,7 +363,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline std::string GetAntenna(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -367,7 +376,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline bool HasDCOffsetMode(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -376,7 +385,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline void SetDCOffsetMode(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel,
+                const unsigned long long channel,
                 const bool automatic)
             {
                 assert(_deviceSPtr);
@@ -386,7 +395,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline bool HasDCOffset(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -395,7 +404,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline void SetDCOffset(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel,
+                const unsigned long long channel,
                 const std::complex<double>& offset)
             {
                 assert(_deviceSPtr);
@@ -405,7 +414,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline std::complex<double> GetDCOffset(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -414,7 +423,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline bool HasIQBalance(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -423,7 +432,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline void SetIQBalance(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel,
+                const unsigned long long channel,
                 const std::complex<double>& balance)
             {
                 assert(_deviceSPtr);
@@ -433,7 +442,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline std::complex<double> GetIQBalance(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -442,7 +451,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline bool HasIQBalanceMode(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -451,7 +460,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline void SetIQBalanceMode(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel,
+                const unsigned long long channel,
                 const bool automatic)
             {
                 assert(_deviceSPtr);
@@ -461,7 +470,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline bool GetIQBalanceMode(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -470,7 +479,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline bool HasFrequencyCorrection(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -479,7 +488,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline void SetFrequencyCorrection(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel,
+                const unsigned long long channel,
                 const double value)
             {
                 assert(_deviceSPtr);
@@ -489,7 +498,7 @@ namespace SoapySDR { namespace CSharp {
 
             inline double GetFrequencyCorrection(
                 SoapySDR::CSharp::Direction direction,
-                const size_t channel) const
+                const unsigned long long channel) const
             {
                 assert(_deviceSPtr);
 
@@ -510,9 +519,9 @@ namespace SoapySDR { namespace CSharp {
                 return (__ToString() == other.__ToString());
             }
 
-            inline uintptr_t GetPointer() const
+            inline UIntPtrT GetPointer() const
             {
-                return reinterpret_cast<uintptr_t>(_deviceSPtr.get());
+                return reinterpret_cast<UIntPtrT>(_deviceSPtr.get());
             }
 
         private:

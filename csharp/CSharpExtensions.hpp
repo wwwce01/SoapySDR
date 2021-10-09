@@ -3,6 +3,17 @@
 
 #pragma once
 
+#include <vector>
+
+// SWIG seems to struggle with size_t/uintptr_t, even with custom typemap stuff.
+#if defined(WIN64) || defined(_WIN64)
+using SizeVector = std::vector<unsigned long long>;
+#else
+using SizeVector = std::vector<unsigned int>;
+#endif
+
+using UIntPtrT = typename SizeVector::value_type;
+
 #include <SoapySDR/Constants.h>
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Formats.hpp>
@@ -95,25 +106,25 @@ namespace SoapySDR { namespace CSharp {
 
     struct StreamHandle
     {
-        SoapySDR::Stream* stream;
+        SoapySDR::Stream* stream{ nullptr };
 
         // Ignored
-        std::vector<size_t> channels;
-        inline std::vector<size_t> GetChannels() const {return channels;}
+        SizeVector channels;
+        inline SizeVector GetChannels() const {return channels;}
 
         // Ignored
         std::string format;
         inline std::string GetFormat() const {return format;}
 
         // Ignored
-        inline uintptr_t GetPointer() const {return reinterpret_cast<uintptr_t>(stream);}
+        inline UIntPtrT GetPointer() const {return reinterpret_cast<UIntPtrT>(stream);}
     };
 
     // TODO: once output parameter, change ret to numSamples or similar name
     struct StreamResult
     {
         size_t NumSamples{0};
-        StreamFlags Flags;
+        StreamFlags Flags{ StreamFlags::NONE };
         long long TimeNs{0};
         long TimeoutUs{0};
         size_t ChanMask{0U};

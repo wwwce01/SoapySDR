@@ -3,7 +3,10 @@
 
 %module(directors="1") SoapySDR
 
+#warning Deal with size_t/uintptr_t pain
+
 %include <typemaps.i>
+%include <std_vector.i>
 
 ////////////////////////////////////////////////////////////////////////
 // Include all major headers to compile against
@@ -74,8 +77,14 @@
 %typemap(csclassmodifiers) std::vector<SoapySDR::Range> "internal class"
 %template(RangeList) std::vector<SoapySDR::Range>;
 
-%typemap(csclassmodifiers) std::vector<size_t> "internal class"
-%template(SizeList) std::vector<size_t>; // TODO: this should be uint64_t for 64-bit platforms
+%typemap(csclassmodifiers) std::vector<unsigned int> "internal class"
+%template(UIntList) std::vector<unsigned int>;
+
+%typemap(csclassmodifiers) std::vector<unsigned long> "internal class"
+%template(ULongList) std::vector<unsigned long>;
+
+%typemap(csclassmodifiers) std::vector<unsigned long long> "internal class"
+%template(ULongLongList) std::vector<unsigned long long>;
 
 %typemap(csclassmodifiers) std::vector<double> "internal class"
 %template(DoubleList) std::vector<double>;

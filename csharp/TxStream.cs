@@ -45,7 +45,7 @@ namespace SoapySDR
                 Utility.ValidateBuffs(_streamHandle, buffs);
 
                 System.Runtime.InteropServices.GCHandle[] handles = null;
-                SizeList buffsAsSizes = null;
+                UIntList buffsAsSizes = null;
 
                 Utility.ManagedArraysToSizeList(
                     buffs,
@@ -93,7 +93,7 @@ namespace SoapySDR
 
             if(_streamHandle != null)
             {
-                var buffsAsSizes = new SizeList();
+                var buffsAsSizes = new UIntList();
                 foreach(var ptr in ptrs) buffsAsSizes.Add((uint)(UIntPtr)(void*)ptr);
 
                 var deviceOutput = _device.WriteStream(
