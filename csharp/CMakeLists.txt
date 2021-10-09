@@ -98,6 +98,7 @@ set_source_files_properties(
 
 set(csharp_srcs
     ${CMAKE_CURRENT_SOURCE_DIR}/ArgInfo.cs
+    ${CMAKE_CURRENT_SOURCE_DIR}/ArgValue.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Device.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Logger.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Stream.cs

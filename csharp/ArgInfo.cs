@@ -7,6 +7,14 @@ namespace SoapySDR
     {
         private ArgInfoInternal argInfo = null;
 
+        public enum ArgType
+        {
+            BOOL,
+            INT,
+            FLOAT,
+            STRING
+        }
+
         public ArgInfo()
         {
             argInfo = new ArgInfoInternal();
@@ -23,11 +31,10 @@ namespace SoapySDR
             set => argInfo.key = value;
         }
 
-        public object Value
+        public ArgValue Value
         {
-            // TODO: convert
-            get => ValueString;
-            set => ValueString = (string)value;
+            get => new ArgValue(argInfo.value);
+            set => argInfo.value = Value.ToString();
         }
 
         public string ValueString
@@ -54,7 +61,11 @@ namespace SoapySDR
             set => argInfo.units = value;
         }
 
-        // TODO: expose type outside of internal class
+        public ArgType Type
+        {
+            get => (ArgType)argInfo.type;
+            set => argInfo.type = (ArgInfoInternal.Type)value;
+        }
 
         public Range Range
         {
