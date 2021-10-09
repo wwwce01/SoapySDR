@@ -33,8 +33,8 @@ namespace SoapySDR
 
         public object Value
         {
-            get => new ArgValue(argInfo.value).ToArgType(Type);
-            set => argInfo.value = new ArgValue(value).ToString(null);
+            get => new SoapyConvertible(argInfo.value).ToArgType(Type);
+            set => argInfo.value = new SoapyConvertible(value).ToString(null);
         }
 
         public string ValueString

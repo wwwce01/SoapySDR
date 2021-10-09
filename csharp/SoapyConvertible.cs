@@ -5,13 +5,13 @@ using System;
 
 namespace SoapySDR
 {
-    internal class ArgValue : System.IConvertible
+    internal class SoapyConvertible : System.IConvertible
     {
         private string _value;
 
-        public ArgValue(ArgValue other) => _value = other._value;
+        public SoapyConvertible(SoapyConvertible other) => _value = other._value;
 
-        public ArgValue(object value)
+        public SoapyConvertible(object value)
         {
             // Hopefully in order of likelihood
             if(value is string)
@@ -159,6 +159,6 @@ namespace SoapySDR
 
         public override int GetHashCode() => (GetType().GetHashCode() ^ _value.GetHashCode());
 
-        public override bool Equals(object obj) => (obj is ArgValue) && ((ArgValue)obj)._value.Equals(_value);
+        public override bool Equals(object obj) => (obj is SoapyConvertible) && ((SoapyConvertible)obj)._value.Equals(_value);
     }
 }
