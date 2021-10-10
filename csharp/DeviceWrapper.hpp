@@ -779,21 +779,352 @@ namespace SoapySDR { namespace CSharp {
             }
 
             //
+            // Time API
+            //
+
+            inline std::vector<std::string> ListTimeSources() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->listTimeSources();
+            }
+
+            inline void SetTimeSource(const std::string& source)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setTimeSource(source);
+            }
+
+            inline std::string GetTimeSource() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getTimeSource();
+            }
+
+            inline bool HasHardwareTime(const std::string& what) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->hasHardwareTime(what);
+            }
+
+            inline long long GetHardwareTime(const std::string& what) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getHardwareTime(what);
+            }
+
+            inline void SetHardwareTime(const long long timeNs, const std::string& what)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setHardwareTime(timeNs, what);
+            }
+
+            //
+            // Sensor API
+            //
+
+            inline std::vector<std::string> ListSensors() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->listSensors();
+            }
+
+            inline SoapySDR::ArgInfo GetSensorInfo(const std::string& key) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getSensorInfo(key);
+            }
+
+            inline std::string ReadSensor(const std::string& key) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->readSensor(key);
+            }
+
+            inline std::vector<std::string> ListSensors(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->listSensors(int(direction), channel);
+            }
+
+            inline SoapySDR::ArgInfo GetSensorInfo(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const std::string& key) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getSensorInfo(int(direction), channel, key);
+            }
+
+            inline std::string ReadSensor(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const std::string& key) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->readSensor(int(direction), channel, key);
+            }
+
+            //
+            // Register API
+            //
+
+            inline std::vector<std::string> ListRegisterInterfaces() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->listRegisterInterfaces();
+            }
+
+            inline void WriteRegister(
+                const std::string& name,
+                const unsigned addr,
+                const unsigned value)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->writeRegister(name, addr, value);
+            }
+
+            inline unsigned ReadRegister(
+                const std::string& name,
+                const unsigned addr) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->readRegister(name, addr);
+            }
+
+            inline void WriteRegisters(
+                const std::string& name,
+                const unsigned addr,
+                const std::vector<unsigned>& value)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->writeRegisters(name, addr, value);
+            }
+
+            //
+            // Settings API
+            //
+
+            inline SoapySDR::ArgInfoList GetSettingInfo() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getSettingInfo();
+            }
+
+            inline void WriteSetting(
+                const std::string& key,
+                const std::string& value)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->writeSetting(key, value);
+            }
+
+            inline std::string ReadSetting(const std::string& key) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->readSetting(key);
+            }
+
+            inline SoapySDR::ArgInfoList GetSettingInfo(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getSettingInfo(int(direction), channel);
+            }
+
+            inline void WriteSetting(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const std::string& key,
+                const std::string& value)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->writeSetting(int(direction), channel, key, value);
+            }
+
+            inline std::string ReadSetting(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const std::string& key) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->readSetting(int(direction), channel, key);
+            }
+
+            //
+            // GPIO API
+            //
+
+            inline std::vector<std::string> ListGPIOBanks() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->listGPIOBanks();
+            }
+
+            inline void WriteGPIO(
+                const std::string& bank,
+                const unsigned value)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->writeGPIO(bank, value);
+            }
+
+            inline void WriteGPIO(
+                const std::string& bank,
+                const unsigned value,
+                const unsigned mask)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->writeGPIO(bank, value, mask);
+            }
+
+            inline unsigned ReadGPIO(const std::string& bank) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->readGPIO(bank);
+            }
+
+            inline void WriteGPIODir(
+                const std::string& bank,
+                const unsigned dir)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->writeGPIODir(bank, dir);
+            }
+
+            inline void WriteGPIODir(
+                const std::string& bank,
+                const unsigned dir,
+                const unsigned mask)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->writeGPIODir(bank, dir, mask);
+            }
+
+            inline unsigned ReadGPIODir(const std::string& bank) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->readGPIODir(bank);
+            }
+
+            //
+            // I2C API
+            //
+
+            inline void WriteI2C(
+                const int addr,
+                const std::string& data)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->writeI2C(addr, data);
+            }
+
+            inline std::string ReadI2C(
+                const int addr,
+                const size_t numBytes)
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->readI2C(addr, numBytes);
+            }
+
+            //
+            // SPI API
+            //
+
+            inline unsigned TransactSPI(
+                const int addr,
+                const unsigned data,
+                const size_t numBits)
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->transactSPI(addr, data, numBits);
+            }
+
+            //
+            // UART API
+            //
+
+            inline std::vector<std::string> ListUARTS() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->listUARTs();
+            }
+
+            inline void WriteUART(
+                const std::string& which,
+                const std::string& data)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->writeUART(which, data);
+            }
+
+            inline std::string ReadUART(
+                const std::string& which,
+                const long timeoutUs) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->readUART(which, timeoutUs);
+            }
+
+            //
             // Used for CSharp internals
             //
 
             inline std::string __ToString() const
             {
+                assert(_deviceSPtr);
+
                 return (_deviceSPtr->getDriverKey() + ":" + _deviceSPtr->getHardwareKey());
             }
 
             inline bool Equals(const SoapySDR::CSharp::Device& other) const
             {
+                assert(_deviceSPtr);
+
                 return (__ToString() == other.__ToString());
             }
 
             inline UIntPtrT GetPointer() const
             {
+                assert(_deviceSPtr);
+
                 return reinterpret_cast<UIntPtrT>(_deviceSPtr.get());
             }
 
