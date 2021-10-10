@@ -1108,7 +1108,7 @@ namespace SoapySDR { namespace CSharp {
             // UART API
             //
 
-            inline std::vector<std::string> ListUARTS() const
+            inline std::vector<std::string> ListUARTs() const
             {
                 assert(_deviceSPtr);
 
@@ -1126,11 +1126,11 @@ namespace SoapySDR { namespace CSharp {
 
             inline std::string ReadUART(
                 const std::string& which,
-                const long timeoutUs) const
+                const long long timeoutUs) const
             {
                 assert(_deviceSPtr);
 
-                return _deviceSPtr->readUART(which, timeoutUs);
+                return _deviceSPtr->readUART(which, static_cast<long>(timeoutUs));
             }
 
             //

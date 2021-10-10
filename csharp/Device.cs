@@ -150,6 +150,135 @@ namespace SoapySDR
 
         public string[] ClockSources => device.ListClockSources().ToArray();
 
+        public string[] TimeSources => device.ListTimeSources().ToArray();
+
+        public string TimeSource
+        {
+            get => device.GetTimeSource();
+            set => device.SetTimeSource(value);
+        }
+
+        public bool HasHardwareTime(string what) => device.HasHardwareTime(what);
+
+        public long GetHardwareTime(string what) => device.GetHardwareTime(what);
+
+        public void SetHardwareTime(long timeNs, string what = "") => device.SetHardwareTime(timeNs, what);
+
+        public string[] ListSensors() => device.ListSensors().ToArray();
+
+        public ArgInfo GetSensorInfo(string key) => new ArgInfo(device.GetSensorInfo(key));
+
+        public object ReadSensor(string key) => new SoapyConvertible(device.ReadSensor(key)).ToArgType(GetSensorInfo(key).Type);
+
+        public T ReadSensor<T>(string key) => (T)(new SoapyConvertible(device.ReadSensor(key)).ToType(typeof(T), null));
+
+        public string[] ListSensors(Direction direction, uint channel) => device.ListSensors(direction, channel).ToArray();
+
+        public ArgInfo GetSensorInfo(Direction direction, uint channel, string key) => new ArgInfo(device.GetSensorInfo(direction, channel, key));
+
+        public string[] RegisterInterfaces => device.ListRegisterInterfaces().ToArray();
+
+        public void WriteRegister(string name, uint addr, uint value) => device.WriteRegister(name, addr, value);
+
+        public uint ReadRegister(string name, uint addr) => device.ReadRegister(name, addr);
+
+        public void WriteRegisters(string name, uint addr, uint[] value) => device.WriteRegisters(name, addr, new SizeList(value));
+
+        public uint[] ReadRegisters(string name, uint addr, uint length)
+            => device.ReadRegisters(name, addr, length).Select(x => (uint)x).ToArray();
+
+        public ArgInfo[] GetSettingInfo() => device.GetSettingInfo().Select(x => new ArgInfo(x)).ToArray();
+
+        public void WriteSetting(string key, object value) => device.WriteSetting(key, new SoapyConvertible(value).ToString());
+
+        public object ReadSetting(string key)
+        {
+            object setting = null;
+            foreach(var info in GetSettingInfo())
+            {
+                if(info.Key.Equals(key))
+                {
+                    setting = new SoapyConvertible(device.ReadSetting(key)).ToArgType(info.Type);
+                    break;
+                }
+            }
+            if (setting == null) throw new System.ArgumentException("Invalid setting: "+key);
+
+            return setting;
+        }
+
+        public T ReadSetting<T>(string key)
+        {
+            object setting = null;
+            foreach (var info in GetSettingInfo())
+            {
+                if (info.Key.Equals(key))
+                {
+                    setting = new SoapyConvertible(device.ReadSetting(key)).ToType(typeof(T), null);
+                    break;
+                }
+            }
+            if (setting == null) throw new System.ArgumentException("Invalid setting: " + key);
+
+            return (T)setting;
+        }
+
+        public ArgInfo[] GetSettingInfo(Direction direction, uint channel) => device.GetSettingInfo(direction, channel).Select(x => new ArgInfo(x)).ToArray();
+
+        public void WriteSetting(Direction direction, uint channel, string key, object value) => device.WriteSetting(direction, channel, key, new SoapyConvertible(value).ToString());
+
+        public object ReadSetting(Direction direction, uint channel, string key)
+        {
+            object setting = null;
+            foreach (var info in GetSettingInfo(direction, channel))
+            {
+                if (info.Key.Equals(key))
+                {
+                    setting = new SoapyConvertible(device.ReadSetting(direction, channel, key)).ToArgType(info.Type);
+                    break;
+                }
+            }
+            if (setting == null) throw new System.ArgumentException("Invalid setting: " + key);
+
+            return setting;
+        }
+
+        public T ReadSetting<T>(Direction direction, uint channel, string key)
+        {
+            object setting = null;
+            foreach (var info in GetSettingInfo(direction, channel))
+            {
+                if (info.Key.Equals(key))
+                {
+                    setting = new SoapyConvertible(device.ReadSetting(direction, channel, key)).ToType(typeof(T), null);
+                    break;
+                }
+            }
+            if (setting == null) throw new System.ArgumentException("Invalid setting: " + key);
+
+            return (T)setting;
+        }
+
+        public string[] GPIOBanks => device.ListGPIOBanks().ToArray();
+
+        public void WriteGPIO(string bank, uint value) => device.WriteGPIO(bank, value);
+
+        public void WriteGPIO(string bank, uint value, uint mask) => device.WriteGPIO(bank, value, mask);
+
+        public uint ReadGPIO(string bank) => device.ReadGPIO(bank);
+
+        public void WriteI2C(int addr, string data) => device.WriteI2C(addr, data);
+
+        public string ReadI2C(int addr, uint numBytes) => device.ReadI2C(addr, numBytes);
+
+        public uint TransactSPI(int addr, uint data, uint numBits) => device.TransactSPI(addr, data, numBits);
+
+        public string[] UARTs => device.ListUARTs().ToArray();
+
+        public void WriteUART(string which, string data) => device.WriteUART(which, data);
+
+        public string ReadUART(string which, long timeoutUs = 100000) => device.ReadUART(which, timeoutUs);
+
         //
         // Object overrides
         //
