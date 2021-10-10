@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSL-1.0
 
 using System;
+using System.Linq;
 
 namespace SoapySDR
 {
@@ -73,7 +74,7 @@ namespace SoapySDR
             out StreamResult result)
         {
             return Write(
-                new IntPtr[] { ptr },
+                (UIntPtr)(void*)ptr,
                 numElems,
                 timeNs,
                 timeoutUs,
@@ -87,13 +88,42 @@ namespace SoapySDR
             int timeoutUs,
             out StreamResult result)
         {
+            return Write(
+                ptrs.Select(x => (UIntPtr)(void*)x).ToArray(),
+                numElems,
+                timeNs,
+                timeoutUs,
+                out result);
+        }
+
+        public unsafe ErrorCode Write(
+            UIntPtr ptr,
+            uint numElems,
+            long timeNs,
+            int timeoutUs,
+            out StreamResult result)
+        {
+            return Write(
+                new UIntPtr[] { ptr },
+                numElems,
+                timeNs,
+                timeoutUs,
+                out result);
+        }
+
+        public unsafe ErrorCode Write(
+            UIntPtr[] ptrs,
+            uint numElems,
+            long timeNs,
+            int timeoutUs,
+            out StreamResult result)
+        {
             ErrorCode ret = ErrorCode.NONE;
 
             if(_streamHandle != null)
             {
                 var buffsAsSizes = new SizeList();
-                // TODO: still 32-bit vs 64-bit issue here
-                foreach(var ptr in ptrs) buffsAsSizes.Add((ulong)(UIntPtr)(void*)ptr);
+                foreach(var ptr in ptrs) buffsAsSizes.Add(ptr.ToUInt64()); // TODO: ToUInt32() if 32-bit
 
                 var deviceOutput = _device.WriteStream(
                     _streamHandle,
