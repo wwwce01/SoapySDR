@@ -42,7 +42,7 @@ namespace SoapySDR
         public ErrorCode Activate(
             StreamFlags flags,
             long timeNs = 0,
-            ulong numElems = 0)
+            uint numElems = 0)
         {
             ErrorCode ret = ErrorCode.NONE;
             if(_streamHandle != null)

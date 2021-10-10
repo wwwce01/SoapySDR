@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+// TODO: reorder for consistency, not to match Device.hpp
+
 namespace SoapySDR
 {    
     public class Device
@@ -78,6 +80,74 @@ namespace SoapySDR
         public void SetFrequencyCorrection(Direction direction, uint channel, double correction) => device.SetFrequencyCorrection(direction, channel, correction);
 
         public double GetFrequencyCorrection(Direction direction, uint channel) => device.GetFrequencyCorrection(direction, channel);
+
+        public string[] ListGains(Direction direction, uint channel) => device.ListGains(direction, channel).ToArray();
+
+        public bool HasGainMode(Direction direction, uint channel) => device.HasGainMode(direction, channel);
+
+        public void SetGainMode(Direction direction, uint channel, bool automatic) => device.SetGainMode(direction, channel, automatic);
+
+        public bool GetGainMode(Direction direction, uint channel) => device.GetGainMode(direction, channel);
+
+        public void SetGain(Direction direction, uint channel, double value) => device.SetGain(direction, channel, value);
+
+        public void SetGain(Direction direction, uint channel, string name, double value) => device.SetGain(direction, channel, name, value);
+
+        public double GetGain(Direction direction, uint channel) => device.GetGain(direction, channel);
+
+        public double GetGain(Direction direction, uint channel, string name) => device.GetGain(direction, channel, name);
+
+        public void SetFrequency(Direction direction, uint channel, double frequency, IDictionary<string, string> args) => device.SetFrequency(direction, channel, frequency, Utility.AnyMapToKwargs(args));
+
+        public void SetFrequency(Direction direction, uint channel, string name, double frequency, IDictionary<string, string> args) => device.SetFrequency(direction, channel, name, frequency, Utility.AnyMapToKwargs(args));
+
+        public double GetFrequency(Direction direction, uint channel) => device.GetFrequency(direction, channel);
+
+        public double GetFrequency(Direction direction, uint channel, string name) => device.GetFrequency(direction, channel, name);
+
+        public string[] ListFrequencies(Direction direction, uint channel) => device.ListFrequencies(direction, channel).ToArray();
+
+        public Range[] GetFrequencyRange(Direction direction, uint channel) => device.GetFrequencyRange(direction, channel).ToArray();
+
+        public Range[] GetFrequencyRange(Direction direction, uint channel, string name) => device.GetFrequencyRange(direction, channel, name).ToArray();
+
+        public ArgInfo[] GetFrequencyArgsInfo(Direction direction, uint channel) => device.GetFrequencyArgsInfo(direction, channel).Select(x => new ArgInfo(x)).ToArray();
+
+        public void SetSampleRate(Direction direction, uint channel, double rate) => device.SetSampleRate(direction, channel, rate);
+
+        public void GetSampleRate(Direction direction, uint channel) => device.GetSampleRate(direction, channel);
+
+        public Range[] GetSampleRateRange(Direction direction, uint channel) => device.GetSampleRateRange(direction, channel).ToArray();
+
+        public void SetBandwidth(Direction direction, uint channel, double bandwidth) => device.SetBandwidth(direction, channel, bandwidth);
+
+        public void GetBandwidth(Direction direction, uint channel) => device.GetBandwidth(direction, channel);
+
+        public Range[] GetBandwidthRange(Direction direction, uint channel) => device.GetBandwidthRange(direction, channel).ToArray();
+
+        public double MasterClockRate
+        {
+            get => device.GetMasterClockRate();
+            set => device.SetMasterClockRate(value);
+        }
+
+        public Range[] MasterClockRates => device.GetMasterClockRates().ToArray();
+
+        public double ReferenceClockRate
+        {
+            get => device.GetReferenceClockRate();
+            set => device.SetReferenceClockRate(value);
+        }
+
+        public Range[] ReferenceClockRates => device.GetReferenceClockRates().ToArray();
+
+        public string ClockSource
+        {
+            get => device.GetClockSource();
+            set => device.SetClockSource(value);
+        }
+
+        public string[] ClockSources => device.ListClockSources().ToArray();
 
         //
         // Object overrides

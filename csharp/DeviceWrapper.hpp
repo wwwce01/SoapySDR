@@ -74,7 +74,7 @@ namespace SoapySDR { namespace CSharp {
             //
 
             inline void SetFrontendMapping(
-                SoapySDR::CSharp::Direction direction,
+                const SoapySDR::CSharp::Direction direction,
                 const std::string& mapping)
             {
                 assert(_deviceSPtr);
@@ -97,8 +97,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline SoapySDR::Kwargs GetChannelInfo(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -106,8 +106,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline bool GetFullDuplex(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -119,8 +119,8 @@ namespace SoapySDR { namespace CSharp {
             //
 
             inline std::vector<std::string> GetStreamFormats(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -128,8 +128,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline std::string GetNativeStreamFormat(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel,
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
                 double &fullScaleOut) const
             {
                 assert(_deviceSPtr);
@@ -138,8 +138,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline SoapySDR::ArgInfoList GetStreamArgsInfo(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -147,7 +147,7 @@ namespace SoapySDR { namespace CSharp {
             }
 
             SoapySDR::CSharp::StreamHandle SetupStream(
-                SoapySDR::CSharp::Direction direction,
+                const SoapySDR::CSharp::Direction direction,
                 const std::string& format,
                 const SizeVector& channels,
                 const SoapySDR::Kwargs& kwargs)
@@ -179,7 +179,7 @@ namespace SoapySDR { namespace CSharp {
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const SoapySDR::CSharp::StreamFlags flags,
                 const long long timeNs,
-                const unsigned long long numElems)
+                const size_t numElems)
             {
                 assert(_deviceSPtr);
 
@@ -206,7 +206,7 @@ namespace SoapySDR { namespace CSharp {
             StreamResultPair ReadStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const SizeVector& buffs,
-                const unsigned long long numElems,
+                const size_t numElems,
                 const SoapySDR::CSharp::StreamFlags flags,
                 const long long timeNs,
                 const long timeoutUs)
@@ -238,7 +238,7 @@ namespace SoapySDR { namespace CSharp {
             StreamResultPair WriteStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
                 const SizeVector& buffs,
-                const unsigned long long numElems,
+                const size_t numElems,
                 const long long timeNs,
                 const long timeoutUs)
             {
@@ -293,8 +293,8 @@ namespace SoapySDR { namespace CSharp {
             //
 
             inline std::vector<std::string> ListAntennas(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -302,8 +302,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline void SetAntenna(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel,
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
                 const std::string& name)
             {
                 assert(_deviceSPtr);
@@ -312,8 +312,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline std::string GetAntenna(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -325,8 +325,8 @@ namespace SoapySDR { namespace CSharp {
             //
 
             inline bool HasDCOffsetMode(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -334,8 +334,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline void SetDCOffsetMode(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel,
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
                 const bool automatic)
             {
                 assert(_deviceSPtr);
@@ -344,8 +344,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline bool GetDCOffsetMode(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel)
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel)
             {
                 assert(_deviceSPtr);
 
@@ -353,8 +353,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline bool HasDCOffset(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -362,8 +362,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline void SetDCOffset(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel,
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
                 const std::complex<double>& offset)
             {
                 assert(_deviceSPtr);
@@ -372,8 +372,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline std::complex<double> GetDCOffset(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -381,8 +381,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline bool HasIQBalance(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -390,8 +390,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline void SetIQBalance(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel,
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
                 const std::complex<double>& balance)
             {
                 assert(_deviceSPtr);
@@ -400,8 +400,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline std::complex<double> GetIQBalance(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -409,8 +409,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline bool HasIQBalanceMode(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -418,8 +418,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline void SetIQBalanceMode(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel,
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
                 const bool automatic)
             {
                 assert(_deviceSPtr);
@@ -428,8 +428,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline bool GetIQBalanceMode(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -437,8 +437,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline bool HasFrequencyCorrection(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
@@ -446,8 +446,8 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline void SetFrequencyCorrection(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel,
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
                 const double value)
             {
                 assert(_deviceSPtr);
@@ -456,12 +456,326 @@ namespace SoapySDR { namespace CSharp {
             }
 
             inline double GetFrequencyCorrection(
-                SoapySDR::CSharp::Direction direction,
-                const unsigned long long channel) const
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
             {
                 assert(_deviceSPtr);
 
                 return _deviceSPtr->getFrequencyCorrection(int(direction), channel);
+            }
+
+            //
+            // Gain API
+            //
+
+            inline std::vector<std::string> ListGains(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel)
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->listGains(int(direction), channel);
+            }
+
+            inline bool HasGainMode(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->hasGainMode(int(direction), channel);
+            }
+
+            inline void SetGainMode(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const bool automatic)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setGainMode(int(direction), channel, automatic);
+            }
+
+            inline bool GetGainMode(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getGainMode(int(direction), channel);
+            }
+
+            inline void SetGain(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const double value)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setGain(int(direction), channel, value);
+            }
+
+            inline void SetGain(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const std::string& name,
+                const double value)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setGain(int(direction), channel, name, value);
+            }
+
+            inline double GetGain(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel)
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getGain(int(direction), channel);
+            }
+
+            inline double GetGain(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const std::string& name)
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getGain(int(direction), channel, name);
+            }
+
+            inline SoapySDR::Range GetGainRange(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel)
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getGainRange(int(direction), channel);
+            }
+
+            inline SoapySDR::Range GetGainRange(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const std::string& name)
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getGainRange(int(direction), channel, name);
+            }
+
+            //
+            // Frequency API
+            //
+
+            inline void SetFrequency(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const double frequency,
+                const SoapySDR::Kwargs& args)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setFrequency(int(direction), channel, frequency, args);
+            }
+
+            inline void SetFrequency(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const std::string& name,
+                const double frequency,
+                const SoapySDR::Kwargs& args)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setFrequency(int(direction), channel, name, frequency, args);
+            }
+
+            inline double GetFrequency(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getFrequency(int(direction), channel);
+            }
+
+            inline double GetFrequency(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const std::string& name) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getFrequency(int(direction), channel, name);
+            }
+
+            inline std::vector<std::string> ListFrequencies(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->listFrequencies(int(direction), channel);
+            }
+
+            inline SoapySDR::RangeList GetFrequencyRange(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const 
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getFrequencyRange(int(direction), channel);
+            }
+
+            inline SoapySDR::RangeList GetFrequencyRange(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const std::string& name) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getFrequencyRange(int(direction), channel, name);
+            }
+
+            inline SoapySDR::ArgInfoList GetFrequencyArgsInfo(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getFrequencyArgsInfo(int(direction), channel);
+            }
+
+            //
+            // Sample Rate API
+            //
+
+            inline void SetSampleRate(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const double rate)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setSampleRate(int(direction), channel, rate);
+            }
+
+            inline double GetSampleRate(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getSampleRate(int(direction), channel);
+            }
+
+            inline SoapySDR::RangeList GetSampleRateRange(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getSampleRateRange(int(direction), channel);
+            }
+
+            //
+            // Bandwidth API
+            //
+
+            inline void SetBandwidth(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel,
+                const double bandwidth)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setBandwidth(int(direction), channel, bandwidth);
+            }
+
+            inline double GetBandwidth(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getBandwidth(int(direction), channel);
+            }
+
+            inline SoapySDR::RangeList GetBandwidthRange(
+                const SoapySDR::CSharp::Direction direction,
+                const size_t channel) const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getBandwidthRange(int(direction), channel);
+            }
+
+            //
+            // Clocking API
+            //
+
+            inline void SetMasterClockRate(const double rate)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setMasterClockRate(rate);
+            }
+
+            inline double GetMasterClockRate() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getMasterClockRate();
+            }
+
+            inline SoapySDR::RangeList GetMasterClockRates() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getMasterClockRates();
+            }
+
+            inline void SetReferenceClockRate(const double rate)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setReferenceClockRate(rate);
+            }
+
+            inline double GetReferenceClockRate() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getReferenceClockRate();
+            }
+
+            inline SoapySDR::RangeList GetReferenceClockRates() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getReferenceClockRates();
+            }
+
+            inline std::vector<std::string> ListClockSources() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->listClockSources();
+            }
+
+            inline void SetClockSource(const std::string& source)
+            {
+                assert(_deviceSPtr);
+
+                _deviceSPtr->setClockSource(source);
+            }
+
+            inline std::string GetClockSource() const
+            {
+                assert(_deviceSPtr);
+
+                return _deviceSPtr->getClockSource();
             }
 
             //
