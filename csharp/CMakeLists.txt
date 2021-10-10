@@ -98,6 +98,7 @@ set(csharp_srcs
     ${CMAKE_CURRENT_SOURCE_DIR}/ArgInfo.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Device.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Logger.cs
+    ${CMAKE_CURRENT_SOURCE_DIR}/RxStream.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/SoapyConvertible.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Stream.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/TxStream.cs

@@ -43,7 +43,8 @@ namespace SoapySDR
         public TxStream SetupTxStream(string format, uint[] channels, Dictionary<string, string> kwargs)
             => new TxStream(device, format, channels, Utility.AnyMapToKwargs(kwargs));
 
-        // TODO: RxStream
+        public RxStream SetupRxStream(string format, uint[] channels, Dictionary<string, string> kwargs)
+            => new RxStream(device, format, channels, Utility.AnyMapToKwargs(kwargs));
 
         public string[] ListAntennas(Direction direction, uint channel) => device.ListAntennas(direction, channel).ToArray();
 
