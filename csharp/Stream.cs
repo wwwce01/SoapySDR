@@ -87,22 +87,6 @@ namespace SoapySDR
             return ret;
         }
 
-        public ErrorCode ReadStatus(int timeoutUs, out StreamResult result)
-        {
-            ErrorCode ret = ErrorCode.NONE;
-            result = new StreamResult();
-
-            if(_streamHandle != null)
-            {
-                var deviceOutput = _device.ReadStreamStatus(_streamHandle, timeoutUs);
-
-                result = deviceOutput.second;
-                ret = deviceOutput.first;
-            }
-
-            return ret;
-        }
-
         public void Close()
         {
             if(_streamHandle != null) _device.CloseStream(_streamHandle);
