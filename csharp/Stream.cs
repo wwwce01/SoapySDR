@@ -44,7 +44,7 @@ namespace SoapySDR
             long timeNs = 0,
             uint numElems = 0)
         {
-            ErrorCode ret = ErrorCode.NONE;
+            ErrorCode ret;
             if(_streamHandle != null)
             {
                 if(!_active)
@@ -55,7 +55,7 @@ namespace SoapySDR
                         timeNs,
                         numElems);
 
-                    if(ret == ErrorCode.NONE) _active = true;
+                    if(ret == ErrorCode.None) _active = true;
                 }
                 else throw new NotSupportedException("Stream is already active");
             }
@@ -65,10 +65,10 @@ namespace SoapySDR
         }
 
         public ErrorCode Deactivate(
-            StreamFlags flags = StreamFlags.NONE,
+            StreamFlags flags = StreamFlags.None,
             long timeNs = 0)
         {
-            ErrorCode ret = ErrorCode.NONE;
+            ErrorCode ret;
             if(_streamHandle != null)
             {
                 if(!_active)
@@ -78,7 +78,7 @@ namespace SoapySDR
                         flags,
                         timeNs);
 
-                    if(ret == ErrorCode.NONE) _active = true;
+                    if(ret == ErrorCode.None) _active = true;
                 }
                 else throw new NotSupportedException("Stream is already inactive");
             }

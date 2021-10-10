@@ -16,7 +16,7 @@ namespace SoapySDR
         ):
             base(device, format, channels, kwargs)
         {
-            _streamHandle = device.SetupStream(Direction.TX, format, new SizeList(channels), kwargs);
+            _streamHandle = device.SetupStream(Direction.Tx, format, new SizeList(channels), kwargs);
         }
 
         public unsafe ErrorCode Write<T>(
@@ -37,7 +37,7 @@ namespace SoapySDR
             int timeoutUs,
             out StreamResult result) where T: unmanaged
         {
-            ErrorCode ret = ErrorCode.NONE;
+            ErrorCode ret;
 
             if(_streamHandle != null)
             {
@@ -118,7 +118,7 @@ namespace SoapySDR
             int timeoutUs,
             out StreamResult result)
         {
-            ErrorCode ret = ErrorCode.NONE;
+            ErrorCode ret;
 
             if(_streamHandle != null)
             {
@@ -142,7 +142,7 @@ namespace SoapySDR
 
         public ErrorCode ReadStatus(int timeoutUs, out StreamResult result)
         {
-            ErrorCode ret = ErrorCode.NONE;
+            ErrorCode ret;
             result = new StreamResult();
 
             if (_streamHandle != null)
@@ -152,6 +152,7 @@ namespace SoapySDR
                 result = deviceOutput.second;
                 ret = deviceOutput.first;
             }
+            else throw new NotSupportedException("Stream is closed");
 
             return ret;
         }

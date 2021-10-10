@@ -16,7 +16,7 @@ namespace SoapySDR
         ):
             base(device, format, channels, kwargs)
         {
-            _streamHandle = device.SetupStream(Direction.RX, format, new SizeList(channels), kwargs);
+            _streamHandle = device.SetupStream(Direction.Rx, format, new SizeList(channels), kwargs);
         }
 
         public unsafe ErrorCode Read<T>(
@@ -39,7 +39,7 @@ namespace SoapySDR
             int timeoutUs,
             out StreamResult result) where T: unmanaged
         {
-            ErrorCode ret = ErrorCode.NONE;
+            ErrorCode ret;
 
             if(_streamHandle != null)
             {
@@ -128,7 +128,7 @@ namespace SoapySDR
             int timeoutUs,
             out StreamResult result)
         {
-            ErrorCode ret = ErrorCode.NONE;
+            ErrorCode ret;
 
             if(_streamHandle != null)
             {

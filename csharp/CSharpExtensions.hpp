@@ -26,8 +26,6 @@ static_assert(sizeof(UIntPtrT) == sizeof(void*), "Can't reinterpret_cast size ty
 #include <cstdint>
 #include <string>
 
-// TODO: CamelCase enums? C# naming convention?
-
 namespace SoapySDR { namespace CSharp {
 
     struct BuildInfo
@@ -43,19 +41,19 @@ namespace SoapySDR { namespace CSharp {
 
     enum class Direction
     {
-        TX = 0,
-        RX = 1
+        Tx = 0,
+        Rx = 1
     };
 
     enum class StreamFlags
     {
-        NONE           = 0,
-        END_BURST      = (1 << 1),
-        HAS_TIME       = (1 << 2),
-        END_ABRUPT     = (1 << 3),
-        ONE_PACKET     = (1 << 4),
-        MORE_FRAGMENTS = (1 << 5),
-        WAIT_TRIGGER   = (1 << 6)
+        None          = 0,
+        EndBurst      = (1 << 1),
+        HasTime       = (1 << 2),
+        EndAbrupt     = (1 << 3),
+        OnePacket     = (1 << 4),
+        MoreFragments = (1 << 5),
+        WaitTrigger   = (1 << 6)
     };
 
     struct StreamFormats
@@ -124,11 +122,10 @@ namespace SoapySDR { namespace CSharp {
         inline UIntPtrT GetPointer() const {return reinterpret_cast<UIntPtrT>(stream);}
     };
 
-    // TODO: once output parameter, change ret to numSamples or similar name
     struct StreamResult
     {
         size_t NumSamples{0};
-        StreamFlags Flags{ StreamFlags::NONE };
+        StreamFlags Flags{ StreamFlags::None };
         long long TimeNs{0};
         long TimeoutUs{0};
         size_t ChanMask{0U};
@@ -151,28 +148,28 @@ namespace SoapySDR { namespace CSharp {
     //       SWIG will copy SOAPY_SDR* into the C# file.
     enum class ErrorCode
     {
-        NONE = 0,
-        TIMEOUT = -1,
-        STREAM_ERROR = -2,
-        CORRUPTION = -3,
-        OVERFLOW_ = -4,
-        NOT_SUPPORTED = -5,
-        TIME_ERROR = -6,
-        UNDERFLOW_ = -7
+        None         = 0,
+        Timeout      = -1,
+        StreamError  = -2,
+        Corruption   = -3,
+        Overflow     = -4,
+        NotSupported = -5,
+        TimeError    = -6,
+        Underflow    = -7
     };
 
     // Note: we need to repeat the literal enum values or
     //       SWIG will copy SOAPY_SDR* into the C# file.
     enum class LogLevel
     {
-        FATAL    = 1,
-        CRITICAL = 2,
-        ERROR    = 3,
-        WARNING  = 4,
-        NOTICE   = 5,
-        INFO     = 6,
-        DEBUG    = 7,
-        TRACE    = 8,
+        Fatal    = 1,
+        Critical = 2,
+        Error    = 3,
+        Warning  = 4,
+        Notice   = 5,
+        Info     = 6,
+        Debug    = 7,
+        Trace    = 8,
         SSI      = 9
     };
 
@@ -198,11 +195,11 @@ namespace SoapySDR { namespace CSharp {
 #define ENUM_CHECK(_enum,_define) \
     static_assert(int(_enum) == _define, #_define)
 
-ENUM_CHECK(SoapySDR::CSharp::Direction::TX, SOAPY_SDR_TX);
-ENUM_CHECK(SoapySDR::CSharp::Direction::RX, SOAPY_SDR_RX);
-ENUM_CHECK(SoapySDR::CSharp::StreamFlags::END_BURST, SOAPY_SDR_END_BURST);
-ENUM_CHECK(SoapySDR::CSharp::StreamFlags::HAS_TIME, SOAPY_SDR_HAS_TIME);
-ENUM_CHECK(SoapySDR::CSharp::StreamFlags::END_ABRUPT, SOAPY_SDR_END_ABRUPT);
-ENUM_CHECK(SoapySDR::CSharp::StreamFlags::ONE_PACKET, SOAPY_SDR_ONE_PACKET);
-ENUM_CHECK(SoapySDR::CSharp::StreamFlags::MORE_FRAGMENTS, SOAPY_SDR_MORE_FRAGMENTS);
-ENUM_CHECK(SoapySDR::CSharp::StreamFlags::WAIT_TRIGGER, SOAPY_SDR_WAIT_TRIGGER);
+ENUM_CHECK(SoapySDR::CSharp::Direction::Tx, SOAPY_SDR_TX);
+ENUM_CHECK(SoapySDR::CSharp::Direction::Rx, SOAPY_SDR_RX);
+ENUM_CHECK(SoapySDR::CSharp::StreamFlags::EndBurst, SOAPY_SDR_END_BURST);
+ENUM_CHECK(SoapySDR::CSharp::StreamFlags::HasTime, SOAPY_SDR_HAS_TIME);
+ENUM_CHECK(SoapySDR::CSharp::StreamFlags::EndAbrupt, SOAPY_SDR_END_ABRUPT);
+ENUM_CHECK(SoapySDR::CSharp::StreamFlags::OnePacket, SOAPY_SDR_ONE_PACKET);
+ENUM_CHECK(SoapySDR::CSharp::StreamFlags::MoreFragments, SOAPY_SDR_MORE_FRAGMENTS);
+ENUM_CHECK(SoapySDR::CSharp::StreamFlags::WaitTrigger, SOAPY_SDR_WAIT_TRIGGER);
