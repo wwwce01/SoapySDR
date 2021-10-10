@@ -908,14 +908,44 @@ namespace SoapySDR { namespace CSharp {
                 return _deviceSPtr->readRegister(name, addr);
             }
 
+            // To avoid the uint/ulong issue, these functions will internally
+            // use SizeVector. The public-facing function will use uint[] as
+            // expected, and these are less commonly used functions, so this
+            // is fine.
+
             inline void WriteRegisters(
                 const std::string& name,
                 const unsigned addr,
-                const std::vector<unsigned>& value)
+                const SizeVector& value)
             {
                 assert(_deviceSPtr);
 
-                _deviceSPtr->writeRegisters(name, addr, value);
+                std::vector<unsigned> valueUnsigned;
+                std::transform(
+                    value.begin(),
+                    value.end(),
+                    std::back_inserter(valueUnsigned),
+                    [](const UIntPtrT elem) {return static_cast<unsigned>(elem); });
+
+                _deviceSPtr->writeRegisters(name, addr, valueUnsigned);
+            }
+
+            inline SizeVector ReadRegisters(
+                const std::string& name,
+                const unsigned addr,
+                const size_t length)
+            {
+                assert(_deviceSPtr);
+
+                const auto valueUnsigned = _deviceSPtr->readRegisters(name, addr, length);
+                SizeVector value;
+                std::transform(
+                    valueUnsigned.begin(),
+                    valueUnsigned.end(),
+                    std::back_inserter(value),
+                    [](const unsigned elem) {return static_cast<UIntPtrT>(elem); });
+
+                return value;
             }
 
             //
