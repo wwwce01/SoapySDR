@@ -106,5 +106,7 @@ namespace SoapySDR
         public static Dictionary<string, string>[] ToDictionaryArray(KwargsList kwargsList) => kwargsList.Select(x => x.ToDictionary(entry => entry.Key, entry => entry.Value)).ToArray();
 
         public static ArgInfo[] ToArgInfoArray(ArgInfoInternalList argInfoInternalList) => argInfoInternalList.Select(x => new ArgInfo(x)).ToArray();
+
+        public static Range[] ToRangeArray(RangeInternalList rangeInternalList) => rangeInternalList.Select(x => new Range(x)).ToArray();
     }
 }

@@ -76,8 +76,8 @@ set(csharp_swig_outputs
     ${CSHARP_SOURCE_DIRECTORY}/KwargsList.cs
     ${CSHARP_SOURCE_DIRECTORY}/LogHandlerBase.cs
     ${CSHARP_SOURCE_DIRECTORY}/LogLevel.cs
-    ${CSHARP_SOURCE_DIRECTORY}/Range.cs
-    ${CSHARP_SOURCE_DIRECTORY}/RangeList.cs
+    ${CSHARP_SOURCE_DIRECTORY}/RangeInternal.cs
+    ${CSHARP_SOURCE_DIRECTORY}/RangeInternalList.cs
     ${CSHARP_SOURCE_DIRECTORY}/SizeList.cs
     ${CSHARP_SOURCE_DIRECTORY}/SoapySDR.cs
     ${CSHARP_SOURCE_DIRECTORY}/SettingConversion.cs
@@ -98,6 +98,7 @@ set(csharp_srcs
     ${CMAKE_CURRENT_SOURCE_DIR}/ArgInfo.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Device.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Logger.cs
+    ${CMAKE_CURRENT_SOURCE_DIR}/Range.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/RxStream.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/SoapyConvertible.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Stream.cs

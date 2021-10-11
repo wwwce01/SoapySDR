@@ -114,9 +114,9 @@ namespace SoapySDR
 
         public string[] ListFrequencies(Direction direction, uint channel) => _device.ListFrequencies(direction, channel).ToArray();
 
-        public Range[] GetFrequencyRange(Direction direction, uint channel) => _device.GetFrequencyRange(direction, channel).ToArray();
+        public Range[] GetFrequencyRange(Direction direction, uint channel) => Utility.ToRangeArray(_device.GetFrequencyRange(direction, channel));
 
-        public Range[] GetFrequencyRange(Direction direction, uint channel, string name) => _device.GetFrequencyRange(direction, channel, name).ToArray();
+        public Range[] GetFrequencyRange(Direction direction, uint channel, string name) => Utility.ToRangeArray(_device.GetFrequencyRange(direction, channel, name));
 
         public ArgInfo[] GetFrequencyArgsInfo(Direction direction, uint channel) => Utility.ToArgInfoArray(_device.GetFrequencyArgsInfo(direction, channel));
 
@@ -124,13 +124,13 @@ namespace SoapySDR
 
         public void GetSampleRate(Direction direction, uint channel) => _device.GetSampleRate(direction, channel);
 
-        public Range[] GetSampleRateRange(Direction direction, uint channel) => _device.GetSampleRateRange(direction, channel).ToArray();
+        public Range[] GetSampleRateRange(Direction direction, uint channel) => Utility.ToRangeArray(_device.GetSampleRateRange(direction, channel));
 
         public void SetBandwidth(Direction direction, uint channel, double bandwidth) => _device.SetBandwidth(direction, channel, bandwidth);
 
         public void GetBandwidth(Direction direction, uint channel) => _device.GetBandwidth(direction, channel);
 
-        public Range[] GetBandwidthRange(Direction direction, uint channel) => _device.GetBandwidthRange(direction, channel).ToArray();
+        public Range[] GetBandwidthRange(Direction direction, uint channel) => Utility.ToRangeArray(_device.GetBandwidthRange(direction, channel));
 
         public double MasterClockRate
         {
@@ -138,7 +138,7 @@ namespace SoapySDR
             set => _device.SetMasterClockRate(value);
         }
 
-        public Range[] MasterClockRates => _device.GetMasterClockRates().ToArray();
+        public Range[] MasterClockRates => Utility.ToRangeArray(_device.GetMasterClockRates());
 
         public double ReferenceClockRate
         {
@@ -146,7 +146,7 @@ namespace SoapySDR
             set => _device.SetReferenceClockRate(value);
         }
 
-        public Range[] ReferenceClockRates => _device.GetReferenceClockRates().ToArray();
+        public Range[] ReferenceClockRates => Utility.ToRangeArray(_device.GetReferenceClockRates());
 
         public string ClockSource
         {

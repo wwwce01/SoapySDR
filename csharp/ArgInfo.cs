@@ -5,7 +5,7 @@ namespace SoapySDR
 {    
     public class ArgInfo
     {
-        private ArgInfoInternal argInfo = null;
+        private ArgInfoInternal _argInfo = null;
 
         public enum ArgType
         {
@@ -15,68 +15,70 @@ namespace SoapySDR
             STRING
         }
 
-        public ArgInfo() => argInfo = new ArgInfoInternal();
+        public ArgInfo() => _argInfo = new ArgInfoInternal();
 
-        internal ArgInfo(ArgInfoInternal argInfoInternal) => argInfo = argInfoInternal;
+        internal ArgInfo(ArgInfoInternal argInfoInternal) => _argInfo = argInfoInternal;
 
         public string Key
         {
-            get => argInfo.key;
-            set => argInfo.key = value;
+            get => _argInfo.key;
+            set => _argInfo.key = value;
         }
 
         public object Value
         {
-            get => new SoapyConvertible(argInfo.value).ToArgType(Type);
-            set => argInfo.value = new SoapyConvertible(value).ToString(null);
+            get => new SoapyConvertible(_argInfo.value).ToArgType(Type);
+            set => _argInfo.value = new SoapyConvertible(value).ToString(null);
         }
 
         public string ValueString
         {
-            get => argInfo.value;
-            set => argInfo.value = value;
+            get => _argInfo.value;
+            set => _argInfo.value = value;
         }
 
         public string Name
         {
-            get => argInfo.name;
-            set => argInfo.name = value;
+            get => _argInfo.name;
+            set => _argInfo.name = value;
         }
 
         public string Description
         {
-            get => argInfo.description;
-            set => argInfo.description = value;
+            get => _argInfo.description;
+            set => _argInfo.description = value;
         }
 
         public string Units
         {
-            get => argInfo.units;
-            set => argInfo.units = value;
+            get => _argInfo.units;
+            set => _argInfo.units = value;
         }
 
         public ArgType Type
         {
-            get => (ArgType)argInfo.type;
-            set => argInfo.type = (ArgInfoInternal.Type)value;
+            get => (ArgType)_argInfo.type;
+            set => _argInfo.type = (ArgInfoInternal.Type)value;
         }
 
         public Range Range
         {
-            get => argInfo.range;
-            set => argInfo.range = value;
+            get => new Range(_argInfo.range);
+            set => _argInfo.range = value._range;
         }
 
         public string[] Options
         {
-            get => argInfo.options.ToArray();
-            set => argInfo.options = new StringList(value);
+            get => _argInfo.options.ToArray();
+            set => _argInfo.options = new StringList(value);
         }
 
         public string[] OptionNames
         {
-            get => argInfo.optionNames.ToArray();
-            set => argInfo.optionNames = new StringList(value);
+            get => _argInfo.optionNames.ToArray();
+            set => _argInfo.optionNames = new StringList(value);
         }
+
+        // TODO: object overrides
     }
 }

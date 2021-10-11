@@ -55,6 +55,9 @@
 %typemap(csclassmodifiers) SoapySDR::ArgInfo "internal class"
 %rename(ArgInfoInternal) SoapySDR::ArgInfo;
 
+%typemap(csclassmodifiers) SoapySDR::Range "internal class"
+%rename(RangeInternal) SoapySDR::Range;
+
 %ignore SoapySDR::KwargsFromString;
 %ignore SoapySDR::KwargsToString;
 %ignore SoapySDR::SettingToString;
@@ -82,11 +85,11 @@
 %typemap(csclassmodifiers) std::vector<SoapySDR::ArgInfo> "internal class"
 %template(ArgInfoInternalList) std::vector<SoapySDR::ArgInfo>;
 
+%typemap(csclassmodifiers) std::vector<SoapySDR::Range> "internal class"
+%template(RangeInternalList) std::vector<SoapySDR::Range>;
+
 %typemap(csclassmodifiers) std::vector<std::string> "internal class"
 %template(StringList) std::vector<std::string>;
-
-%typemap(csclassmodifiers) std::vector<SoapySDR::Range> "internal class"
-%template(RangeList) std::vector<SoapySDR::Range>;
 
 %typemap(csclassmodifiers) std::vector<double> "internal class"
 %template(DoubleList) std::vector<double>;
@@ -100,7 +103,6 @@
 
 %include "Stream.i"
 
-// TODO: Range wrapper with read-only properties
 %ignore copyVector;
 %ignore toSizeTVector;
 %ignore reinterpretCastVector;
