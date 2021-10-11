@@ -55,6 +55,11 @@
 %typemap(csclassmodifiers) SoapySDR::ArgInfo "internal class"
 %rename(ArgInfoInternal) SoapySDR::ArgInfo;
 
+%ignore SoapySDR::KwargsFromString;
+%ignore SoapySDR::KwargsToString;
+%ignore SoapySDR::SettingToString;
+%ignore SoapySDR::StringToSetting;
+%ignore SoapySDR::Detail::SettingToString;
 %ignore SoapySDR::Detail::StringToSetting;
 %include <SoapySDR/Types.hpp>
 
@@ -94,6 +99,10 @@
 
 %include "Stream.i"
 
+%ignore copyVector;
+%ignore toSizeTVector;
+%ignore reinterpretCastVector;
+%ignore detail::copyVector;
 %include "CSharpExtensions.hpp"
 
 %typemap(csclassmodifiers) SoapySDR::CSharp::SettingConversion "internal class"

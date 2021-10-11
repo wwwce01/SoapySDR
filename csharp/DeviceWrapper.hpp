@@ -15,11 +15,12 @@
 
 using StreamResultPair = std::pair<SoapySDR::CSharp::ErrorCode, SoapySDR::CSharp::StreamResult>;
 
-// We're separately using a separate thin wrapper for two reasons:
+// We're separately using a separate thin wrapper for three reasons:
 // * To abstract away the make() and unmake() calls, which SWIG won't
 //   deal with well.
 // * To avoid exposing a function without converting its naming convention
 //   to that of C#.
+// * Any other processing we need for a better C# API.
 namespace SoapySDR { namespace CSharp {
 
     struct DeviceDeleter
@@ -164,13 +165,13 @@ namespace SoapySDR { namespace CSharp {
             SoapySDR::CSharp::StreamHandle SetupStream(
                 const SoapySDR::CSharp::Direction direction,
                 const std::string& format,
-                const SizeVector& channels,
+                const SWIGSizeVector& channels,
                 const SoapySDR::Kwargs& kwargs)
             {
                 assert(_deviceSPtr);
 
                 SoapySDR::CSharp::StreamHandle streamHandle;
-                streamHandle.stream = _deviceSPtr->setupStream(int(direction), format, channels, kwargs);
+                streamHandle.stream = _deviceSPtr->setupStream(int(direction), format, copyVector<size_t>(channels), kwargs);
                 streamHandle.channels = channels;
 
                 return streamHandle;
@@ -220,7 +221,7 @@ namespace SoapySDR { namespace CSharp {
 
             StreamResultPair ReadStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
-                const SizeVector& buffs,
+                const SWIGSizeVector& buffs,
                 const size_t numElems,
                 const SoapySDR::CSharp::StreamFlags flags,
                 const long long timeNs,
@@ -232,16 +233,15 @@ namespace SoapySDR { namespace CSharp {
                 auto& errorCode = resultPair.first;
                 auto& result = resultPair.second;
 
-                std::vector<void*> buffPtrs(buffs.size());
-                std::transform(
-                    buffs.begin(),
-                    buffs.end(),
-                    std::back_inserter(buffPtrs),
-                    [](const typename SizeVector::value_type buffNum)
-                    { return reinterpret_cast<void*>(buffNum); });
-
+                const auto buffPtrs = reinterpretCastVector<void>(buffs);
                 auto intFlags = int(flags);
-                auto cppRet = _deviceSPtr->readStream(streamHandle.stream, buffPtrs.data(), numElems, intFlags, result.TimeNs, result.TimeoutUs);
+                auto cppRet = _deviceSPtr->readStream(
+                    streamHandle.stream,
+                    buffPtrs.data(),
+                    numElems,
+                    intFlags,
+                    result.TimeNs,
+                    result.TimeoutUs);
                 result.Flags = SoapySDR::CSharp::StreamFlags(intFlags);
 
                 if(cppRet >= 0) result.NumSamples = static_cast<size_t>(cppRet);
@@ -252,7 +252,7 @@ namespace SoapySDR { namespace CSharp {
 
             StreamResultPair WriteStream(
                 const SoapySDR::CSharp::StreamHandle& streamHandle,
-                const SizeVector& buffs,
+                const SWIGSizeVector& buffs,
                 const size_t numElems,
                 const long long timeNs,
                 const long timeoutUs)
@@ -263,16 +263,15 @@ namespace SoapySDR { namespace CSharp {
                 auto& errorCode = resultPair.first;
                 auto& result = resultPair.second;
 
-                std::vector<const void*> buffPtrs;
-                std::transform(
-                    buffs.begin(),
-                    buffs.end(),
-                    std::back_inserter(buffPtrs),
-                    [](const typename SizeVector::value_type buffNum)
-                    { return reinterpret_cast<const void*>(buffNum); });
-
+                const auto buffPtrs = reinterpretCastVector<const void>(buffs);
                 int intFlags = 0;
-                auto cppRet = _deviceSPtr->writeStream(streamHandle.stream, buffPtrs.data(), numElems, intFlags, timeNs, timeoutUs);
+                auto cppRet = _deviceSPtr->writeStream(
+                    streamHandle.stream,
+                    buffPtrs.data(),
+                    numElems,
+                    intFlags,
+                    timeNs,
+                    timeoutUs);
                 result.Flags = SoapySDR::CSharp::StreamFlags(intFlags);
 
                 if(cppRet >= 0) result.NumSamples = static_cast<size_t>(cppRet);
@@ -924,43 +923,31 @@ namespace SoapySDR { namespace CSharp {
             }
 
             // To avoid the uint/ulong issue, these functions will internally
-            // use SizeVector. The public-facing function will use uint[] as
-            // expected, and these are less commonly used functions, so this
-            // is fine.
+            // use SWIGSizeVector. The public-facing function will use uint[] as
+            // expected, and these are less commonly used functions, so we can
+            // begrudgingly accept this performance hit.
 
             inline void WriteRegisters(
                 const std::string& name,
                 const unsigned addr,
-                const SizeVector& value)
+                const SWIGSizeVector& value)
             {
                 assert(_deviceSPtr);
 
-                std::vector<unsigned> valueUnsigned;
-                std::transform(
-                    value.begin(),
-                    value.end(),
-                    std::back_inserter(valueUnsigned),
-                    [](const UIntPtrT elem) {return static_cast<unsigned>(elem); });
-
-                _deviceSPtr->writeRegisters(name, addr, valueUnsigned);
+                _deviceSPtr->writeRegisters(
+                    name,
+                    addr,
+                    copyVector<unsigned>(value));
             }
 
-            inline SizeVector ReadRegisters(
+            inline SWIGSizeVector ReadRegisters(
                 const std::string& name,
                 const unsigned addr,
                 const size_t length)
             {
                 assert(_deviceSPtr);
 
-                const auto valueUnsigned = _deviceSPtr->readRegisters(name, addr, length);
-                SizeVector value;
-                std::transform(
-                    valueUnsigned.begin(),
-                    valueUnsigned.end(),
-                    std::back_inserter(value),
-                    [](const unsigned elem) {return static_cast<UIntPtrT>(elem); });
-
-                return value;
+                return copyVector<SWIGSize>(_deviceSPtr->readRegisters(name, addr, length));
             }
 
             //
@@ -1166,11 +1153,11 @@ namespace SoapySDR { namespace CSharp {
                 return (__ToString() == other.__ToString());
             }
 
-            inline UIntPtrT GetPointer() const
+            inline SWIGSize GetPointer() const
             {
                 assert(_deviceSPtr);
 
-                return reinterpret_cast<UIntPtrT>(_deviceSPtr.get());
+                return reinterpret_cast<SWIGSize>(_deviceSPtr.get());
             }
 
         private:
