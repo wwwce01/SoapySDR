@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace SoapySDR
@@ -10,7 +11,7 @@ namespace SoapySDR
     internal class Utility
     {
         // TODO: compare stream type to buffer type
-        internal static void ValidateBuffs<T>(
+        public static void ValidateBuffs<T>(
             StreamHandle streamHandle,
             T[][] buffs) where T: unmanaged
         {
@@ -62,8 +63,12 @@ namespace SoapySDR
                     buffs[buffIndex],
                     System.Runtime.InteropServices.GCHandleType.Pinned);
 
-                var uptr = (System.UIntPtr)(void*)handles[buffIndex].AddrOfPinnedObject();
+                var uptr = (UIntPtr)(void*)handles[buffIndex].AddrOfPinnedObject();
+#if _64BIT
+                sizeList.Add((ulong)uptr);
+#else
                 sizeList.Add((uint)uptr);
+#endif
             }
         }
 
@@ -83,7 +88,7 @@ namespace SoapySDR
             else throw new Exception(string.Format("Type {0} not covered by GetFormatString", type));
         }
 
-        internal static Kwargs AnyMapToKwargs(IDictionary<string, string> input)
+        public static Kwargs ToKwargs(IDictionary<string, string> input)
         {
             Kwargs kwargs;
 
@@ -96,15 +101,10 @@ namespace SoapySDR
             return output;
         }
 
-        internal static KwargsList AnyMapArrayToKwargsList(IDictionary<string, string>[] inputs)
-        {
-            var outputs = new KwargsList();
-            foreach(var input in inputs)
-            {
-                outputs.Add(AnyMapToKwargs(input));
-            }
+        public static Dictionary<string, string> ToDictionary(Kwargs kwargs) => kwargs.ToDictionary(entry => entry.Key, entry => entry.Value);
 
-            return outputs;
-        }
+        public static Dictionary<string, string>[] ToDictionaryArray(KwargsList kwargsList) => kwargsList.Select(x => x.ToDictionary(entry => entry.Key, entry => entry.Value)).ToArray();
+
+        public static ArgInfo[] ToArgInfoArray(ArgInfoInternalList argInfoInternalList) => argInfoInternalList.Select(x => new ArgInfo(x)).ToArray();
     }
 }

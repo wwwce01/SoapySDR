@@ -98,14 +98,9 @@ namespace SoapySDR
         //
 
         // For completeness, but a stream is only ever equal to itself
-        public override bool Equals(object other)
-        {
-            // In theory, ReferenceEquals is enough, but throwing for mis-matched type is convention
-            if(GetType().Equals(other.GetType())) return object.ReferenceEquals(this, other);
-            else throw new ArgumentException("Not a "+GetType().ToString());
-        }
+        public override bool Equals(object other) => ReferenceEquals(this, other);
 
-        public override int GetHashCode() => GetType().GetHashCode() ^ (int)_streamHandle?.GetHashCode();
+        public override int GetHashCode() => GetType().GetHashCode() ^ (_streamHandle?.GetHashCode() ?? 0);
 
         public override string ToString()
         {

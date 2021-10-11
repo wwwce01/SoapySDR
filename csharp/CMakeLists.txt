@@ -108,6 +108,10 @@ set(csharp_srcs
 
 add_library(SoapySDR.CSharp SHARED ${csharp_srcs})
 set_property(TARGET SoapySDR.CSharp PROPERTY COMPILE_FLAGS /unsafe)
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set_property(TARGET SoapySDR.CSharp PROPERTY COMPILE_DEFINITIONS _64BIT)
+endif()
+
 set_property(TARGET SoapySDR.CSharp PROPERTY DOTNET_TARGET_FRAMEWORK_VERSION "v4.7.2")
 set_property(
     TARGET SoapySDR.CSharp
