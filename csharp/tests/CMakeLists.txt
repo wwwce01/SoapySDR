@@ -22,4 +22,5 @@ function(BUILD_CSHARP_TEST name)
         "NUnit_3.12.0")
 endfunction()
 
+BUILD_CSHARP_TEST(TestSoapyTypes)
 BUILD_CSHARP_TEST(TestTimeConversion)

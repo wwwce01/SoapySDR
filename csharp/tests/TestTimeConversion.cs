@@ -6,11 +6,11 @@ using NUnit.Framework;
 [TestFixture]
 public class TestTimeConversion
 {
-    static internal System.Random rng = new System.Random();
-    static internal double[] Rates = new double[4] { 1e9, 52e6, 61.44e6, 100e6 / 3 };
+    readonly System.Random rng = new System.Random();
+    readonly double[] Rates = { 1e9, 52e6, 61.44e6, 100e6 / 3 };
 
     // https://docs.microsoft.com/en-us/dotnet/api/system.random?view=net-5.0#Long
-    internal static long RandomLong() => (long)(rng.NextDouble() * long.MaxValue);
+    internal long RandomLong() => (long)(rng.NextDouble() * long.MaxValue);
 
     [Repeat(100)]
     [Test]

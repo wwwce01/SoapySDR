@@ -100,6 +100,7 @@
 
 %include "Stream.i"
 
+// TODO: Range wrapper with read-only properties
 %ignore copyVector;
 %ignore toSizeTVector;
 %ignore reinterpretCastVector;

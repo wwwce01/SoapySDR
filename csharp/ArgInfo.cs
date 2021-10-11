@@ -15,16 +15,10 @@ namespace SoapySDR
             STRING
         }
 
-        public ArgInfo()
-        {
-            argInfo = new ArgInfoInternal();
-        }
+        public ArgInfo() => argInfo = new ArgInfoInternal();
 
-        internal ArgInfo(ArgInfoInternal argInfoInternal)
-        {
-            argInfo = argInfoInternal;
-        }
-        
+        internal ArgInfo(ArgInfoInternal argInfoInternal) => argInfo = argInfoInternal;
+
         public string Key
         {
             get => argInfo.key;
