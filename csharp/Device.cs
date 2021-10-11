@@ -18,7 +18,11 @@ namespace SoapySDR
 
         public Device(IDictionary<string, string> args) => device = new DeviceInternal(Utility.AnyMapToKwargs(args));
 
-        // TODO: enumerate
+        public static Dictionary<string, string>[] Enumerate() => DeviceInternal.Enumerate().Select(x => x.ToDictionary(entry => entry.Key, entry => entry.Value)).ToArray();
+
+        public static Dictionary<string, string>[] Enumerate(string args) => DeviceInternal.Enumerate(args).Select(x => x.ToDictionary(entry => entry.Key, entry => entry.Value)).ToArray();
+
+        public static Dictionary<string, string>[] Enumerate(IDictionary<string, string> args) => DeviceInternal.Enumerate(Utility.AnyMapToKwargs(args)).Select(x => x.ToDictionary(entry => entry.Key, entry => entry.Value)).ToArray();
 
         public string DriverKey => device.GetDriverKey();
 

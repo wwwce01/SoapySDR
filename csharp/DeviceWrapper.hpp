@@ -44,6 +44,21 @@ namespace SoapySDR { namespace CSharp {
             Device(const std::string& args): _deviceSPtr(SoapySDR::Device::make(args), DeviceDeleter())
             {}
 
+            static inline SoapySDR::KwargsList Enumerate()
+            {
+                return SoapySDR::Device::enumerate();
+            }
+
+            static inline SoapySDR::KwargsList Enumerate(const std::string& args)
+            {
+                return SoapySDR::Device::enumerate(args);
+            }
+
+            static inline SoapySDR::KwargsList Enumerate(const SoapySDR::Kwargs& args)
+            {
+                return SoapySDR::Device::enumerate(args);
+            }
+
             //
             // Identification API
             //
