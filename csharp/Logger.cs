@@ -16,17 +16,11 @@ namespace SoapySDR
             {
             }
 
-            public void handle(LogLevel logLevel, string message)
-            {
-                if(loggerDelegate != null) loggerDelegate(logLevel, message);
-            }
+            public void Handle(LogLevel logLevel, string message) => loggerDelegate?.Invoke(logLevel, message);
         }
 
         private static CSharpLogHandler LogHandler = new CSharpLogHandler();
 
-        public static void RegisterLogger(LoggerDelegate del)
-        {
-            loggerDelegate = del;
-        }
+        public static void RegisterLogger(LoggerDelegate del) => loggerDelegate = del;
     }
 }

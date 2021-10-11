@@ -18,6 +18,8 @@ namespace SoapySDR
 
         public Device(IDictionary<string, string> args) => device = new DeviceInternal(Utility.AnyMapToKwargs(args));
 
+        // TODO: enumerate
+
         public string DriverKey => device.GetDriverKey();
 
         public string HardwareKey => device.GetHardwareKey();

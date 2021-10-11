@@ -26,27 +26,27 @@
     public:
         LogHandlerBase()
         {
-            globalHandle = this;
-            SoapySDR::registerLogHandler(&globalHandler);
+            GlobalHandle = this;
+            SoapySDR::registerLogHandler(&GlobalHandler);
         }
         virtual ~LogHandlerBase()
         {
-            globalHandle = nullptr;
+            GlobalHandle = nullptr;
             // Restore the default, C coded, log handler.
             SoapySDR::registerLogHandler(nullptr);
         }
-        virtual void handle(SoapySDR::CSharp::LogLevel, const char *) = 0;
+        virtual void Handle(SoapySDR::CSharp::LogLevel, const char *) = 0;
 
     private:
-        static void globalHandler(const SoapySDR::LogLevel logLevel, const char *message)
+        static void GlobalHandler(const SoapySDR::LogLevel logLevel, const char *message)
         {
-            if (globalHandle != nullptr) globalHandle->handle((SoapySDR::CSharp::LogLevel)logLevel, message);
+            if (GlobalHandle != nullptr) GlobalHandle->Handle((SoapySDR::CSharp::LogLevel)logLevel, message);
         }
 
-        static LogHandlerBase *globalHandle;
+        static LogHandlerBase *GlobalHandle;
     };
 
-    LogHandlerBase *LogHandlerBase::globalHandle = nullptr;
+    LogHandlerBase *LogHandlerBase::GlobalHandle = nullptr;
 %}
 
 /*
