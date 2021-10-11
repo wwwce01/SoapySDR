@@ -96,6 +96,7 @@
 ////////////////////////////////////////////////////////////////////////
 %nodefaultctor SoapySDR::CSharp::BuildInfo;
 %nodefaultctor SoapySDR::CSharp::StreamHandle;
+%nodefaultctor SoapySDR::CSharp::Time;
 
 %include "Stream.i"
 

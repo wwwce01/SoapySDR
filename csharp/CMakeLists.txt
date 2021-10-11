@@ -121,3 +121,8 @@ set_property(
     "System.Numerics")
 
 add_dependencies(SoapySDR.CSharp ${SWIG_MODULE_SoapySDRCSharp_REAL_NAME})
+
+########################################################################
+# Tests
+########################################################################
+add_subdirectory(tests)
