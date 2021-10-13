@@ -5,30 +5,6 @@ local ffi = require("ffi")
 local lib = require("SoapySDR.Lib")
 local Utility = require("SoapySDR.Utility")
 
-local SoapySDRArgInfoMetaTable =
-{
-    __tostring = function(argInfo)
-        local ret = ""
-
-        if #argInfo.units > 0 then
-            ret = string.format("%s: %s %s", argInfo.name, argInfo.value, argInfo.units)
-        else
-            ret = string.format("%s: %s", argInfo.name, argInfo.value)
-        end
-
-        return ret
-    end
-}
-ffi.metatype(ffi.typeof'SoapySDRArgInfo', SoapySDRArgInfoMetaTable)
-
-local SoapySDRKwargsMetaTable =
-{
-    __tostring = function(kwargs)
-        return ffi.string(ffi.gc(lib.SoapySDRKwargs_toString(kwargs), lib.SoapySDR_free))
-    end
-}
-ffi.metatype(ffi.typeof'SoapySDRKwargs', SoapySDRKwargsMetaTable)
-
 local SoapySDRRangeMetaTable =
 {
     __tostring = function(kwargs)
