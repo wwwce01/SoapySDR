@@ -180,7 +180,8 @@ function Utility.toKwargs(arg)
     local ret = nil
     local argType = tostring(type(arg))
 
-    if Utility.isFFIRawKwargs(arg) then return arg
+    if Utility.isNil(arg) then ret = Utility.tableToKwargs({})
+    elseif Utility.isFFIRawKwargs(arg) then ret = arg
     elseif argType == "table" then ret = Utility.tableToKwargs(arg)
     else
         ret = ffi.gc(lib.SoapySDRKwargs_fromString(tostring(arg)), lib.SoapySDRKwargs_clear)

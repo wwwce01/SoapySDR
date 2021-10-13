@@ -33,7 +33,8 @@ local function testDeviceWithDirection(device, direction)
     local format = SoapySDR.Format.CF32
     local channels = {0,1}
     local args = "bufflen=8192,buffers=15"
-    local stream = device:setupStream(direction, format, channels, args)
+    local stream = device:setupStream(direction, format, channels) -- Without optional param
+    stream = device:setupStream(direction, format, channels, args) -- With optional param
 
     luaunit.assertEquals(device:getStreamMTU(stream), 1024)
 
@@ -149,9 +150,11 @@ local function testDeviceWithDirection(device, direction)
     --
     -- Frequency API
     --
+    device:setFrequency(direction, 0, 0.0)
     device:setFrequency(direction, 0, 0.0, {})
     device:setFrequency(direction, 0, 0.0, "")
 
+    device:setFrequencyComponent(direction, 0, "", 0.0)
     device:setFrequencyComponent(direction, 0, "", 0.0, {})
     device:setFrequencyComponent(direction, 0, "", 0.0, "")
 
