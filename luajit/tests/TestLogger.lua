@@ -20,13 +20,14 @@ function testLogger()
     SoapySDR.Logger.log(SoapySDR.Logger.Level.WARNING, "Warning")
     SoapySDR.Logger.log(SoapySDR.Logger.Level.ERROR, "Error")
 
+    -- Reset to default logger, make sure the next call doesn't log to the file
+    SoapySDR.Logger.registerHandler(nil)
+    SoapySDR.Logger.log(SoapySDR.Logger.Level.INFO, "Info")
+
     tmpFile:seek("set")
     local logContents = tmpFile:read("*a")
 
     luaunit.assertEquals(logContents, "Warning\nError\n")
-
-    -- Reset to default logger
-    SoapySDR.Logger.registerHandler(nil)
 end
 
 local runner = luaunit.LuaUnit.new()
