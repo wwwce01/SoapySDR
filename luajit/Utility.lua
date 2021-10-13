@@ -221,16 +221,18 @@ end
 function Utility.__processRawArgInfo(argInfo)
     local ret =
     {
-        value = ffi.string(argInfo.value),
+        value = Utility.stringToSoapySetting(ffi.string(argInfo.value), argInfo.type),
         name = ffi.string(argInfo.name),
         description = ffi.string(argInfo.description),
         name = ffi.string(argInfo.name),
         argType = argInfo.type,
         range = argInfo.range,
-        options = {}
+        options = {},
+        optionNames = {}
     }
     for i = 0, tonumber(argInfo.numOptions)-1 do
-        ret[options][ffi.string(argInfo.optionNames[i])] = ffi.string(argInfo.options[i])
+        ret[options][i+1] = ffi.string(argInfo.options[i])
+        ret[optionNames][i+1] = ffi.string(argInfo.optionNames[i])
     end
 
     return ret
