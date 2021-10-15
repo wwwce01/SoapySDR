@@ -499,6 +499,7 @@ end
 -- @param direction the channel direction (RX or TX)
 -- @see SoapySDR.Direction
 -- @param channel an available channel on the device
+--
 -- @return True if automatic corrections are supported
 function Device:hasDCOffsetMode(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasDCOffsetMode(
@@ -513,7 +514,6 @@ end
 -- @see SoapySDR.Direction
 -- @param channel an available channel on the device
 -- @param automatic true for automatic offset correction
--- @see Device:hasDCOffsetMode
 function Device:setDCOffsetMode(direction, channel, automatic)
     return processDeviceOutput(lib.SoapySDRDevice_setDCOffsetMode(
         self.__deviceHandle,
@@ -527,6 +527,7 @@ end
 -- @param direction the channel direction (RX or TX)
 -- @see SoapySDR.Direction
 -- @param channel an available channel on the device
+--
 -- @return True for automatic offset correction
 -- @see Device:hasDCOffsetMode
 function Device:getDCOffsetMode(direction, channel)
@@ -541,6 +542,7 @@ end
 -- @param direction the channel direction (RX or TX)
 -- @see SoapySDR.Direction
 -- @param channel an available channel on the device
+--
 -- @return True if DC offset corrections are supported
 function Device:hasDCOffset(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasDCOffset(
@@ -579,6 +581,7 @@ end
 -- @param direction the channel direction (RX or TX)
 -- @see SoapySDR.Direction
 -- @param channel an available channel on the device
+--
 -- @return True if IQ balance corrections are supported
 function Device:hasIQBalance(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasIQBalance(
@@ -617,6 +620,7 @@ end
 -- @param direction the channel direction (RX or TX)
 -- @see SoapySDR.Direction
 -- @param channel an available channel on the device
+--
 -- @return True if IQ balance corrections are supported
 function Device:hasIQBalanceMode(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasIQBalanceMode(
@@ -644,6 +648,7 @@ end
 -- @param direction the channel direction (RX or TX)
 -- @see SoapySDR.Direction
 -- @param channel an available channel on the device
+--
 -- @return True for automatic correction
 function Device:getIQBalanceMode(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getIQBalanceMode(
@@ -657,7 +662,8 @@ end
 -- @param direction the channel direction (RX or TX)
 -- @see SoapySDR.Direction
 -- @param channel an available channel on the device
--- @Return True if frequency corrections are supported
+--
+-- @return True if frequency corrections are supported
 function Device:hasFrequencyCorrection(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasFrequencyCorrection(
         self.__deviceHandle,
@@ -692,9 +698,14 @@ function Device:getFrequencyCorrection(direction, channel)
         channel))
 end
 
---- Gain API
--- @section gain
-
+---
+-- List available amplification elements.
+-- Elements should be in order RF to baseband.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel
+--
+-- @return A list of gain string names
 function Device:listGains(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -706,6 +717,13 @@ function Device:listGains(direction, channel)
         lengthPtr)
 end
 
+---
+-- Does the device support automatic gain control?
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return True for automatic gain control
 function Device:hasGainMode(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_hasGainMode(
         self.__deviceHandle,
@@ -713,6 +731,12 @@ function Device:hasGainMode(direction, channel)
         channel))
 end
 
+---
+-- Set the automatic gain mode on the chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param automatic true for automatic gain setting
 function Device:setGainMode(direction, channel, automatic)
     return processDeviceOutput(lib.SoapySDRDevice_setGainMode(
         self.__deviceHandle,
@@ -721,6 +745,13 @@ function Device:setGainMode(direction, channel, automatic)
         automatic))
 end
 
+---
+-- Get the automatic gain mode on the chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return True for automatic gain setting
 function Device:getGainMode(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getGainMode(
         self.__deviceHandle,
@@ -728,6 +759,13 @@ function Device:getGainMode(direction, channel)
         channel))
 end
 
+---
+-- Set the overall amplification in a chain.
+-- The gain will be distributed automatically across available element.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param value The new amplification value in dB
 function Device:setGain(direction, channel, value)
     return processDeviceOutput(lib.SoapySDRDevice_setGain(
         self.__deviceHandle,
@@ -736,6 +774,13 @@ function Device:setGain(direction, channel, value)
         value))
 end
 
+---
+-- Set the value of a amplification element in a chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param name the name of an amplification element
+-- @param value the new amplification value in dB
 function Device:setGainElement(direction, channel, name, value)
     return processDeviceOutput(lib.SoapySDRDevice_setGainElement(
         self.__deviceHandle,
@@ -745,6 +790,13 @@ function Device:setGainElement(direction, channel, name, value)
         value))
 end
 
+---
+-- Get the overall value of the gain elements in a chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return The value of the gain in dB
 function Device:getGain(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getGain(
         self.__deviceHandle,
@@ -752,6 +804,14 @@ function Device:getGain(direction, channel)
         channel))
 end
 
+---
+-- Get the value of an individual amplification element in a chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param name the name of an amplification element
+--
+-- @return The value of the gain in dB
 function Device:getGainElement(direction, channel, name)
     return processDeviceOutput(lib.SoapySDRDevice_getGainElement(
         self.__deviceHandle,
@@ -760,6 +820,13 @@ function Device:getGainElement(direction, channel, name)
         Utility.toString(name)))
 end
 
+---
+-- Get the overall range of possible gain values.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return A list of gain ranges in dB
 function Device:getGainRange(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getGainRange(
         self.__deviceHandle,
@@ -767,6 +834,14 @@ function Device:getGainRange(direction, channel)
         channel))
 end
 
+---
+-- Get the range of possible gain values for a specific element.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param name the name of an amplification element
+--
+-- @return A list of gain ranges in dB
 function Device:getGainElementRange(direction, channel, name)
     return processDeviceOutput(lib.SoapySDRDevice_getGainElementRange(
         self.__deviceHandle,
@@ -774,9 +849,6 @@ function Device:getGainElementRange(direction, channel, name)
         channel,
         Utility.toString(name)))
 end
-
---- Frequency API
--- @section frequency
 
 function Device:setFrequency(direction, channel, frequency, args)
     return processDeviceOutput(lib.SoapySDRDevice_setFrequency(
