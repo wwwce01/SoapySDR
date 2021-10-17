@@ -12,6 +12,8 @@ local Utility = require("SoapySDR.Utility")
 
 -- TODO: code formatting consistency
 -- TODO: remaining functions, return documentation (starts with cap, ends in period), Device constructor (how?)
+-- TODO: add @see entries for has/list functions for group
+-- TODO: make sure required Lua types are explained
 
 --
 -- Device-specific utility
@@ -481,6 +483,7 @@ end
 -- @param direction the channel direction (RX or TX)
 -- @see SoapySDR.Direction
 -- @param channel an available channel on the device
+--
 -- @return The name of an available antenna.
 -- @see Device:listAntennas
 function Device:getAntenna(direction, channel)
@@ -827,6 +830,7 @@ end
 -- @param channel an available channel on the device
 --
 -- @return A list of gain ranges in dB
+-- @see SoapySDRRange
 function Device:getGainRange(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getGainRange(
         self.__deviceHandle,
@@ -842,6 +846,7 @@ end
 -- @param name the name of an amplification element
 --
 -- @return A list of gain ranges in dB
+-- @see SoapySDRRange
 function Device:getGainElementRange(direction, channel, name)
     return processDeviceOutput(lib.SoapySDRDevice_getGainElementRange(
         self.__deviceHandle,
@@ -869,6 +874,18 @@ function Device:setFrequencyComponent(direction, channel, name, frequency, args)
         Utility.toKwargs(args)))
 end
 
+---
+-- Get the overall center frequency of the chain.
+--
+-- For RX, this specifies the down-conversion frequency.
+--
+-- For TX, this specifies the up-conversion frequency.
+--
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return The center frequency in Hz
 function Device:getFrequency(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getFrequency(
         self.__deviceHandle,
@@ -876,6 +893,14 @@ function Device:getFrequency(direction, channel)
         channel))
 end
 
+---
+-- Get the frequency of a tunable element in the chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param name the name of a tunable element
+--
+-- @return The tunable element's frequency in Hz
 function Device:getFrequencyComponent(direction, channel, name)
     return processDeviceOutput(lib.SoapySDRDevice_getFrequencyComponent(
         self.__deviceHandle,
@@ -884,6 +909,14 @@ function Device:getFrequencyComponent(direction, channel, name)
         Utility.toString(name)))
 end
 
+---
+-- Get the range of overall frequency values.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return A list of frequency ranges in Hz
+-- @see SoapySDRRange
 function Device:getFrequencyRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -895,6 +928,15 @@ function Device:getFrequencyRange(direction, channel)
         lengthPtr)
 end
 
+---
+-- Get the range of tunable values for the specified element.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param name the name of a tunable element
+--
+-- @return A list of frequency ranges in Hz
+-- @see SoapySDRRange
 function Device:getFrequencyRangeComponent(direction, channel, name)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -907,6 +949,8 @@ function Device:getFrequencyRangeComponent(direction, channel, name)
         lengthPtr)
 end
 
+-- TODO: listFrequencies
+
 function Device:getFrequencyArgsInfo(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -918,9 +962,12 @@ function Device:getFrequencyArgsInfo(direction, channel)
         lengthPtr)
 end
 
---- Sample Rate API
--- @section sample_rate
-
+---
+-- Set the baseband sample rate of the chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param rate the sample rate in samples per second
 function Device:setSampleRate(direction, channel, rate)
     return processDeviceOutput(lib.SoapySDRDevice_setSampleRate(
         self.__deviceHandle,
@@ -929,6 +976,12 @@ function Device:setSampleRate(direction, channel, rate)
         rate))
 end
 
+---
+-- Get the baseband sample rate of the chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @return The sample rate in samples per second
 function Device:getSampleRate(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getSampleRate(
         self.__deviceHandle,
@@ -936,6 +989,14 @@ function Device:getSampleRate(direction, channel)
         channel))
 end
 
+---
+-- Get the range of possible baseband sample rates.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return A list of sample rate ranges in samples per second
+-- @see SoapySDRRange
 function Device:getSampleRateRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -947,9 +1008,12 @@ function Device:getSampleRateRange(direction, channel)
         lengthPtr)
 end
 
---- Bandwidth API
--- @section bandwidth
-
+---
+-- Set the baseband filter width of the chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param bw the baseband filter width in Hz
 function Device:setBandwidth(direction, channel, bw)
     return processDeviceOutput(lib.SoapySDRDevice_setBandwidth(
         self.__deviceHandle,
@@ -958,6 +1022,13 @@ function Device:setBandwidth(direction, channel, bw)
         bw))
 end
 
+---
+-- Get the baseband filter width of the chain.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return The baseband filter width in Hz
 function Device:getBandwidth(direction, channel)
     return processDeviceOutput(lib.SoapySDRDevice_getBandwidth(
         self.__deviceHandle,
@@ -965,6 +1036,14 @@ function Device:getBandwidth(direction, channel)
         channel))
 end
 
+---
+-- Get the range of possible baseband filter widths.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return A list of bandwidth ranges in Hz
+-- @see SoapySDRRange
 function Device:getBandwidthRange(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -976,19 +1055,27 @@ function Device:getBandwidthRange(direction, channel)
         lengthPtr)
 end
 
---- Clocking API
--- @section clocking
-
+---
+-- Set the master clock rate of the device.
+-- @param rate The clock rate in Hz
 function Device:setMasterClockRate(rate)
     return processDeviceOutput(lib.SoapySDRDevice_setMasterClockRate(
         self.__deviceHandle,
         rate))
 end
 
+---
+-- Get the master clock rate of the device.
+--
+-- @return The clock rate in Hz
 function Device:getMasterClockRate()
     return processDeviceOutput(lib.SoapySDRDevice_getMasterClockRate(self.__deviceHandle))
 end
 
+---
+-- Get the range of available master clock rates.
+--
+-- @return A list of clock rate ranges in Hz
 function Device:getMasterClockRates()
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -996,16 +1083,27 @@ function Device:getMasterClockRates()
         lengthPtr)
 end
 
+---
+-- Set the reference clock rate of the device.
+-- @param rate the clock rate in Hz
 function Device:setReferenceClockRate(rate)
     return processDeviceOutput(lib.SoapySDRDevice_setReferenceClockRate(
         self.__deviceHandle,
         rate))
 end
 
+---
+-- Get the reference clock rate of the device.
+--
+-- @return The clock rate in Hz
 function Device:getReferenceClockRate()
     return processDeviceOutput(lib.SoapySDRDevice_getReferenceClockRate(self.__deviceHandle))
 end
 
+---
+-- Get the range of available reference clock rates.
+--
+-- @return A list of clock rate ranges in Hz
 function Device:getReferenceClockRates()
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -1013,6 +1111,10 @@ function Device:getReferenceClockRates()
         lengthPtr)
 end
 
+---
+-- Get the list of available clock sources.
+--
+-- @return A list of clock source names
 function Device:listClockSources()
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -1020,19 +1122,27 @@ function Device:listClockSources()
         lengthPtr)
 end
 
+---
+-- Set the clock source on the device.
+-- @param source the name of a clock source
 function Device:setClockSource(source)
     return processDeviceOutput(lib.SoapySDRDevice_setClockSource(
         self.__deviceHandle,
         Utility.toString(source)))
 end
 
+---
+-- Get the clock source of the device.
+--
+-- @return The name of a clock source
 function Device:getClockSource()
     return processDeviceOutput(lib.SoapySDRDevice_getClockSource(self.__deviceHandle))
 end
 
---- Time API
--- @section time
-
+---
+-- Get the list of available time sources.
+--
+-- @return A list of time source names
 function Device:listTimeSources()
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -1042,28 +1152,51 @@ function Device:listTimeSources()
         lengthPtr)
 end
 
+---
+-- Set the time source on the device.
+-- @param source the name of a time source
 function Device:setTimeSource(source)
     return processDeviceOutput(lib.SoapySDRDevice_setTimeSource(
         self.__deviceHandle,
         Utility.toString(source)))
 end
 
+---
+-- Get the time source of the device.
+--
+-- @return The name of a time source
 function Device:getTimeSource()
     return processDeviceOutput(lib.SoapySDRDevice_getTimeSource(self.__deviceHandle))
 end
 
+---
+-- Does this device have a hardware clock?
+-- @param what optional argument
+--
+-- @return True if the hardware clock exists
 function Device:hasHardwareTime(what)
     return processDeviceOutput(lib.SoapySDRDevice_hasHardwareTime(
         self.__deviceHandle,
         Utility.toString(what)))
 end
 
+---
+-- Read the time from the hardware clock on the device.
+-- The "what" argument can refer to a specific time counter.
+-- @param what optional argument
+--
+-- @return The time in nanoseconds
 function Device:getHardwareTime(what)
     return processDeviceOutput(lib.SoapySDRDevice_getHardwareTime(
         self.__deviceHandle,
         Utility.toString(what)))
 end
 
+---
+-- Write the time to the hardware clock on the device.
+-- The "what" argument can refer to a specific time counter.
+-- @param timeNs time in nanoseconds
+-- @param what optional argument
 function Device:setHardwareTime(time, what)
     return processDeviceOutput(lib.SoapySDRDevice_setHardwareTime(
         self.__deviceHandle,
@@ -1071,9 +1204,10 @@ function Device:setHardwareTime(time, what)
         Utility.toString(what)))
 end
 
---- Sensor API
--- @section sensor
-
+---
+-- List the available global readback sensors.
+-- A sensor can represent a reference lock, RSSI, temperature, etc.
+-- @return A list of available sensor string names
 function Device:listSensors()
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
