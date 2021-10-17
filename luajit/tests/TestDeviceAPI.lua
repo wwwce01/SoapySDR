@@ -161,6 +161,8 @@ local function testDeviceWithDirection(device, direction)
     luaunit.assertEquals(device:getFrequency(direction, 0), 0.0)
     luaunit.assertEquals(device:getFrequencyComponent(direction, 0, ""), 0.0)
 
+    luaunit.assertIsTable(device:listFrequencies(direction, 0))
+
     luaunit.assertIsTable(device:getFrequencyRange(direction, 0))
     luaunit.assertIsTable(device:getFrequencyRangeComponent(direction, 0, ""))
     luaunit.assertIsTable(device:getFrequencyArgsInfo(direction, 0))

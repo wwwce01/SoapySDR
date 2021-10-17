@@ -949,7 +949,24 @@ function Device:getFrequencyRangeComponent(direction, channel, name)
         lengthPtr)
 end
 
--- TODO: listFrequencies
+---
+-- List available tunable elements in the chain.
+-- Elements should be in order RF to baseband.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel
+--
+-- @return A list of tunable elements by name
+function Device:listFrequencies(direction, channel)
+    local lengthPtr = ffi.new("size_t[1]")
+    return processDeviceOutput(
+        lib.SoapySDRDevice_listFrequencies(
+            self.__deviceHandle,
+            direction,
+            channel,
+            lengthPtr),
+        lengthPtr)
+end
 
 function Device:getFrequencyArgsInfo(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
