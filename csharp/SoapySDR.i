@@ -76,7 +76,8 @@
 
 // Hide SWIG-generated STL types, they're ugly and half-done
 
-%typemap(csclassmodifiers) SoapySDR::Kwargs "internal class"
+// SoapySDR::Kwargs
+%typemap(csclassmodifiers) std::map<std::string, std::string> "internal class"
 %template(Kwargs) std::map<std::string, std::string>;
 
 %typemap(csclassmodifiers) std::vector<SoapySDR::Kwargs> "internal class"

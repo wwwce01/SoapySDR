@@ -18,11 +18,11 @@ namespace SoapySDR
 
         public Device(IDictionary<string, string> args) => _device = new DeviceInternal(Utility.ToKwargs(args));
 
-        public static Dictionary<string, string>[] Enumerate() => Utility.ToDictionaryArray(DeviceInternal.Enumerate());
+        public static List<Dictionary<string, string>> Enumerate() => Utility.ToDictionaryList(DeviceInternal.Enumerate());
 
-        public static Dictionary<string, string>[] Enumerate(string args) => Utility.ToDictionaryArray(DeviceInternal.Enumerate(args));
+        public static List<Dictionary<string, string>> Enumerate(string args) => Utility.ToDictionaryList(DeviceInternal.Enumerate(args));
 
-        public static Dictionary<string, string>[] Enumerate(IDictionary<string, string> args) => Utility.ToDictionaryArray(DeviceInternal.Enumerate(Utility.ToKwargs(args)));
+        public static List<Dictionary<string, string>> Enumerate(IDictionary<string, string> args) => Utility.ToDictionaryList(DeviceInternal.Enumerate(Utility.ToKwargs(args)));
 
         public string DriverKey => _device.GetDriverKey();
 
@@ -40,11 +40,11 @@ namespace SoapySDR
 
         public bool GetFullDuplex(Direction direction, uint channel) => _device.GetFullDuplex(direction, channel);
 
-        public string[] GetStreamFormats(Direction direction, uint channel) => _device.GetStreamFormats(direction, channel).ToArray();
+        public List<string> GetStreamFormats(Direction direction, uint channel) => new List<string>(_device.GetStreamFormats(direction, channel));
 
         public string GetNativeStreamFormat(Direction direction, uint channel, out double fullScaleOut) => _device.GetNativeStreamFormat(direction, channel, out fullScaleOut);
 
-        public ArgInfo[] GetStreamArgsInfo(Direction direction, uint channel) => Utility.ToArgInfoArray(_device.GetStreamArgsInfo(direction, channel));
+        public List<ArgInfo> GetStreamArgsInfo(Direction direction, uint channel) => Utility.ToArgInfoList(_device.GetStreamArgsInfo(direction, channel));
 
         public TxStream SetupTxStream(string format, uint[] channels, IDictionary<string, string> kwargs)
             => new TxStream(_device, format, channels, Utility.ToKwargs(kwargs));
@@ -52,7 +52,7 @@ namespace SoapySDR
         public RxStream SetupRxStream(string format, uint[] channels, IDictionary<string, string> kwargs)
             => new RxStream(_device, format, channels, Utility.ToKwargs(kwargs));
 
-        public string[] ListAntennas(Direction direction, uint channel) => _device.ListAntennas(direction, channel).ToArray();
+        public List<string> ListAntennas(Direction direction, uint channel) => new List<string>(_device.ListAntennas(direction, channel));
 
         public void SetAntenna(Direction direction, uint channel, string name) => _device.SetAntenna(direction, channel, name);
 
@@ -88,7 +88,7 @@ namespace SoapySDR
 
         public double GetFrequencyCorrection(Direction direction, uint channel) => _device.GetFrequencyCorrection(direction, channel);
 
-        public string[] ListGains(Direction direction, uint channel) => _device.ListGains(direction, channel).ToArray();
+        public List<string> ListGains(Direction direction, uint channel) => new List<string>(_device.ListGains(direction, channel));
 
         public bool HasGainMode(Direction direction, uint channel) => _device.HasGainMode(direction, channel);
 
@@ -112,25 +112,25 @@ namespace SoapySDR
 
         public double GetFrequency(Direction direction, uint channel, string name) => _device.GetFrequency(direction, channel, name);
 
-        public string[] ListFrequencies(Direction direction, uint channel) => _device.ListFrequencies(direction, channel).ToArray();
+        public List<string> ListFrequencies(Direction direction, uint channel) => new List<string>(_device.ListFrequencies(direction, channel));
 
-        public Range[] GetFrequencyRange(Direction direction, uint channel) => Utility.ToRangeArray(_device.GetFrequencyRange(direction, channel));
+        public List<Range> GetFrequencyRange(Direction direction, uint channel) => Utility.ToRangeList(_device.GetFrequencyRange(direction, channel));
 
-        public Range[] GetFrequencyRange(Direction direction, uint channel, string name) => Utility.ToRangeArray(_device.GetFrequencyRange(direction, channel, name));
+        public List<Range> GetFrequencyRange(Direction direction, uint channel, string name) => Utility.ToRangeList(_device.GetFrequencyRange(direction, channel, name));
 
-        public ArgInfo[] GetFrequencyArgsInfo(Direction direction, uint channel) => Utility.ToArgInfoArray(_device.GetFrequencyArgsInfo(direction, channel));
+        public List<ArgInfo> GetFrequencyArgsInfo(Direction direction, uint channel) => Utility.ToArgInfoList(_device.GetFrequencyArgsInfo(direction, channel));
 
         public void SetSampleRate(Direction direction, uint channel, double rate) => _device.SetSampleRate(direction, channel, rate);
 
         public void GetSampleRate(Direction direction, uint channel) => _device.GetSampleRate(direction, channel);
 
-        public Range[] GetSampleRateRange(Direction direction, uint channel) => Utility.ToRangeArray(_device.GetSampleRateRange(direction, channel));
+        public List<Range> GetSampleRateRange(Direction direction, uint channel) => Utility.ToRangeList(_device.GetSampleRateRange(direction, channel));
 
         public void SetBandwidth(Direction direction, uint channel, double bandwidth) => _device.SetBandwidth(direction, channel, bandwidth);
 
         public void GetBandwidth(Direction direction, uint channel) => _device.GetBandwidth(direction, channel);
 
-        public Range[] GetBandwidthRange(Direction direction, uint channel) => Utility.ToRangeArray(_device.GetBandwidthRange(direction, channel));
+        public List<Range> GetBandwidthRange(Direction direction, uint channel) => Utility.ToRangeList(_device.GetBandwidthRange(direction, channel));
 
         public double MasterClockRate
         {
@@ -138,7 +138,7 @@ namespace SoapySDR
             set => _device.SetMasterClockRate(value);
         }
 
-        public Range[] MasterClockRates => Utility.ToRangeArray(_device.GetMasterClockRates());
+        public List<Range> MasterClockRates => Utility.ToRangeList(_device.GetMasterClockRates());
 
         public double ReferenceClockRate
         {
@@ -146,7 +146,7 @@ namespace SoapySDR
             set => _device.SetReferenceClockRate(value);
         }
 
-        public Range[] ReferenceClockRates => Utility.ToRangeArray(_device.GetReferenceClockRates());
+        public List<Range> ReferenceClockRates => Utility.ToRangeList(_device.GetReferenceClockRates());
 
         public string ClockSource
         {
@@ -154,9 +154,9 @@ namespace SoapySDR
             set => _device.SetClockSource(value);
         }
 
-        public string[] ClockSources => _device.ListClockSources().ToArray();
+        public List<string> ClockSources => new List<string>(_device.ListClockSources());
 
-        public string[] TimeSources => _device.ListTimeSources().ToArray();
+        public List<string> TimeSources => new List<string>(_device.ListTimeSources());
 
         public string TimeSource
         {
@@ -170,7 +170,7 @@ namespace SoapySDR
 
         public void SetHardwareTime(long timeNs, string what = "") => _device.SetHardwareTime(timeNs, what);
 
-        public string[] ListSensors() => _device.ListSensors().ToArray();
+        public List<string> ListSensors() => new List<string>(_device.ListSensors());
 
         public ArgInfo GetSensorInfo(string key) => new ArgInfo(_device.GetSensorInfo(key));
 
@@ -178,11 +178,11 @@ namespace SoapySDR
 
         public T ReadSensor<T>(string key) => (T)(new SoapyConvertible(_device.ReadSensor(key)).ToType(typeof(T), null));
 
-        public string[] ListSensors(Direction direction, uint channel) => _device.ListSensors(direction, channel).ToArray();
+        public List<string> ListSensors(Direction direction, uint channel) => new List<string>(_device.ListSensors(direction, channel));
 
         public ArgInfo GetSensorInfo(Direction direction, uint channel, string key) => new ArgInfo(_device.GetSensorInfo(direction, channel, key));
 
-        public string[] RegisterInterfaces => _device.ListRegisterInterfaces().ToArray();
+        public List<string> RegisterInterfaces => new List<string>(_device.ListRegisterInterfaces());
 
         public void WriteRegister(string name, uint addr, uint value) => _device.WriteRegister(name, addr, value);
 
@@ -190,10 +190,12 @@ namespace SoapySDR
 
         public void WriteRegisters(string name, uint addr, uint[] value) => _device.WriteRegisters(name, addr, new SizeList(value));
 
+        // Note: keeping uint[] return for read registers, implied to be contiguous
+
         public uint[] ReadRegisters(string name, uint addr, uint length)
             => _device.ReadRegisters(name, addr, length).Select(x => (uint)x).ToArray();
 
-        public ArgInfo[] GetSettingInfo() => Utility.ToArgInfoArray(_device.GetSettingInfo());
+        public List<ArgInfo> GetSettingInfo() => Utility.ToArgInfoList(_device.GetSettingInfo());
 
         public void WriteSetting(string key, object value) => _device.WriteSetting(key, new SoapyConvertible(value).ToString());
 
@@ -217,7 +219,7 @@ namespace SoapySDR
                 throw new System.ArgumentException("Invalid setting: " + key);
         }
 
-        public ArgInfo[] GetSettingInfo(Direction direction, uint channel) => Utility.ToArgInfoArray(_device.GetSettingInfo(direction, channel));
+        public List<ArgInfo> GetSettingInfo(Direction direction, uint channel) => Utility.ToArgInfoList(_device.GetSettingInfo(direction, channel));
 
         public void WriteSetting(Direction direction, uint channel, string key, object value) => _device.WriteSetting(direction, channel, key, new SoapyConvertible(value).ToString());
 
@@ -241,7 +243,7 @@ namespace SoapySDR
                 throw new System.ArgumentException("Invalid setting: " + key);
         }
 
-        public string[] GPIOBanks => _device.ListGPIOBanks().ToArray();
+        public List<string> GPIOBanks => new List<string>(_device.ListGPIOBanks());
 
         public void WriteGPIO(string bank, uint value) => _device.WriteGPIO(bank, value);
 
@@ -255,7 +257,7 @@ namespace SoapySDR
 
         public uint TransactSPI(int addr, uint data, uint numBits) => _device.TransactSPI(addr, data, numBits);
 
-        public string[] UARTs => _device.ListUARTs().ToArray();
+        public List<string> UARTs => new List<string>(_device.ListUARTs());
 
         public void WriteUART(string which, string data) => _device.WriteUART(which, data);
 

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSL-1.0
 
 using System;
+using System.Collections.Generic;
 
 namespace SoapySDR
 {
@@ -13,7 +14,7 @@ namespace SoapySDR
 
         public string Format { get; }
         public uint[] Channels { get; }
-        public Kwargs StreamArgs { get; }
+        public Dictionary<string, string> StreamArgs { get; }
         public bool Active { get { return _active; } }
 
         // We already used these parameters to create the stream,
@@ -28,7 +29,7 @@ namespace SoapySDR
 
             Format = format;
             Channels = channels;
-            StreamArgs = kwargs;
+            StreamArgs = Utility.ToDictionary(kwargs);
         }
 
         ~Stream()

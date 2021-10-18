@@ -101,12 +101,14 @@ namespace SoapySDR
             return output;
         }
 
+        // TODO: how many native-layer copies are made below?
+
         public static Dictionary<string, string> ToDictionary(Kwargs kwargs) => kwargs.ToDictionary(entry => entry.Key, entry => entry.Value);
 
-        public static Dictionary<string, string>[] ToDictionaryArray(KwargsList kwargsList) => kwargsList.Select(x => x.ToDictionary(entry => entry.Key, entry => entry.Value)).ToArray();
+        public static List<Dictionary<string, string>> ToDictionaryList(KwargsList kwargsList) => new List<Dictionary<string, string>>(kwargsList.Select(arg => ToDictionary(arg)));
 
-        public static ArgInfo[] ToArgInfoArray(ArgInfoInternalList argInfoInternalList) => argInfoInternalList.Select(x => new ArgInfo(x)).ToArray();
+        public static List<ArgInfo> ToArgInfoList(ArgInfoInternalList argInfoInternalList) => new List<ArgInfo>(argInfoInternalList.Select(x => new ArgInfo(x)));
 
-        public static Range[] ToRangeArray(RangeInternalList rangeInternalList) => rangeInternalList.Select(x => new Range(x)).ToArray();
+        public static List<Range> ToRangeList(RangeInternalList rangeInternalList) => new List<Range>(rangeInternalList.Select(x => new Range(x)));
     }
 }
