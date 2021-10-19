@@ -31,22 +31,17 @@ namespace SoapySDR
                 throw new ArgumentException(string.Format("Expected format \"{0}\". Found format \"{1}\"", GetFormatString<T>(), format));
             }
 
-            HashSet<int> uniqueSizes = new HashSet<int>();
+            HashSet<int> uniqueSizes = new HashSet<int>(buffs?.Select(buff => buff?.Length ?? 0));
+            if ((uniqueSizes.Count > 1) || (uniqueSizes.First() == 0))
+                throw new ArgumentException("All buffers must be non-null and of the same length");
 
-            for(int buffIndex = 0; buffIndex < buffs.Length; ++buffIndex)
+            if (format.Equals(GetComplexFormatString<T>()))
             {
-                if(buffs[buffIndex] == null)
-                {
-                    throw new ArgumentNullException(string.Format("buffs[{0}]", buffIndex));
-                }
-
-                uniqueSizes.Add(buffs[buffIndex].Length);
+                if ((uniqueSizes.First() % 2) != 0)
+                    throw new ArgumentException("For complex interleaved streams, the input buffer must be of an even size");
             }
-
-            if(uniqueSizes.Count > 1)
-            {
-                throw new ArgumentException("All buffers must be of the same length.");
-            }
+            else if (!format.Equals(GetFormatString<T>()))
+                throw new ArgumentException(string.Format("Given buffers ({0}) do not match stream format {1}", typeof(T), format));
         }
 
         internal static unsafe void ManagedArraysToSizeList<T>(
@@ -72,7 +67,6 @@ namespace SoapySDR
             }
         }
 
-        // TODO: complex version
         public static string GetFormatString<T>() where T: unmanaged
         {
             var type = typeof(T);
@@ -86,6 +80,21 @@ namespace SoapySDR
             else if(typeof(T).Equals(typeof(float)))  return StreamFormats.F32;
             else if(typeof(T).Equals(typeof(double))) return StreamFormats.F64;
             else throw new Exception(string.Format("Type {0} not covered by GetFormatString", type));
+        }
+
+        public static string GetComplexFormatString<T>() where T : unmanaged
+        {
+            var type = typeof(T);
+
+            if (typeof(T).Equals(typeof(sbyte))) return StreamFormats.CS8;
+            else if (typeof(T).Equals(typeof(short))) return StreamFormats.CS16;
+            else if (typeof(T).Equals(typeof(int))) return StreamFormats.CS32;
+            else if (typeof(T).Equals(typeof(byte))) return StreamFormats.CU8;
+            else if (typeof(T).Equals(typeof(ushort))) return StreamFormats.CU16;
+            else if (typeof(T).Equals(typeof(uint))) return StreamFormats.CU32;
+            else if (typeof(T).Equals(typeof(float))) return StreamFormats.CF32;
+            else if (typeof(T).Equals(typeof(double))) return StreamFormats.CF64;
+            else throw new Exception(string.Format("Type {0} not covered by GetComplexFormatString", type));
         }
 
         public static Kwargs ToKwargs(IDictionary<string, string> input)

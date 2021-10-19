@@ -49,8 +49,20 @@ namespace SoapySDR
         public TxStream SetupTxStream(string format, uint[] channels, IDictionary<string, string> kwargs)
             => new TxStream(_device, format, channels, Utility.ToKwargs(kwargs));
 
+        public TxStream SetupTxStream<T>(uint[] channels, IDictionary<string, string> kwargs) where T : unmanaged =>
+            SetupTxStream(Utility.GetFormatString<T>(), channels, kwargs);
+
+        public TxStream SetupComplexTxStream<T>(uint[] channels, IDictionary<string, string> kwargs) where T : unmanaged =>
+            SetupTxStream(Utility.GetComplexFormatString<T>(), channels, kwargs);
+
         public RxStream SetupRxStream(string format, uint[] channels, IDictionary<string, string> kwargs)
             => new RxStream(_device, format, channels, Utility.ToKwargs(kwargs));
+
+        public RxStream SetupRxStream<T>(uint[] channels, IDictionary<string, string> kwargs) where T : unmanaged =>
+            SetupRxStream(Utility.GetFormatString<T>(), channels, kwargs);
+
+        public RxStream SetupComplexRxStream<T>(uint[] channels, IDictionary<string, string> kwargs) where T : unmanaged =>
+            SetupRxStream(Utility.GetComplexFormatString<T>(), channels, kwargs);
 
         public List<string> ListAntennas(Direction direction, uint channel) => new List<string>(_device.ListAntennas(direction, channel));
 
