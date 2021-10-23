@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 // TODO: reorder for consistency, not to match Device.hpp
+// TODO: string overloads for all dict params
 
 namespace SoapySDR
 {    
@@ -116,7 +117,15 @@ namespace SoapySDR
 
         public double GetGain(Direction direction, uint channel, string name) => _device.GetGain(direction, channel, name);
 
+        public Range GetGainRange(Direction direction, uint channel) => new Range(_device.GetGainRange(direction, channel));
+
+        public Range GetGainRange(Direction direction, uint channel, string name) => new Range(_device.GetGainRange(direction, channel, name));
+
+        public void SetFrequency(Direction direction, uint channel, double frequency) => SetFrequency(direction, channel, frequency, new Kwargs());
+
         public void SetFrequency(Direction direction, uint channel, double frequency, IDictionary<string, string> args) => _device.SetFrequency(direction, channel, frequency, Utility.ToKwargs(args));
+
+        public void SetFrequency(Direction direction, uint channel, string name, double frequency) => SetFrequency(direction, channel, name, frequency, new Kwargs());
 
         public void SetFrequency(Direction direction, uint channel, string name, double frequency, IDictionary<string, string> args) => _device.SetFrequency(direction, channel, name, frequency, Utility.ToKwargs(args));
 
@@ -134,13 +143,13 @@ namespace SoapySDR
 
         public void SetSampleRate(Direction direction, uint channel, double rate) => _device.SetSampleRate(direction, channel, rate);
 
-        public void GetSampleRate(Direction direction, uint channel) => _device.GetSampleRate(direction, channel);
+        public double GetSampleRate(Direction direction, uint channel) => _device.GetSampleRate(direction, channel);
 
         public List<Range> GetSampleRateRange(Direction direction, uint channel) => Utility.ToRangeList(_device.GetSampleRateRange(direction, channel));
 
         public void SetBandwidth(Direction direction, uint channel, double bandwidth) => _device.SetBandwidth(direction, channel, bandwidth);
 
-        public void GetBandwidth(Direction direction, uint channel) => _device.GetBandwidth(direction, channel);
+        public double GetBandwidth(Direction direction, uint channel) => _device.GetBandwidth(direction, channel);
 
         public List<Range> GetBandwidthRange(Direction direction, uint channel) => Utility.ToRangeList(_device.GetBandwidthRange(direction, channel));
 
@@ -193,6 +202,12 @@ namespace SoapySDR
         public List<string> ListSensors(Direction direction, uint channel) => new List<string>(_device.ListSensors(direction, channel));
 
         public ArgInfo GetSensorInfo(Direction direction, uint channel, string key) => new ArgInfo(_device.GetSensorInfo(direction, channel, key));
+
+        public object ReadSensor(Direction direction, uint channel, string key)
+            => new SoapyConvertible(_device.ReadSensor(direction, channel, key)).ToArgType(GetSensorInfo(direction, channel, key).Type);
+
+        public T ReadSensor<T>(Direction direction, uint channel, string key)
+            => (T)(new SoapyConvertible(_device.ReadSensor(direction, channel, key)).ToType(typeof(T), null));
 
         public List<string> RegisterInterfaces => new List<string>(_device.ListRegisterInterfaces());
 
@@ -262,6 +277,12 @@ namespace SoapySDR
         public void WriteGPIO(string bank, uint value, uint mask) => _device.WriteGPIO(bank, value, mask);
 
         public uint ReadGPIO(string bank) => _device.ReadGPIO(bank);
+
+        public void WriteGPIODir(string bank, uint dir) => _device.WriteGPIODir(bank, dir);
+
+        public void WriteGPIODir(string bank, uint dir, uint mask) => _device.WriteGPIODir(bank, dir, mask);
+
+        public uint ReadGPIODir(string bank) => _device.ReadGPIODir(bank);
 
         public void WriteI2C(int addr, string data) => _device.WriteI2C(addr, data);
 

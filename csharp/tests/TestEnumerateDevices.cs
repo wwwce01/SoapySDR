@@ -8,7 +8,7 @@ using System.Linq;
 using NUnit.Framework;
 
 [TestFixture]
-public class TestSoapyTypes
+public class TestEnumerateDevices
 {
     static private bool HasNullDevice(List<Dictionary<string, string>> devices)
         => devices.Select(args => args.ContainsKey("driver") && (args["driver"] == "null")).Any();
