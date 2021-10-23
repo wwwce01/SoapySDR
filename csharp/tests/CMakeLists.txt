@@ -15,12 +15,14 @@ function(BUILD_CSHARP_TEST name)
         PROPERTY VS_DOTNET_REFERENCES
         "System"
         "System.Core"
-        "System.Numerics")
+        "System.Numerics"
+        "Microsoft.CSharp")
     set_property(
         TARGET ${library_name}
         PROPERTY VS_PACKAGE_REFERENCES
         "NUnit_3.12.0")
 endfunction()
 
+BUILD_CSHARP_TEST(TestEnumerateDevices)
 BUILD_CSHARP_TEST(TestSoapyTypes)
 BUILD_CSHARP_TEST(TestTimeConversion)
