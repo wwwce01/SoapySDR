@@ -39,17 +39,14 @@ namespace SoapySDR
         {
             ErrorCode ret;
 
-            if(_streamHandle != null)
+            if (_streamHandle != null)
             {
                 Utility.ValidateBuffs(_streamHandle, buffs);
 
-                System.Runtime.InteropServices.GCHandle[] handles = null;
-                SizeList buffsAsSizes = null;
-
                 Utility.ManagedArraysToSizeList(
                     buffs,
-                    out handles,
-                    out buffsAsSizes);
+                    out System.Runtime.InteropServices.GCHandle[] handles,
+                    out SizeList buffsAsSizes);
 
                 var deviceOutput = _device.WriteStream(
                     _streamHandle,

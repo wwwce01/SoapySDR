@@ -349,6 +349,7 @@ public class TestSoapyTypes
     private unsafe void TestTxStreamNonGeneric(string format)
     {
         var device = GetTestDevice();
+        var streamResult = new SoapySDR.StreamResult();
 
         GetTxStreamTestParams(
             out uint[] channel,
@@ -358,8 +359,6 @@ public class TestSoapyTypes
             out long timeNs,
             out int timeoutUs,
             out uint numElems);
-
-        SoapySDR.StreamResult streamResult = new SoapySDR.StreamResult();
 
         //
         // Test with single channel
@@ -458,6 +457,4 @@ public class TestSoapyTypes
         TestTxStreamNonGeneric(SoapySDR.StreamFormats.CF32);
         TestTxStreamNonGeneric(SoapySDR.StreamFormats.CF64);
     }
-
-
 }

@@ -8,10 +8,10 @@ using System.Runtime.InteropServices;
 
 namespace SoapySDR
 {
-    internal class Utility
+    public class Utility
     {
         // TODO: compare stream type to buffer type
-        public static void ValidateBuffs<T>(
+        internal static void ValidateBuffs<T>(
             StreamHandle streamHandle,
             T[][] buffs) where T: unmanaged
         {
@@ -97,7 +97,7 @@ namespace SoapySDR
             else throw new Exception(string.Format("Type {0} not covered by GetComplexFormatString", type));
         }
 
-        public static Kwargs ToKwargs(IDictionary<string, string> input)
+        internal static Kwargs ToKwargs(IDictionary<string, string> input)
         {
             Kwargs kwargs;
 
@@ -112,12 +112,12 @@ namespace SoapySDR
 
         // TODO: how many native-layer copies are made below?
 
-        public static Dictionary<string, string> ToDictionary(Kwargs kwargs) => kwargs.ToDictionary(entry => entry.Key, entry => entry.Value);
+        internal static Dictionary<string, string> ToDictionary(Kwargs kwargs) => kwargs.ToDictionary(entry => entry.Key, entry => entry.Value);
 
-        public static List<Dictionary<string, string>> ToDictionaryList(KwargsList kwargsList) => new List<Dictionary<string, string>>(kwargsList.Select(arg => ToDictionary(arg)));
+        internal static List<Dictionary<string, string>> ToDictionaryList(KwargsList kwargsList) => new List<Dictionary<string, string>>(kwargsList.Select(arg => ToDictionary(arg)));
 
-        public static List<ArgInfo> ToArgInfoList(ArgInfoInternalList argInfoInternalList) => new List<ArgInfo>(argInfoInternalList.Select(x => new ArgInfo(x)));
+        internal static List<ArgInfo> ToArgInfoList(ArgInfoInternalList argInfoInternalList) => new List<ArgInfo>(argInfoInternalList.Select(x => new ArgInfo(x)));
 
-        public static List<Range> ToRangeList(RangeInternalList rangeInternalList) => new List<Range>(rangeInternalList.Select(x => new Range(x)));
+        internal static List<Range> ToRangeList(RangeInternalList rangeInternalList) => new List<Range>(rangeInternalList.Select(x => new Range(x)));
     }
 }

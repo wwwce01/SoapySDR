@@ -20,7 +20,7 @@ namespace SoapySDR
         }
 
         public unsafe ErrorCode Read<T>(
-            T[] buff,
+            ref T[] buff,
             StreamFlags flags,
             long timeNs,
             int timeoutUs,
@@ -29,11 +29,11 @@ namespace SoapySDR
             T[][] buffs2D = new T[1][];
             buffs2D[0] = buff;
 
-            return Read(buffs2D, flags, timeNs, timeoutUs, out result);
+            return Read(ref buffs2D, flags, timeNs, timeoutUs, out result);
         }
 
         public unsafe ErrorCode Read<T>(
-            T[][] buffs,
+            ref T[][] buffs,
             StreamFlags flags,
             long timeNs,
             int timeoutUs,
@@ -45,13 +45,10 @@ namespace SoapySDR
             {
                 Utility.ValidateBuffs(_streamHandle, buffs);
 
-                System.Runtime.InteropServices.GCHandle[] handles = null;
-                SizeList buffsAsSizes = null;
-
                 Utility.ManagedArraysToSizeList(
                     buffs,
-                    out handles,
-                    out buffsAsSizes);
+                    out System.Runtime.InteropServices.GCHandle[] handles,
+                    out SizeList buffsAsSizes);
 
                 var deviceOutput = _device.ReadStream(
                     _streamHandle,
