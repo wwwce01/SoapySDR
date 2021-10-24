@@ -11,7 +11,7 @@ using NUnit.Framework;
 // expected, especially for the added C# fanciness.
 
 [TestFixture]
-public class TestGenericStreamingAPI
+public class TestStreamingAPI
 {
     private static void TestDeviceKeys(SoapySDR.Device device)
     {
@@ -55,6 +55,118 @@ public class TestGenericStreamingAPI
         timeNs = 1000;
         timeoutUs = 1000;
         numElems = 1024;
+    }
+
+    private unsafe void TestTxStreamNonGeneric(string format)
+    {
+        var device = GetTestDevice();
+        var streamResult = new SoapySDR.StreamResult();
+
+        GetTxStreamTestParams(
+            out uint[] channel,
+            out uint[] channels,
+            out Dictionary<string, string> streamArgs,
+            out SoapySDR.StreamFlags streamFlags,
+            out long timeNs,
+            out int timeoutUs,
+            out uint numElems);
+
+        //
+        // Test with single channel
+        //
+
+        var txStream = device.SetupTxStream(format, channel, streamArgs);
+        Assert.AreEqual(format, txStream.Format);
+        Assert.AreEqual(channel, txStream.Channels);
+        Assert.AreEqual(streamArgs, txStream.StreamArgs);
+        Assert.False(txStream.Active);
+        Assert.AreEqual(1024, txStream.MTU);
+
+        txStream.Activate(streamFlags, timeNs, numElems);
+        Assert.True(txStream.Active);
+
+        byte[] buf = new byte[numElems * SoapySDR.StreamFormats.FormatToSize(format)];
+        fixed (void* ptr = &buf[0])
+        {
+            Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Write((IntPtr)ptr, numElems, timeNs, timeoutUs, out streamResult));
+            Assert.AreEqual(0, streamResult.NumSamples);
+            Assert.AreEqual(streamFlags, streamResult.Flags);
+
+            Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Write((UIntPtr)ptr, numElems, timeNs, timeoutUs, out streamResult));
+            Assert.AreEqual(0, streamResult.NumSamples);
+            Assert.AreEqual(streamFlags, streamResult.Flags);
+        }
+
+        txStream.Deactivate();
+        Assert.False(txStream.Active);
+        txStream.Close();
+
+        //
+        // Test with multiple channels
+        //
+
+        txStream = device.SetupTxStream(format, channels, streamArgs);
+        Assert.AreEqual(format, txStream.Format);
+        Assert.AreEqual(channels, txStream.Channels);
+        Assert.AreEqual(streamArgs, txStream.StreamArgs);
+        Assert.False(txStream.Active);
+        Assert.AreEqual(1024, txStream.MTU);
+
+        byte[][] bufs = new byte[channels.Length][];
+        for (var i = 0; i < bufs.Length; ++i) bufs[i] = new byte[numElems * SoapySDR.StreamFormats.FormatToSize(format)];
+
+        fixed (void* ptr0 = &buf[0])
+        {
+            fixed (void* ptr1 = &buf[1])
+            {
+                var intPtrs = new IntPtr[] { (IntPtr)ptr0, (IntPtr)ptr1 };
+                Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Write(intPtrs, numElems, timeNs, timeoutUs, out streamResult));
+                Assert.AreEqual(0, streamResult.NumSamples);
+                Assert.AreEqual(streamFlags, streamResult.Flags);
+
+                var uintPtrs = new UIntPtr[] { (UIntPtr)ptr0, (UIntPtr)ptr1 };
+                Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Write(uintPtrs, numElems, timeNs, timeoutUs, out streamResult));
+                Assert.AreEqual(0, streamResult.NumSamples);
+                Assert.AreEqual(streamFlags, streamResult.Flags);
+            }
+        }
+
+        //
+        // Test async read status
+        //
+
+        Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.ReadStatus(timeoutUs, out streamResult));
+        Assert.AreEqual(0, streamResult.TimeNs);
+        Assert.AreEqual(SoapySDR.StreamFlags.None, streamResult.Flags);
+        Assert.AreEqual(0, streamResult.ChanMask);
+
+        txStream.Deactivate();
+        Assert.False(txStream.Active);
+        txStream.Close();
+    }
+
+    // TODO: StreamFormats -> StreamFormat
+    [Test]
+    public void Test_TxStreamNonGeneric()
+    {
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.S8);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.S16);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.S32);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.U8);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.U16);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.U32);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.F32);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.F64);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.CS8);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.CS12);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.CS16);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.CS32);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.CU8);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.CU12);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.CU16);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.CU32);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.CF32);
+        TestTxStreamNonGeneric(SoapySDR.StreamFormats.CF64);
     }
 
     //

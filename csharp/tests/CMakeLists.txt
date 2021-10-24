@@ -25,6 +25,6 @@ endfunction()
 
 BUILD_CSHARP_TEST(TestDeviceAPI)
 BUILD_CSHARP_TEST(TestEnumerateDevices)
-BUILD_CSHARP_TEST(TestGenericStreamingAPI)
 BUILD_CSHARP_TEST(TestSoapyTypes)
+BUILD_CSHARP_TEST(TestStreamingAPI)
 BUILD_CSHARP_TEST(TestTimeConversion)
