@@ -101,10 +101,16 @@
 %nodefaultctor SoapySDR::CSharp::BuildInfo;
 %nodefaultctor SoapySDR::CSharp::StreamHandle;
 %nodefaultctor SoapySDR::CSharp::Time;
+%nodefaultctor SoapySDR::CSharp::TypeConversion;
 
 %include "Stream.i"
 
+%typemap(csclassmodifiers) SoapySDR::CSharp::BuildInfo "public partial class"
 %typemap(csclassmodifiers) SoapySDR::CSharp::TypeConversion "internal class"
+
+%typemap(cscode) SoapySDR::CSharp::BuildInfo %{
+    internal static readonly string AssemblyABIVersion = "@SOAPY_SDR_ABI_VERSION@";
+%}
 
 %ignore copyVector;
 %ignore toSizeTVector;

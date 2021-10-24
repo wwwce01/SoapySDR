@@ -1,8 +1,11 @@
 // Copyright (c) 2021 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 
 // TODO: format consistency, especially where => is relative to newline
 // TODO: reorder for consistency, not to match Device.hpp
@@ -12,15 +15,44 @@ namespace SoapySDR
 {    
     public class Device
     {
+        private static void CheckABI()
+        {
+            if(!BuildInfo.ABIVersion.Equals(BuildInfo.SWIGABIVersion) || !BuildInfo.ABIVersion.Equals(BuildInfo.AssemblyABIVersion))
+            {
+                throw new InvalidOperationException(string.Format(
+                    "ABI mismatch:\n{0}: {1}\nSoapySDRCSharp.dll: {2}\nSoapySDR.dll: {3}",
+                    Path.GetFileName(Assembly.GetExecutingAssembly().Location),
+                    BuildInfo.AssemblyABIVersion,
+                    BuildInfo.SWIGABIVersion,
+                    BuildInfo.ABIVersion));
+            }
+        }
+
         private DeviceInternal _device = null;
 
-        internal Device(DeviceInternal deviceInternal) => _device = deviceInternal;
+        internal Device(DeviceInternal deviceInternal)
+        {
+            CheckABI();
+            _device = deviceInternal;
+        }
 
-        public Device() => new Device("");
+        public Device()
+        {
+            CheckABI();
+            new Device("");
+        }
 
-        public Device(string args) => _device = new DeviceInternal(args);
+        public Device(string args)
+        {
+            CheckABI();
+            _device = new DeviceInternal(args);
+        }
 
-        public Device(IDictionary<string, string> args) => _device = new DeviceInternal(Utility.ToKwargs(args));
+        public Device(IDictionary<string, string> args)
+        {
+            CheckABI();
+            _device = new DeviceInternal(Utility.ToKwargs(args));
+        }
 
         public static List<Dictionary<string, string>> Enumerate() => Utility.ToDictionaryList(DeviceInternal.Enumerate());
 
