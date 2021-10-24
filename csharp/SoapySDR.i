@@ -27,12 +27,13 @@
 %include <exception.i>
 
 // We only expect to throw DirectorExceptions from within
-// SoapySDR_csharpLogHandlerBase calls.  Catching them permits us to
-// propagate exceptions thrown in the C# log handler callback back to
-// C#.
+// the C# logger class. This will allow us to propagate the
+// C# error back to C#.
 %exception
 {
     try{$action}
+    catch (const Swig::DirectorException &e)
+    {SWIG_exception(SWIG_RuntimeError, e.what());}
     SWIG_CATCH_STDEXCEPT
     catch (...)
     {SWIG_exception(SWIG_RuntimeError, "unknown");}

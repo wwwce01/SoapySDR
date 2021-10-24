@@ -95,6 +95,19 @@ public class TestLogger
         }
     }
 
+    private static void ExceptionLogger(SoapySDR.LogLevel logLevel, string message) => throw new InvalidOperationException(string.Format("{0}: {1}", logLevel, message));
+
+    [Test]
+    public void Test_LoggerException()
+    {
+        // Make sure exceptions from the C# callback given to C++ propagate up
+        // to C# properly.
+        SoapySDR.Logger.RegisterLogger(ExceptionLogger);
+
+        var ex = Assert.Throws<ApplicationException>(delegate { SoapySDR.Logger.Log(SoapySDR.LogLevel.Error, "This should throw"); });
+        Assert.AreEqual("Error: This should throw", ex.Message);
+    }
+
     [OneTimeTearDown]
     public void TearDown()
     {
