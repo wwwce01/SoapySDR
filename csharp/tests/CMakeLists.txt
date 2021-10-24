@@ -16,6 +16,7 @@ function(BUILD_CSHARP_TEST name)
         "System"
         "System.Core"
         "System.Numerics"
+        "System.Runtime"
         "Microsoft.CSharp")
     set_property(
         TARGET ${library_name}
@@ -26,6 +27,7 @@ endfunction()
 BUILD_CSHARP_TEST(TestBuildInfo)
 BUILD_CSHARP_TEST(TestDeviceAPI)
 BUILD_CSHARP_TEST(TestEnumerateDevices)
+BUILD_CSHARP_TEST(TestLogger)
 BUILD_CSHARP_TEST(TestSoapyTypes)
 BUILD_CSHARP_TEST(TestStreamingAPI)
 BUILD_CSHARP_TEST(TestTimeConversion)

@@ -1,0 +1,103 @@
+// Copyright (c) 2021 Nicholas Corgan
+// SPDX-License-Identifier: BSL-1.0
+
+using System;
+using System.Globalization;
+using System.IO;
+using NUnit.Framework;
+
+[TestFixture]
+public class TestLogger
+{
+    private static string TempFileName = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+    private static void TestLoggerFcn(SoapySDR.LogLevel logLevel, string message)
+    {
+        using (FileStream fs = File.Open(TempFileName, FileMode.OpenOrCreate))
+        {
+            using (StreamWriter sw = new StreamWriter(fs))
+            {
+                sw.WriteLine(string.Format("{0}: {1}", logLevel, message));
+            }
+        }
+    }
+
+    private static void CallLogger()
+    {
+        SoapySDR.LogLevel logLevel = SoapySDR.LogLevel.Critical;
+        int intArg = 1351;
+        float floatArg = 41.8F;
+        DateTime dateTimeArg = DateTime.Now;
+        string stringArg = "foobar";
+        var cultureInfo = new CultureInfo("es-ES", false);
+
+        SoapySDR.Logger.Log(logLevel, "message");
+        SoapySDR.Logger.Log(logLevel, "message: {0}", intArg);
+        SoapySDR.Logger.Log(logLevel, "message: {0} {1} {2} {3}", new object[] { intArg, floatArg, dateTimeArg, stringArg });
+        SoapySDR.Logger.Log(logLevel, cultureInfo, "message: {0}", intArg);
+        SoapySDR.Logger.Log(logLevel, cultureInfo, "message: {0} {1} {2} {3}", new object[] { intArg, floatArg, dateTimeArg, stringArg });
+        SoapySDR.Logger.Log(logLevel, "message: {0} {1}", intArg, floatArg);
+        SoapySDR.Logger.Log(logLevel, cultureInfo, "message: {0} {1}", intArg, floatArg);
+        SoapySDR.Logger.Log(logLevel, "message: {0} {1} {2}", intArg, floatArg, dateTimeArg);
+        SoapySDR.Logger.Log(logLevel, cultureInfo, "message: {0} {1} {2}", intArg, floatArg, dateTimeArg);
+    }
+
+    private static string GetExpectedLoggerOutput()
+    {
+        SoapySDR.LogLevel logLevel = SoapySDR.LogLevel.Critical;
+        int intArg = 1351;
+        float floatArg = 41.8F;
+        DateTime dateTimeArg = DateTime.Now;
+        string stringArg = "foobar";
+        var cultureInfo = new CultureInfo("es-ES", false);
+
+        string[] expectedOutputs = {
+            string.Format("{0}: {1}", logLevel, string.Format("message")),
+            string.Format("{0}: {1}", logLevel, string.Format("message: {0}", intArg)),
+            string.Format("{0}: {1}", logLevel, string.Format("message: {0} {1} {2} {3}", new object[] { intArg, floatArg, dateTimeArg, stringArg })),
+            string.Format("{0}: {1}", logLevel, string.Format(cultureInfo, "message: {0}", intArg)),
+            string.Format("{0}: {1}", logLevel, string.Format(cultureInfo, "message: {0} {1} {2} {3}", new object[] { intArg, floatArg, dateTimeArg, stringArg })),
+            string.Format("{0}: {1}", logLevel, string.Format("message: {0} {1}", intArg, floatArg)),
+            string.Format("{0}: {1}", logLevel, string.Format(cultureInfo, "message: {0} {1}", intArg, floatArg)),
+            string.Format("{0}: {1}", logLevel, string.Format("message: {0} {1} {2}", intArg, floatArg, dateTimeArg)),
+            string.Format("{0}: {1}", logLevel, string.Format(cultureInfo, "message: {0} {1} {2}", intArg, floatArg, dateTimeArg))
+        };
+
+        return string.Join("\n", expectedOutputs);
+    }
+
+    [Test]
+    public void Test_Logger()
+    {
+        SoapySDR.Logger.SetLogLevel(SoapySDR.LogLevel.Notice);
+
+        // Before doing anything, the standard stdio logger should be used. Unfortunately,
+        // we can't intercept and programmatically check the output.
+        CallLogger();
+
+        SoapySDR.Logger.RegisterLogger(TestLoggerFcn);
+        CallLogger();
+        SoapySDR.Logger.UnregisterLogger();
+
+        // Now the standard stdio handler should be used.
+        CallLogger();
+
+        // Check out log file and make sure the custom logger was invoked as expected.
+        Assert.IsTrue(File.Exists(TempFileName));
+
+        using (FileStream fs = File.Open(TempFileName, FileMode.Open))
+        {
+            using (StreamReader sr = new StreamReader(fs))
+            {
+                var fileContents = sr.ReadToEnd();
+                Assert.AreEqual(GetExpectedLoggerOutput(), fileContents);
+            }
+        }
+    }
+
+    [OneTimeTearDown]
+    public void TearDown()
+    {
+        if (File.Exists(TempFileName)) File.Delete(TempFileName);
+    }
+}
