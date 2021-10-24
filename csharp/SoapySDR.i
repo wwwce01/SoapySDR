@@ -108,6 +108,7 @@
 %typemap(csclassmodifiers) SoapySDR::CSharp::BuildInfo "public partial class"
 %typemap(csclassmodifiers) SoapySDR::CSharp::TypeConversion "internal class"
 
+// TODO: make SWIGABIVersion internal
 %typemap(cscode) SoapySDR::CSharp::BuildInfo %{
     internal static readonly string AssemblyABIVersion = "@SOAPY_SDR_ABI_VERSION@";
 %}
