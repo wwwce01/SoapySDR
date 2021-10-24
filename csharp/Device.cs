@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+// TODO: format consistency, especially where => is relative to newline
 // TODO: reorder for consistency, not to match Device.hpp
 // TODO: string overloads for all dict params
 
@@ -14,6 +15,8 @@ namespace SoapySDR
         private DeviceInternal _device = null;
 
         internal Device(DeviceInternal deviceInternal) => _device = deviceInternal;
+
+        public Device() => new Device("");
 
         public Device(string args) => _device = new DeviceInternal(args);
 
@@ -50,20 +53,38 @@ namespace SoapySDR
         public TxStream SetupTxStream(string format, uint[] channels, IDictionary<string, string> kwargs)
             => new TxStream(_device, format, channels, Utility.ToKwargs(kwargs));
 
+        public TxStream SetupTxStream(string format, uint[] channels, string args)
+            => SetupTxStream(format, channels, TypeConversion.StringToKwargs(args));
+
         public TxStream SetupTxStream<T>(uint[] channels, IDictionary<string, string> kwargs) where T : unmanaged =>
             SetupTxStream(Utility.GetFormatString<T>(), channels, kwargs);
+
+        public TxStream SetupTxStream<T>(uint[] channels, string args) where T : unmanaged
+            => SetupTxStream<T>(channels, TypeConversion.StringToKwargs(args));
 
         public TxStream SetupComplexTxStream<T>(uint[] channels, IDictionary<string, string> kwargs) where T : unmanaged =>
             SetupTxStream(Utility.GetComplexFormatString<T>(), channels, kwargs);
 
+        public TxStream SetupComplexTxStream<T>(uint[] channels, string args) where T : unmanaged
+            => SetupComplexTxStream<T>(channels, TypeConversion.StringToKwargs(args));
+
         public RxStream SetupRxStream(string format, uint[] channels, IDictionary<string, string> kwargs)
             => new RxStream(_device, format, channels, Utility.ToKwargs(kwargs));
+
+        public RxStream SetupRxStream(string format, uint[] channels, string args)
+            => SetupRxStream(format, channels, TypeConversion.StringToKwargs(args));
 
         public RxStream SetupRxStream<T>(uint[] channels, IDictionary<string, string> kwargs) where T : unmanaged =>
             SetupRxStream(Utility.GetFormatString<T>(), channels, kwargs);
 
+        public RxStream SetupRxStream<T>(uint[] channels, string args) where T : unmanaged
+            => SetupRxStream<T>(channels, TypeConversion.StringToKwargs(args));
+
         public RxStream SetupComplexRxStream<T>(uint[] channels, IDictionary<string, string> kwargs) where T : unmanaged =>
             SetupRxStream(Utility.GetComplexFormatString<T>(), channels, kwargs);
+
+        public RxStream SetupComplexRxStream<T>(uint[] channels, string args) where T : unmanaged
+            => SetupComplexRxStream<T>(channels, TypeConversion.StringToKwargs(args));
 
         public List<string> ListAntennas(Direction direction, uint channel) => new List<string>(_device.ListAntennas(direction, channel));
 
@@ -125,9 +146,13 @@ namespace SoapySDR
 
         public void SetFrequency(Direction direction, uint channel, double frequency, IDictionary<string, string> args) => _device.SetFrequency(direction, channel, frequency, Utility.ToKwargs(args));
 
+        public void SetFrequency(Direction direction, uint channel, double frequency, string args) => SetFrequency(direction, channel, frequency, TypeConversion.StringToKwargs(args));
+
         public void SetFrequency(Direction direction, uint channel, string name, double frequency) => SetFrequency(direction, channel, name, frequency, new Kwargs());
 
         public void SetFrequency(Direction direction, uint channel, string name, double frequency, IDictionary<string, string> args) => _device.SetFrequency(direction, channel, name, frequency, Utility.ToKwargs(args));
+
+        public void SetFrequency(Direction direction, uint channel, string name, double frequency, string args) => SetFrequency(direction, channel, name, frequency, TypeConversion.StringToKwargs(args));
 
         public double GetFrequency(Direction direction, uint channel) => _device.GetFrequency(direction, channel);
 

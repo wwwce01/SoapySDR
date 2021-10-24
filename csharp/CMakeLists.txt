@@ -80,15 +80,15 @@ set(csharp_swig_outputs
     ${CSHARP_SOURCE_DIRECTORY}/RangeInternalList.cs
     ${CSHARP_SOURCE_DIRECTORY}/SizeList.cs
     ${CSHARP_SOURCE_DIRECTORY}/SoapySDR.cs
-    ${CSHARP_SOURCE_DIRECTORY}/SettingConversion.cs
     ${CSHARP_SOURCE_DIRECTORY}/SoapySDRPINVOKE.cs
     ${CSHARP_SOURCE_DIRECTORY}/StreamFlags.cs
-    ${CSHARP_SOURCE_DIRECTORY}/StreamFormats.cs
+    ${CSHARP_SOURCE_DIRECTORY}/StreamFormat.cs
     ${CSHARP_SOURCE_DIRECTORY}/StreamHandle.cs
     ${CSHARP_SOURCE_DIRECTORY}/StreamResult.cs
     ${CSHARP_SOURCE_DIRECTORY}/StreamResultPair.cs
     ${CSHARP_SOURCE_DIRECTORY}/StringList.cs
-    ${CSHARP_SOURCE_DIRECTORY}/Time.cs)
+    ${CSHARP_SOURCE_DIRECTORY}/Time.cs
+    ${CSHARP_SOURCE_DIRECTORY}/TypeConversion.cs)
 
 set_source_files_properties(
     FILES ${csharp_swig_outputs}

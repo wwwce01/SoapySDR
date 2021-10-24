@@ -7,7 +7,7 @@
 %ignore SoapySDR::CSharp::StreamHandle::format;
 %csmethodmodifiers SoapySDR::CSharp::StreamHandle::GetFormat "internal";
 %csmethodmodifiers SoapySDR::CSharp::StreamHandle::GetPointer "internal";
-%nodefaultctor SoapySDR::CSharp::StreamFormats;
+%nodefaultctor SoapySDR::CSharp::StreamFormat;
 
 // Allows bitwise operations
 %typemap(csimports) SoapySDR::CSharp::StreamFlags "

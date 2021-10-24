@@ -101,7 +101,7 @@ namespace SoapySDR { namespace CSharp {
         WaitTrigger   = (1 << 6)
     };
 
-    struct StreamFormats
+    struct StreamFormat
     {
         static const std::string CF64;
         static const std::string CF32;
@@ -130,26 +130,26 @@ namespace SoapySDR { namespace CSharp {
         }
     };
 
-    const std::string StreamFormats::CF64 = SOAPY_SDR_CF64;
-    const std::string StreamFormats::CF32 = SOAPY_SDR_CF32;
-    const std::string StreamFormats::CS32 = SOAPY_SDR_CS32;
-    const std::string StreamFormats::CU32 = SOAPY_SDR_CU32;
-    const std::string StreamFormats::CS16 = SOAPY_SDR_CS16;
-    const std::string StreamFormats::CU16 = SOAPY_SDR_CU16;
-    const std::string StreamFormats::CS12 = SOAPY_SDR_CS12;
-    const std::string StreamFormats::CU12 = SOAPY_SDR_CU12;
-    const std::string StreamFormats::CS8  = SOAPY_SDR_CS8;
-    const std::string StreamFormats::CU8  = SOAPY_SDR_CU8;
-    const std::string StreamFormats::CS4  = SOAPY_SDR_CS4;
-    const std::string StreamFormats::CU4  = SOAPY_SDR_CU4;
-    const std::string StreamFormats::F64  = SOAPY_SDR_F64;
-    const std::string StreamFormats::F32  = SOAPY_SDR_F32;
-    const std::string StreamFormats::S32  = SOAPY_SDR_S32;
-    const std::string StreamFormats::U32  = SOAPY_SDR_U32;
-    const std::string StreamFormats::S16  = SOAPY_SDR_S16;
-    const std::string StreamFormats::U16  = SOAPY_SDR_U16;
-    const std::string StreamFormats::S8   = SOAPY_SDR_S8;
-    const std::string StreamFormats::U8   = SOAPY_SDR_U8;
+    const std::string StreamFormat::CF64 = SOAPY_SDR_CF64;
+    const std::string StreamFormat::CF32 = SOAPY_SDR_CF32;
+    const std::string StreamFormat::CS32 = SOAPY_SDR_CS32;
+    const std::string StreamFormat::CU32 = SOAPY_SDR_CU32;
+    const std::string StreamFormat::CS16 = SOAPY_SDR_CS16;
+    const std::string StreamFormat::CU16 = SOAPY_SDR_CU16;
+    const std::string StreamFormat::CS12 = SOAPY_SDR_CS12;
+    const std::string StreamFormat::CU12 = SOAPY_SDR_CU12;
+    const std::string StreamFormat::CS8  = SOAPY_SDR_CS8;
+    const std::string StreamFormat::CU8  = SOAPY_SDR_CU8;
+    const std::string StreamFormat::CS4  = SOAPY_SDR_CS4;
+    const std::string StreamFormat::CU4  = SOAPY_SDR_CU4;
+    const std::string StreamFormat::F64  = SOAPY_SDR_F64;
+    const std::string StreamFormat::F32  = SOAPY_SDR_F32;
+    const std::string StreamFormat::S32  = SOAPY_SDR_S32;
+    const std::string StreamFormat::U32  = SOAPY_SDR_U32;
+    const std::string StreamFormat::S16  = SOAPY_SDR_S16;
+    const std::string StreamFormat::U16  = SOAPY_SDR_U16;
+    const std::string StreamFormat::S8   = SOAPY_SDR_S8;
+    const std::string StreamFormat::U8   = SOAPY_SDR_U8;
 
     struct StreamHandle
     {
@@ -218,7 +218,7 @@ namespace SoapySDR { namespace CSharp {
         SSI      = 9
     };
 
-    struct SettingConversion
+    struct TypeConversion
     {
         template <typename T>
         static inline std::string SettingToString(const T& setting)
@@ -230,6 +230,11 @@ namespace SoapySDR { namespace CSharp {
         static inline T StringToSetting(const std::string& setting)
         {
             return SoapySDR::StringToSetting<T>(setting);
+        }
+
+        static inline SoapySDR::Kwargs StringToKwargs(const std::string& args)
+        {
+            return SoapySDR::KwargsFromString(args);
         }
     };
 }}

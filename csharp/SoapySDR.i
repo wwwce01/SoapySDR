@@ -104,23 +104,23 @@
 
 %include "Stream.i"
 
+%typemap(csclassmodifiers) SoapySDR::CSharp::TypeConversion "internal class"
+
 %ignore copyVector;
 %ignore toSizeTVector;
 %ignore reinterpretCastVector;
 %ignore detail::copyVector;
 %include "CSharpExtensions.hpp"
 
-%typemap(csclassmodifiers) SoapySDR::CSharp::SettingConversion "internal class"
+%template(LongToString) SoapySDR::CSharp::TypeConversion::SettingToString<int64_t>;
+%template(ULongToString) SoapySDR::CSharp::TypeConversion::SettingToString<uint64_t>;
+%template(BoolToString) SoapySDR::CSharp::TypeConversion::SettingToString<bool>;
+%template(DoubleToString) SoapySDR::CSharp::TypeConversion::SettingToString<double>;
 
-%template(LongToString) SoapySDR::CSharp::SettingConversion::SettingToString<int64_t>;
-%template(ULongToString) SoapySDR::CSharp::SettingConversion::SettingToString<uint64_t>;
-%template(BoolToString) SoapySDR::CSharp::SettingConversion::SettingToString<bool>;
-%template(DoubleToString) SoapySDR::CSharp::SettingConversion::SettingToString<double>;
-
-%template(StringToLong) SoapySDR::CSharp::SettingConversion::StringToSetting<int64_t>;
-%template(StringToULong) SoapySDR::CSharp::SettingConversion::StringToSetting<uint64_t>;
-%template(StringToBool) SoapySDR::CSharp::SettingConversion::StringToSetting<bool>;
-%template(StringToDouble) SoapySDR::CSharp::SettingConversion::StringToSetting<double>;
+%template(StringToLong) SoapySDR::CSharp::TypeConversion::StringToSetting<int64_t>;
+%template(StringToULong) SoapySDR::CSharp::TypeConversion::StringToSetting<uint64_t>;
+%template(StringToBool) SoapySDR::CSharp::TypeConversion::StringToSetting<bool>;
+%template(StringToDouble) SoapySDR::CSharp::TypeConversion::StringToSetting<double>;
 
 %include "Device.i"
 %include "Logger.i"

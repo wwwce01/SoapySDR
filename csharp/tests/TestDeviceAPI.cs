@@ -184,7 +184,7 @@ public class TestSoapyTypes
         _ = device.GetStreamFormats(direction, 0);
 
         double fullScale;
-        Assert.AreEqual(SoapySDR.StreamFormats.CS16, device.GetNativeStreamFormat(direction, 0, out fullScale));
+        Assert.AreEqual(SoapySDR.StreamFormat.CS16, device.GetNativeStreamFormat(direction, 0, out fullScale));
         Assert.AreEqual(1 << 15, fullScale);
 
         _ = device.GetStreamArgsInfo(direction, 0);
@@ -243,16 +243,20 @@ public class TestSoapyTypes
         // Frequency API
         //
 
-        var frequencyArgs = new Dictionary<string, string>();
-        frequencyArgs["key0"] = "val0";
-        frequencyArgs["key1"] = "val1";
+        var frequencyArgsString = "key0=val0,key1=val1";
+
+        var frequencyArgsMap = new Dictionary<string, string>();
+        frequencyArgsMap["key0"] = "val0";
+        frequencyArgsMap["key1"] = "val1";
 
         device.SetFrequency(direction, 0, 0.0);
-        device.SetFrequency(direction, 0, 0.0, frequencyArgs);
+        device.SetFrequency(direction, 0, 0.0, frequencyArgsString);
+        device.SetFrequency(direction, 0, 0.0, frequencyArgsMap);
         _ = device.GetFrequency(direction, 0);
 
         device.SetFrequency(direction, 0, "", 0.0);
-        device.SetFrequency(direction, 0, "", 0.0, frequencyArgs);
+        device.SetFrequency(direction, 0, "", 0.0, frequencyArgsString);
+        device.SetFrequency(direction, 0, "", 0.0, frequencyArgsMap);
         _ = device.GetFrequency(direction, 0, "");
 
         _ = device.ListFrequencies(direction, 0);
