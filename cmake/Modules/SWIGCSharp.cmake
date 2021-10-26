@@ -97,6 +97,11 @@ macro(SWIG_BUILD_CSHARP_MODULE swig_filename nativelib_name csharp_module_name c
     if(${num_swig_libs} GREATER 0)
         SWIG_LINK_LIBRARIES(${nativelib_name} ${SWIG_LIBRARIES})
     endif()
+    
+    # For the sake of testing, we'll output the DLL to the C# testing directory.
+    set_target_properties(
+        ${SWIG_MODULE_${nativelib_name}_REAL_NAME} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tests)
 
     # Install files
     install(

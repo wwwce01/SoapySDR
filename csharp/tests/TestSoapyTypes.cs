@@ -43,7 +43,7 @@ public class TestSoapyTypes
 
     [Test]
     [TestCase(SoapySDR.ArgInfo.ArgType.BOOL, false, "false")]
-    [TestCase(SoapySDR.ArgInfo.ArgType.FLOAT, 135.1, "135.1")]
+    [TestCase(SoapySDR.ArgInfo.ArgType.FLOAT, 135.1, "135.100000")]
     [TestCase(SoapySDR.ArgInfo.ArgType.INT, (long)418, "418")]
     [TestCase(SoapySDR.ArgInfo.ArgType.STRING, "foobar", "foobar")]
     public void Test_ArgInfo_ValueStringFromValue(SoapySDR.ArgInfo.ArgType argType, object testValue, string testValueString)
@@ -61,7 +61,7 @@ public class TestSoapyTypes
 
     [Test]
     [TestCase(SoapySDR.ArgInfo.ArgType.BOOL, false, "false")]
-    [TestCase(SoapySDR.ArgInfo.ArgType.FLOAT, 135.1, "135.1")]
+    [TestCase(SoapySDR.ArgInfo.ArgType.FLOAT, 135.1, "135.100000")]
     [TestCase(SoapySDR.ArgInfo.ArgType.INT, (long)418, "418")]
     [TestCase(SoapySDR.ArgInfo.ArgType.STRING, "foobar", "foobar")]
     public void Test_ArgInfo_ValueFromValueString(SoapySDR.ArgInfo.ArgType argType, object testValue, string testValueString)

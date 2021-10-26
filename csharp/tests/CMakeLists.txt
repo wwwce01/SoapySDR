@@ -1,4 +1,4 @@
-function(BUILD_CSHARP_TEST name)
+function(CSHARP_UNIT_TEST name)
     # NUnit tests are DLLs processed by executable
     set(test_name CSharp_${name})
     add_executable(${test_name} ${name}.cs TestRunner.cs)
@@ -23,12 +23,15 @@ function(BUILD_CSHARP_TEST name)
         PROPERTY VS_PACKAGE_REFERENCES
         "NUnit_3.12.0"
         "NUnitLite_3.12.0")
+
+    # TODO: only works if library installed to PATH
+    add_test(CSharp_${name} CSharp_${name}.exe)
 endfunction()
 
-BUILD_CSHARP_TEST(TestBuildInfo)
-BUILD_CSHARP_TEST(TestDeviceAPI)
-BUILD_CSHARP_TEST(TestEnumerateDevices)
-BUILD_CSHARP_TEST(TestLogger)
-BUILD_CSHARP_TEST(TestSoapyTypes)
-BUILD_CSHARP_TEST(TestStreamingAPI)
-BUILD_CSHARP_TEST(TestTimeConversion)
+CSHARP_UNIT_TEST(TestBuildInfo)
+CSHARP_UNIT_TEST(TestDeviceAPI)
+CSHARP_UNIT_TEST(TestEnumerateDevices)
+CSHARP_UNIT_TEST(TestLogger)
+CSHARP_UNIT_TEST(TestSoapyTypes)
+CSHARP_UNIT_TEST(TestStreamingAPI)
+CSHARP_UNIT_TEST(TestTimeConversion)
