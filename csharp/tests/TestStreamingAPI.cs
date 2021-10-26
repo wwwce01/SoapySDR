@@ -668,4 +668,6 @@ public class TestStreamingAPI
     {
         testCase.TestComplexRxStreaming();
     }
+
+    public static int Main(string[] args) => TestRunner.RunNUnitTest("TestStreamingAPI");
 }

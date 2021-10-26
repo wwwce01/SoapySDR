@@ -13,4 +13,6 @@ public class TestBuildInfo
         Assert.IsNotEmpty(SoapySDR.BuildInfo.APIVersion);
         Assert.IsNotEmpty(SoapySDR.BuildInfo.LibVersion);
     }
+
+    public static int Main(string[] args) => TestRunner.RunNUnitTest("TestBuildInfo");
 }

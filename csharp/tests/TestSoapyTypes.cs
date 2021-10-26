@@ -102,4 +102,6 @@ public class TestSoapyTypes
         Assert.AreEqual(maximum, range3.Maximum);
         Assert.AreEqual(step, range3.Step);
     }
+
+    public static int Main(string[] args) => TestRunner.RunNUnitTest("TestSoapyTypes");
 }

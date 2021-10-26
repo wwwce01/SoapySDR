@@ -11,7 +11,7 @@ using NUnit.Framework;
 // expected, especially for the added C# fanciness.
 
 [TestFixture]
-public class TestSoapyTypes
+public class TestDeviceAPI
 {
     private void TestDeviceKeys(SoapySDR.Device device)
     {
@@ -322,4 +322,6 @@ public class TestSoapyTypes
         _ = device.ReadSetting<double>(direction, 0, "");
         _ = device.ReadSetting<string>(direction, 0, "");
     }
+
+    public static int Main(string[] args) => TestRunner.RunNUnitTest("TestDeviceAPI");
 }

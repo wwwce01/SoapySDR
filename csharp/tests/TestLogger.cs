@@ -113,4 +113,6 @@ public class TestLogger
     {
         if (File.Exists(TempFileName)) File.Delete(TempFileName);
     }
+
+    public static int Main(string[] args) => TestRunner.RunNUnitTest("TestLogger");
 }

@@ -40,4 +40,6 @@ public class TestTimeConversion
             Assert.AreEqual(ticks, ticksOut);
         }
     }
+
+    public static int Main(string[] args) => TestRunner.RunNUnitTest("TestTimeConversion");
 }

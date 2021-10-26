@@ -38,4 +38,6 @@ public class TestEnumerateDevices
 
         Assert.IsTrue(HasNullDevice(SoapySDR.Device.Enumerate(args)));
     }
+
+    public static int Main(string[] args) => TestRunner.RunNUnitTest("TestEnumerateDevices");
 }
