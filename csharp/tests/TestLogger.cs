@@ -75,7 +75,7 @@ public class TestLogger
         // we can't intercept and programmatically check the output.
         CallLogger();
 
-        SoapySDR.Logger.RegisterLogger(TestLoggerFcn);
+        //SoapySDR.Logger.RegisterLogger(TestLoggerFcn);
         CallLogger();
         SoapySDR.Logger.UnregisterLogger();
 

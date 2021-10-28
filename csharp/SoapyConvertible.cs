@@ -5,7 +5,7 @@ using System;
 
 namespace SoapySDR
 {
-    internal class SoapyConvertible : System.IConvertible
+    public class SoapyConvertible : System.IConvertible
     {
         private string _value;
 
@@ -13,28 +13,51 @@ namespace SoapySDR
 
         public SoapyConvertible(object value)
         {
-            // Hopefully in order of likelihood
-            if(value is string)
+            switch (value)
             {
-                _value = (string)value;
+                case string _:
+                    _value = (string)value;
+                    break;
+                case bool _:
+                    _value = TypeConversion.BoolToString((bool)value);
+                    break;
+                case float _:
+                    _value = TypeConversion.FloatToString((float)value);
+                    break;
+                case double _:
+                    _value = TypeConversion.DoubleToString((double)value);
+                    break;
+                case decimal _:
+                    _value = TypeConversion.DoubleToString(Convert.ToDouble(value));
+                    break;
+                case sbyte _:
+                    _value = TypeConversion.SByteToString((sbyte)value);
+                    break;
+                case short _:
+                    _value = TypeConversion.ShortToString((short)value);
+                    break;
+                case int _:
+                    _value = TypeConversion.IntToString((int)value);
+                    break;
+                case long _:
+                    _value = TypeConversion.LongToString((long)value);
+                    break;
+                case byte _:
+                    _value = TypeConversion.ByteToString((byte)value);
+                    break;
+                case ushort _:
+                    _value = TypeConversion.UShortToString((ushort)value);
+                    break;
+                case uint _:
+                    _value = TypeConversion.UIntToString((uint)value);
+                    break;
+                case ulong _:
+                    _value = TypeConversion.ULongToString((ulong)value);
+                    break;
+                default:
+                    _value = value.ToString(); // Good luck
+                    break;
             }
-            else if (value is bool)
-            {
-                _value = TypeConversion.BoolToString((bool)value);
-            }
-            else if ((value is float) || (value is double) || (value is decimal))
-            {
-                _value = TypeConversion.DoubleToString(System.Convert.ToDouble(value));
-            }
-            else if ((value is sbyte) || (value is short) || (value is int) || (value is long))
-            {
-                _value = TypeConversion.LongToString(System.Convert.ToInt64(value));
-            }
-            else if ((value is byte) || (value is ushort) || (value is uint) || (value is ulong))
-            {
-                _value = TypeConversion.ULongToString(System.Convert.ToUInt64(value));
-            }
-            else _value = value.ToString(); // Good luck
         }
 
         public object ToArgType(ArgInfo.ArgType argType)
@@ -52,70 +75,31 @@ namespace SoapySDR
         // IConvertible overrides
         //
 
-        public TypeCode GetTypeCode()
-        {
-            return TypeCode.Object;
-        }
+        public TypeCode GetTypeCode() => TypeCode.Object;
 
-        public bool ToBoolean(IFormatProvider provider)
-        {
-            return TypeConversion.StringToBool(_value);
-        }
+        public bool ToBoolean(IFormatProvider provider) => TypeConversion.StringToBool(_value);
 
-        public byte ToByte(IFormatProvider provider)
-        {
-            return (byte)TypeConversion.StringToULong(_value);
-        }
+        public byte ToByte(IFormatProvider provider) => TypeConversion.StringToByte(_value);
 
-        public char ToChar(IFormatProvider provider)
-        {
-            throw new NotImplementedException();
-        }
+        public char ToChar(IFormatProvider provider) => throw new NotImplementedException();
 
-        public DateTime ToDateTime(IFormatProvider provider)
-        {
-            throw new NotImplementedException();
-        }
+        public DateTime ToDateTime(IFormatProvider provider) => throw new NotImplementedException();
 
-        public decimal ToDecimal(IFormatProvider provider)
-        {
-            return (decimal)TypeConversion.StringToDouble(_value);
-        }
+        public decimal ToDecimal(IFormatProvider provider) => (decimal)TypeConversion.StringToDouble(_value);
 
-        public double ToDouble(IFormatProvider provider)
-        {
-            return TypeConversion.StringToDouble(_value);
-        }
+        public double ToDouble(IFormatProvider provider) => TypeConversion.StringToDouble(_value);
 
-        public short ToInt16(IFormatProvider provider)
-        {
-            return (short)TypeConversion.StringToLong(_value);
-        }
+        public short ToInt16(IFormatProvider provider) => TypeConversion.StringToShort(_value);
 
-        public int ToInt32(IFormatProvider provider)
-        {
-            return (int)TypeConversion.StringToLong(_value);
-        }
+        public int ToInt32(IFormatProvider provider) => TypeConversion.StringToInt(_value);
 
-        public long ToInt64(IFormatProvider provider)
-        {
-            return TypeConversion.StringToLong(_value);
-        }
+        public long ToInt64(IFormatProvider provider) => TypeConversion.StringToLong(_value);
 
-        public sbyte ToSByte(IFormatProvider provider)
-        {
-            return (sbyte)TypeConversion.StringToLong(_value);
-        }
+        public sbyte ToSByte(IFormatProvider provider) => TypeConversion.StringToSByte(_value);
 
-        public float ToSingle(IFormatProvider provider)
-        {
-            return (float)TypeConversion.StringToDouble(_value);
-        }
+        public float ToSingle(IFormatProvider provider) => TypeConversion.StringToFloat(_value);
 
-        public string ToString(IFormatProvider provider)
-        {
-            return _value;
-        }
+        public string ToString(IFormatProvider provider) => _value;
 
         public object ToType(Type conversionType, IFormatProvider provider)
         {
@@ -136,20 +120,11 @@ namespace SoapySDR
             throw new NotImplementedException(conversionType.FullName);
         }
 
-        public ushort ToUInt16(IFormatProvider provider)
-        {
-            return (ushort)TypeConversion.StringToULong(_value);
-        }
+        public ushort ToUInt16(IFormatProvider provider) => TypeConversion.StringToUShort(_value);
 
-        public uint ToUInt32(IFormatProvider provider)
-        {
-            return (uint)TypeConversion.StringToULong(_value);
-        }
+        public uint ToUInt32(IFormatProvider provider) => TypeConversion.StringToUInt(_value);
 
-        public ulong ToUInt64(IFormatProvider provider)
-        {
-            return TypeConversion.StringToULong(_value);
-        }
+        public ulong ToUInt64(IFormatProvider provider) => TypeConversion.StringToULong(_value);
 
         //
         // Object overrides
@@ -157,8 +132,8 @@ namespace SoapySDR
 
         public override string ToString() => ToString(null);
 
-        public override int GetHashCode() => (GetType().GetHashCode() ^ _value.GetHashCode());
+        public override int GetHashCode() => GetType().GetHashCode() ^ _value.GetHashCode();
 
-        public override bool Equals(object obj) => (obj is SoapyConvertible) && ((SoapyConvertible)obj)._value.Equals(_value);
+        public override bool Equals(object obj) => (obj as SoapyConvertible)?._value.Equals(_value) ?? false;
     }
 }

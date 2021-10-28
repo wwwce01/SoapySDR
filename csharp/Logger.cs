@@ -55,13 +55,13 @@ namespace SoapySDR
             Log(logLevel, string.Format(format, arg0, arg1));
 
         public static void Log(LogLevel logLevel, IFormatProvider formatProvider, string format, object arg0, object arg1) =>
-            Log(logLevel, string.Format(format, formatProvider, arg0, arg1));
+            Log(logLevel, string.Format(formatProvider, format, arg0, arg1));
 
         public static void Log(LogLevel logLevel, string format, object arg0, object arg1, object arg2) =>
             Log(logLevel, string.Format(format, arg0, arg1, arg2));
 
         public static void Log(LogLevel logLevel, IFormatProvider formatProvider, string format, object arg0, object arg1, object arg2) =>
-            Log(logLevel, string.Format(format, formatProvider, arg0, arg1, arg2));
+            Log(logLevel, string.Format(formatProvider, format, arg0, arg1, arg2));
 
         // TODO: After GetLogLevel implemented, make a property
 

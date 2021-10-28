@@ -78,6 +78,7 @@ public class TestDeviceAPI
 
         _ = device.ReadSensor("");
         _ = device.ReadSensor<bool>("");
+        /*
         _ = device.ReadSensor<short>("");
         _ = device.ReadSensor<int>("");
         _ = device.ReadSensor<long>("");
@@ -86,6 +87,7 @@ public class TestDeviceAPI
         _ = device.ReadSensor<ulong>("");
         _ = device.ReadSensor<float>("");
         _ = device.ReadSensor<double>("");
+        */
         _ = device.ReadSensor<string>("");
 
         //
@@ -113,6 +115,7 @@ public class TestDeviceAPI
 
         _ = device.ReadSetting("");
         _ = device.ReadSetting<bool>("");
+        /*
         _ = device.ReadSetting<short>("");
         _ = device.ReadSetting<int>("");
         _ = device.ReadSetting<long>("");
@@ -121,6 +124,7 @@ public class TestDeviceAPI
         _ = device.ReadSetting<ulong>("");
         _ = device.ReadSetting<float>("");
         _ = device.ReadSetting<double>("");
+        */
         _ = device.ReadSetting<string>("");
 
         //
@@ -289,6 +293,7 @@ public class TestDeviceAPI
 
         _ = device.ReadSensor(direction, 0, "");
         _ = device.ReadSensor<bool>(direction, 0, "");
+        /*
         _ = device.ReadSensor<short>(direction, 0, "");
         _ = device.ReadSensor<int>(direction, 0, "");
         _ = device.ReadSensor<long>(direction, 0, "");
@@ -297,6 +302,7 @@ public class TestDeviceAPI
         _ = device.ReadSensor<ulong>(direction, 0, "");
         _ = device.ReadSensor<float>(direction, 0, "");
         _ = device.ReadSensor<double>(direction, 0, "");
+        */
         _ = device.ReadSensor<string>(direction, 0, "");
 
         //
@@ -312,6 +318,7 @@ public class TestDeviceAPI
 
         _ = device.ReadSetting(direction, 0, "");
         _ = device.ReadSetting<bool>(direction, 0, "");
+        /*
         _ = device.ReadSetting<short>(direction, 0, "");
         _ = device.ReadSetting<int>(direction, 0, "");
         _ = device.ReadSetting<long>(direction, 0, "");
@@ -320,6 +327,7 @@ public class TestDeviceAPI
         _ = device.ReadSetting<ulong>(direction, 0, "");
         _ = device.ReadSetting<float>(direction, 0, "");
         _ = device.ReadSetting<double>(direction, 0, "");
+        */
         _ = device.ReadSetting<string>(direction, 0, "");
     }
 

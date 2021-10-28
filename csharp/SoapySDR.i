@@ -120,14 +120,28 @@
 %ignore detail::copyVector;
 %include "CSharpExtensions.hpp"
 
+%template(SByteToString) SoapySDR::CSharp::TypeConversion::SettingToString<int8_t>;
+%template(ShortToString) SoapySDR::CSharp::TypeConversion::SettingToString<int16_t>;
+%template(IntToString) SoapySDR::CSharp::TypeConversion::SettingToString<int32_t>;
 %template(LongToString) SoapySDR::CSharp::TypeConversion::SettingToString<int64_t>;
+%template(ByteToString) SoapySDR::CSharp::TypeConversion::SettingToString<uint8_t>;
+%template(UShortToString) SoapySDR::CSharp::TypeConversion::SettingToString<uint16_t>;
+%template(UIntToString) SoapySDR::CSharp::TypeConversion::SettingToString<uint32_t>;
 %template(ULongToString) SoapySDR::CSharp::TypeConversion::SettingToString<uint64_t>;
 %template(BoolToString) SoapySDR::CSharp::TypeConversion::SettingToString<bool>;
+%template(FloatToString) SoapySDR::CSharp::TypeConversion::SettingToString<float>;
 %template(DoubleToString) SoapySDR::CSharp::TypeConversion::SettingToString<double>;
 
+%template(StringToSByte) SoapySDR::CSharp::TypeConversion::StringToSetting<int8_t>;
+%template(StringToShort) SoapySDR::CSharp::TypeConversion::StringToSetting<int16_t>;
+%template(StringToInt) SoapySDR::CSharp::TypeConversion::StringToSetting<int32_t>;
 %template(StringToLong) SoapySDR::CSharp::TypeConversion::StringToSetting<int64_t>;
+%template(StringToByte) SoapySDR::CSharp::TypeConversion::StringToSetting<uint8_t>;
+%template(StringToUShort) SoapySDR::CSharp::TypeConversion::StringToSetting<uint16_t>;
+%template(StringToUInt) SoapySDR::CSharp::TypeConversion::StringToSetting<uint32_t>;
 %template(StringToULong) SoapySDR::CSharp::TypeConversion::StringToSetting<uint64_t>;
 %template(StringToBool) SoapySDR::CSharp::TypeConversion::StringToSetting<bool>;
+%template(StringToFloat) SoapySDR::CSharp::TypeConversion::StringToSetting<float>;
 %template(StringToDouble) SoapySDR::CSharp::TypeConversion::StringToSetting<double>;
 
 %include "Device.i"

@@ -1,6 +1,7 @@
 // Copyright (c) 2021 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
+using System.Collections.Generic;
 using System.Linq;
 
 using NUnit.Framework;
@@ -8,6 +9,119 @@ using NUnit.Framework;
 [TestFixture]
 public class TestSoapyTypes
 {
+    //
+    // SoapyConvertible
+    //
+
+    public interface IGenericConvertibleTestCase
+    {
+        void Test();
+    }
+
+    public class GenericIntConvertibleTestCase<T>: IGenericConvertibleTestCase where T: unmanaged
+    {
+        public void Test()
+        {
+            var inputString = "-123";
+
+            var intermediate = new SoapySDR.SoapyConvertible(inputString).ToType(typeof(T), null);
+            Assert.AreEqual(typeof(T), intermediate.GetType());
+
+            var outputString = new SoapySDR.SoapyConvertible(intermediate).ToString();
+            Assert.AreEqual(inputString, outputString);
+        }
+    }
+
+    public class GenericUIntConvertibleTestCase<T> : IGenericConvertibleTestCase where T : unmanaged
+    {
+        public void Test()
+        {
+            var inputString = "123";
+
+            var intermediate = new SoapySDR.SoapyConvertible(inputString).ToType(typeof(T), null);
+            Assert.AreEqual(typeof(T), intermediate.GetType());
+
+            var outputString = new SoapySDR.SoapyConvertible(intermediate).ToString();
+            Assert.AreEqual(inputString, outputString);
+        }
+    }
+
+    public class GenericFloatConvertibleTestCase<T> : IGenericConvertibleTestCase where T : unmanaged
+    {
+        public void Test()
+        {
+            var inputString = "418.4063";
+
+            var intermediateNum = new SoapySDR.SoapyConvertible(inputString).ToType(typeof(T), null);
+            Assert.AreEqual(typeof(T), intermediateNum.GetType());
+
+            var intermediateString = new SoapySDR.SoapyConvertible(intermediateNum).ToString();
+            var outputNum = new SoapySDR.SoapyConvertible(intermediateString).ToType(typeof(T), null);
+            Assert.AreEqual(intermediateNum, outputNum);
+        }
+    }
+    public static IEnumerable<IGenericConvertibleTestCase> ConvertibleTestCases()
+    {
+        yield return new GenericIntConvertibleTestCase<sbyte>();
+        yield return new GenericIntConvertibleTestCase<short>();
+        yield return new GenericIntConvertibleTestCase<int>();
+        yield return new GenericIntConvertibleTestCase<long>();
+        yield return new GenericUIntConvertibleTestCase<byte>();
+        yield return new GenericUIntConvertibleTestCase<ushort>();
+        yield return new GenericUIntConvertibleTestCase<uint>();
+        yield return new GenericUIntConvertibleTestCase<ulong>();
+        yield return new GenericFloatConvertibleTestCase<float>();
+        yield return new GenericFloatConvertibleTestCase<double>();
+        yield return new GenericFloatConvertibleTestCase<decimal>();
+    }
+
+    [Test]
+    [TestCaseSource("ConvertibleTestCases")]
+    public void TestConvertible(IGenericConvertibleTestCase testCase)
+    {
+        testCase.Test();
+    }
+
+    static void testNumericConvertible(
+        SoapySDR.SoapyConvertible convertible,
+        int expectedNum,
+        string expectedStr)
+    {
+        Assert.AreEqual((sbyte)expectedNum, convertible.ToSByte(null));
+        Assert.AreEqual((short)expectedNum, convertible.ToInt16(null));
+        Assert.AreEqual(expectedNum, convertible.ToInt32(null));
+        Assert.AreEqual((long)expectedNum, convertible.ToInt64(null));
+        Assert.AreEqual((byte)expectedNum, convertible.ToByte(null));
+        Assert.AreEqual((ushort)expectedNum, convertible.ToUInt16(null));
+        Assert.AreEqual((uint)expectedNum, convertible.ToUInt32(null));
+        Assert.AreEqual((ulong)expectedNum, convertible.ToUInt64(null));
+        Assert.AreEqual((float)expectedNum, convertible.ToSingle(null));
+        Assert.AreEqual((double)expectedNum, convertible.ToDouble(null));
+        Assert.AreEqual((decimal)expectedNum, convertible.ToDecimal(null));
+        Assert.AreEqual(expectedStr, convertible.ToString(null)); // IConvertible
+        Assert.AreEqual(expectedStr, convertible.ToString()); // object
+    }
+
+    [Test]
+    public void TestConvertible()
+    {
+        const int num = 123;
+        const string str = "123";
+
+        testNumericConvertible(new SoapySDR.SoapyConvertible(num), num, str);
+        testNumericConvertible(new SoapySDR.SoapyConvertible(str), num, str);
+
+        Assert.IsTrue(new SoapySDR.SoapyConvertible("true").ToBoolean(null));
+        Assert.IsFalse(new SoapySDR.SoapyConvertible("false").ToBoolean(null));
+
+        Assert.Throws<System.NotImplementedException>(delegate { new SoapySDR.SoapyConvertible(num).ToChar(null); });
+        Assert.Throws<System.NotImplementedException>(delegate { new SoapySDR.SoapyConvertible(num).ToDateTime(null); });
+    }
+
+    //
+    // ArgInfo
+    //
+
     [Test]
     public void Test_ArgInfo_TypeAgnosticFields()
     {
@@ -76,6 +190,10 @@ public class TestSoapyTypes
         Assert.AreEqual(testValue, argInfo.Value);
         Assert.AreEqual(testValueString, argInfo.ValueString);
     }
+
+    //
+    // Range
+    //
 
     [Test]
     public void Test_Range()

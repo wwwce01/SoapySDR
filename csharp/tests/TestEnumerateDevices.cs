@@ -24,7 +24,7 @@ public class TestEnumerateDevices
     [Test]
     public void Test_EnumerateStringParam()
     {
-        var args = "driver=null";
+        var args = "driver=null,type=null";
         Assert.IsTrue(HasNullDevice(SoapySDR.Device.Enumerate(args)));
     }
 
@@ -33,8 +33,9 @@ public class TestEnumerateDevices
     {
         // Arbitrarily use some non-standard IDictionary subclass to test the
         // interface parameter.
-        dynamic args = new ExpandoObject();
-        args.driver = "null";
+        var args = new SortedList<string, string>();
+        args.Add("driver", "null");
+        args.Add("type", "null");
 
         Assert.IsTrue(HasNullDevice(SoapySDR.Device.Enumerate(args)));
     }
