@@ -112,6 +112,12 @@ namespace SoapySDR
             return output;
         }
 
+#if _64BIT
+        internal static SizeList ToSizeList(uint[] arr) => new SizeList(arr.Select(x => (ulong)x));
+#else
+        internal static SizeList ToSizeList(uint[] arr) => new SizeList(arr);
+#endif
+
         // TODO: how many native-layer copies are made below?
 
         internal static Dictionary<string, string> ToDictionary(Kwargs kwargs) => kwargs.ToDictionary(entry => entry.Key, entry => entry.Value);

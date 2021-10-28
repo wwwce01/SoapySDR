@@ -272,7 +272,7 @@ namespace SoapySDR
 
         public uint ReadRegister(string name, uint addr) => _device.ReadRegister(name, addr);
 
-        public void WriteRegisters(string name, uint addr, uint[] value) => _device.WriteRegisters(name, addr, new SizeList(value));
+        public void WriteRegisters(string name, uint addr, uint[] value) => _device.WriteRegisters(name, addr, Utility.ToSizeList(value));
 
         // Note: keeping uint[] return for read registers, implied to be contiguous
 
