@@ -119,18 +119,9 @@ namespace SoapySDR
 
             if(_streamHandle != null)
             {
-                var buffsAsSizes = new SizeList();
-
-                foreach (var ptr in ptrs)
-#if _64BIT
-                    buffsAsSizes.Add((ulong)ptr);
-#else
-                    buffsAsSizes.Add((uint)ptr);
-#endif
-
                 var deviceOutput = _device.WriteStream(
                     _streamHandle,
-                    buffsAsSizes,
+                    Utility.ToSizeList(ptrs),
                     numElems,
                     timeNs,
                     timeoutUs);

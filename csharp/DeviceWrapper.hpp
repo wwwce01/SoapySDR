@@ -172,6 +172,7 @@ namespace SoapySDR { namespace CSharp {
 
                 SoapySDR::CSharp::StreamHandle streamHandle;
                 streamHandle.stream = _deviceSPtr->setupStream(int(direction), format, copyVector<size_t>(channels), kwargs);
+                streamHandle.format = format;
                 streamHandle.channels = channels;
 
                 return streamHandle;

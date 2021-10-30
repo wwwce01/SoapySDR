@@ -10,13 +10,15 @@ namespace SoapySDR
 {
     public class Utility
     {
-        // TODO: compare stream type to buffer type
         internal static void ValidateBuffs<T>(
             StreamHandle streamHandle,
             T[][] buffs) where T: unmanaged
         {
             var numChannels = streamHandle.GetChannels().Count;
             var format = streamHandle.GetFormat();
+
+            var scalarFormatString = GetFormatString<T>();
+            var complexFormatString = GetComplexFormatString<T>();
 
             if(buffs == null)
             {
@@ -26,22 +28,23 @@ namespace SoapySDR
             {
                 throw new ArgumentException(string.Format("Expected {0} channels. Found {1} buffers.", numChannels, buffs.Length));
             }
-            else if(!format.Equals(GetFormatString<T>()))
+            else if(!format.Equals(scalarFormatString) && !format.Equals(complexFormatString))
             {
-                throw new ArgumentException(string.Format("Expected format \"{0}\". Found format \"{1}\"", GetFormatString<T>(), format));
+                throw new ArgumentException(string.Format("Expected format \"{0}\" or \"{1}\". Found format \"{2}\"",
+                    scalarFormatString,
+                    complexFormatString,
+                    format));
             }
 
-            HashSet<int> uniqueSizes = new HashSet<int>(buffs?.Select(buff => buff?.Length ?? 0));
+            HashSet<int> uniqueSizes = new HashSet<int>(buffs.Select(buff => buff?.Length ?? 0));
             if ((uniqueSizes.Count > 1) || (uniqueSizes.First() == 0))
                 throw new ArgumentException("All buffers must be non-null and of the same length");
 
-            if (format.Equals(GetComplexFormatString<T>()))
+            if (format.Equals(complexFormatString))
             {
                 if ((uniqueSizes.First() % 2) != 0)
                     throw new ArgumentException("For complex interleaved streams, the input buffer must be of an even size");
             }
-            else if (!format.Equals(GetFormatString<T>()))
-                throw new ArgumentException(string.Format("Given buffers ({0}) do not match stream format {1}", typeof(T), format));
         }
 
         internal static unsafe void ManagedArraysToSizeList<T>(
@@ -114,8 +117,12 @@ namespace SoapySDR
 
 #if _64BIT
         internal static SizeList ToSizeList(uint[] arr) => new SizeList(arr.Select(x => (ulong)x));
+
+        internal static SizeList ToSizeList(UIntPtr[] arr) => new SizeList(arr.Select(x => (ulong)x));
 #else
         internal static SizeList ToSizeList(uint[] arr) => new SizeList(arr);
+
+        internal static SizeList ToSizeList(UIntPtr[] arr) => new SizeList(arr.Select(x => (uint)x));
 #endif
 
         // TODO: how many native-layer copies are made below?

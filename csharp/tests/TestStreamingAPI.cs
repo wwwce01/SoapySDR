@@ -92,10 +92,8 @@ public class TestStreamingAPI
         Assert.AreEqual(channel, txStream.Channels);
         Assert.AreEqual(streamArgsMap, txStream.StreamArgs);
         Assert.False(txStream.Active);
+        Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Activate(streamFlags, timeNs, numElems));
         Assert.AreEqual(1024, txStream.MTU);
-
-        txStream.Activate(streamFlags, timeNs, numElems);
-        Assert.True(txStream.Active);
 
         byte[] buf = new byte[numElems * SoapySDR.StreamFormat.FormatToSize(format)];
         fixed (void* ptr = &buf[0])
@@ -121,7 +119,7 @@ public class TestStreamingAPI
         Assert.AreEqual(format, txStream.Format);
         Assert.AreEqual(channels, txStream.Channels);
         Assert.AreEqual(streamArgsMap, txStream.StreamArgs);
-        Assert.False(txStream.Active);
+        Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Activate(streamFlags, timeNs, numElems));
         Assert.AreEqual(1024, txStream.MTU);
 
         byte[][] bufs = new byte[channels.Length][];
@@ -216,10 +214,10 @@ public class TestStreamingAPI
         Assert.AreEqual(channel, rxStream.Channels);
         Assert.AreEqual(streamArgsMap, rxStream.StreamArgs);
         Assert.False(rxStream.Active);
-        Assert.AreEqual(1024, rxStream.MTU);
 
         rxStream.Activate(streamFlags, timeNs, numElems);
-        Assert.True(rxStream.Active);
+        //Assert.True(rxStream.Active);
+        Assert.AreEqual(1024, rxStream.MTU);
 
         byte[] buf = new byte[numElems * SoapySDR.StreamFormat.FormatToSize(format)];
         fixed (void* ptr = &buf[0])
@@ -350,10 +348,9 @@ public class TestStreamingAPI
             Assert.AreEqual(oneChannel, txStream.Channels);
             Assert.AreEqual(streamArgsMap, txStream.StreamArgs);
             Assert.False(txStream.Active);
-            Assert.AreEqual(1024, txStream.MTU);
 
-            txStream.Activate(streamFlags, timeNs, numElems);
-            Assert.True(txStream.Active);
+            Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Activate(streamFlags, timeNs, numElems));
+            Assert.AreEqual(1024, txStream.MTU);
 
             T[] buff = new T[numElems];
             Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Write(buff, timeNs, timeoutUs, out streamResult));
@@ -372,11 +369,9 @@ public class TestStreamingAPI
             Assert.AreEqual(format, txStream.Format);
             Assert.AreEqual(twoChannels, txStream.Channels);
             Assert.AreEqual(streamArgsMap, txStream.StreamArgs);
-            Assert.False(txStream.Active);
-            Assert.AreEqual(1024, txStream.MTU);
 
-            txStream.Activate(streamFlags, timeNs, numElems);
-            Assert.True(txStream.Active);
+            Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Activate(streamFlags, timeNs, numElems));
+            Assert.AreEqual(1024, txStream.MTU);
 
             T[][] buffs = new T[twoChannels.Length][];
             buffs[0] = new T[numElems];
@@ -425,10 +420,9 @@ public class TestStreamingAPI
             Assert.AreEqual(oneChannel, txStream.Channels);
             Assert.AreEqual(streamArgsMap, txStream.StreamArgs);
             Assert.False(txStream.Active);
-            Assert.AreEqual(1024, txStream.MTU);
 
-            txStream.Activate(streamFlags, timeNs, numElems);
-            Assert.True(txStream.Active);
+            Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Activate(streamFlags, timeNs, numElems));
+            Assert.AreEqual(1024, txStream.MTU);
 
             T[] buff = new T[numElems * 2];
             Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Write(buff, timeNs, timeoutUs, out streamResult));
@@ -448,10 +442,9 @@ public class TestStreamingAPI
             Assert.AreEqual(twoChannels, txStream.Channels);
             Assert.AreEqual(streamArgsMap, txStream.StreamArgs);
             Assert.False(txStream.Active);
-            Assert.AreEqual(1024, txStream.MTU);
 
-            txStream.Activate(streamFlags, timeNs, numElems);
-            Assert.True(txStream.Active);
+            Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, txStream.Activate(streamFlags, timeNs, numElems));
+            Assert.AreEqual(1024, txStream.MTU);
 
             T[][] buffs = new T[twoChannels.Length][];
             buffs[0] = new T[numElems * 2];
@@ -500,10 +493,10 @@ public class TestStreamingAPI
             Assert.AreEqual(oneChannel, rxStream.Channels);
             Assert.AreEqual(streamArgsMap, rxStream.StreamArgs);
             Assert.False(rxStream.Active);
-            Assert.AreEqual(1024, rxStream.MTU);
 
             rxStream.Activate(streamFlags, timeNs, numElems);
             Assert.True(rxStream.Active);
+            Assert.AreEqual(1024, rxStream.MTU);
 
             T[] buff = new T[numElems];
             Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, rxStream.Read(ref buff, streamFlags, timeNs, timeoutUs, out streamResult));
@@ -575,10 +568,10 @@ public class TestStreamingAPI
             Assert.AreEqual(oneChannel, rxStream.Channels);
             Assert.AreEqual(streamArgsMap, rxStream.StreamArgs);
             Assert.False(rxStream.Active);
-            Assert.AreEqual(1024, rxStream.MTU);
 
             rxStream.Activate(streamFlags, timeNs, numElems);
             Assert.True(rxStream.Active);
+            Assert.AreEqual(1024, rxStream.MTU);
 
             T[] buff = new T[numElems * 2];
             Assert.AreEqual(SoapySDR.ErrorCode.NotSupported, rxStream.Read(ref buff, streamFlags, timeNs, timeoutUs, out streamResult));

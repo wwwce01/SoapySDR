@@ -32,13 +32,15 @@ namespace SoapySDR
             StreamArgs = Utility.ToDictionary(kwargs);
         }
 
+        /*
         ~Stream()
         {
             if(_active)               Deactivate();
             if(_streamHandle != null) Close();
         }
+        */
 
-        public ulong MTU => _active ? _device.GetStreamMTU(_streamHandle) : 0U;
+        public ulong MTU => _device.GetStreamMTU(_streamHandle);
 
         public ErrorCode Activate(
             StreamFlags flags,
@@ -56,11 +58,11 @@ namespace SoapySDR
                         timeNs,
                         numElems);
 
-                    if(ret == ErrorCode.None) _active = true;
+                    if (ret == ErrorCode.None) _active = true;
                 }
-                else throw new NotSupportedException("Stream is already active");
+                else throw new InvalidOperationException("Stream is already active");
             }
-            else throw new NotSupportedException("Stream is closed");
+            else throw new InvalidOperationException("Stream is closed");
 
             return ret;
         }
@@ -81,9 +83,9 @@ namespace SoapySDR
 
                     if(ret == ErrorCode.None) _active = true;
                 }
-                else throw new NotSupportedException("Stream is already inactive");
+                else throw new InvalidOperationException("Stream is already inactive");
             }
-            else throw new NotSupportedException("Stream is closed");
+            else throw new InvalidOperationException("Stream is closed");
 
             return ret;
         }
@@ -91,7 +93,7 @@ namespace SoapySDR
         public void Close()
         {
             if(_streamHandle != null) _device.CloseStream(_streamHandle);
-            else throw new NotSupportedException("Stream is already closed");
+            else throw new InvalidOperationException("Stream is already closed");
         }
 
         //
