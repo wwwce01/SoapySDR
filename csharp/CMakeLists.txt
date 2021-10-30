@@ -67,6 +67,7 @@ set(csharp_swig_outputs
     ${CSHARP_SOURCE_DIRECTORY}/ArgInfoInternal.cs
     ${CSHARP_SOURCE_DIRECTORY}/ArgInfoInternalList.cs
     ${CSHARP_SOURCE_DIRECTORY}/BuildInfo.cs
+    ${CSHARP_SOURCE_DIRECTORY}/ConverterFunctionPriority.cs
     ${CSHARP_SOURCE_DIRECTORY}/DeviceInternal.cs
     ${CSHARP_SOURCE_DIRECTORY}/DeviceInternalList.cs
     ${CSHARP_SOURCE_DIRECTORY}/Direction.cs

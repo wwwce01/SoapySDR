@@ -222,6 +222,13 @@ namespace SoapySDR { namespace CSharp {
         SSI      = 9
     };
 
+    enum class ConverterFunctionPriority
+    {
+        Generic    = 0,
+        Vectorized = 3,
+        Custom     = 5
+    };
+
     struct TypeConversion
     {
         template <typename T>
