@@ -16,7 +16,7 @@ namespace SoapySDR
         ):
             base(device, format, channels, kwargs)
         {
-            _streamHandle = device.SetupStream(Direction.Tx, format, new SizeList(channels), kwargs);
+            _streamHandle = device.SetupStream(Direction.Tx, format, Utility.ToSizeList(channels), kwargs);
         }
 
         public unsafe ErrorCode Write<T>(

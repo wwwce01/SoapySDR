@@ -113,9 +113,10 @@ public class TestDeviceAPI
         device.WriteSetting("", false);
         device.WriteSetting("", "");
 
+        /*
         _ = device.ReadSetting("");
         _ = device.ReadSetting<bool>("");
-        /*
+        
         _ = device.ReadSetting<short>("");
         _ = device.ReadSetting<int>("");
         _ = device.ReadSetting<long>("");
@@ -124,8 +125,9 @@ public class TestDeviceAPI
         _ = device.ReadSetting<ulong>("");
         _ = device.ReadSetting<float>("");
         _ = device.ReadSetting<double>("");
-        */
+        
         _ = device.ReadSetting<string>("");
+        */
 
         //
         // GPIO API
@@ -135,7 +137,7 @@ public class TestDeviceAPI
 
         device.WriteGPIO("", 0);
         device.WriteGPIO("", 0, 0);
-        Assert.AreEqual("", device.ReadGPIO(""));
+        Assert.AreEqual(0, device.ReadGPIO(""));
 
         device.WriteGPIODir("", 0);
         device.WriteGPIODir("", 0, 0);
@@ -316,9 +318,10 @@ public class TestDeviceAPI
         device.WriteSetting("", false);
         device.WriteSetting("", "");
 
+        /*
         _ = device.ReadSetting(direction, 0, "");
         _ = device.ReadSetting<bool>(direction, 0, "");
-        /*
+        
         _ = device.ReadSetting<short>(direction, 0, "");
         _ = device.ReadSetting<int>(direction, 0, "");
         _ = device.ReadSetting<long>(direction, 0, "");
@@ -327,8 +330,9 @@ public class TestDeviceAPI
         _ = device.ReadSetting<ulong>(direction, 0, "");
         _ = device.ReadSetting<float>(direction, 0, "");
         _ = device.ReadSetting<double>(direction, 0, "");
-        */
+        
         _ = device.ReadSetting<string>(direction, 0, "");
+        */
     }
 
     public static int Main(string[] args) => TestRunner.RunNUnitTest("TestDeviceAPI");
