@@ -292,15 +292,15 @@ namespace SoapySDR
                 var info = query.First();
                 return new SoapyConvertible(_device.ReadSetting(key)).ToArgType(info.Type);
             }
-            else throw new System.ArgumentException("Invalid setting: " + key);
+            else return null;
         }
 
         public T ReadSetting<T>(string key)
         {
-            if(GetSettingInfo().Any(x => x.Key.Equals(key)))
+            if (GetSettingInfo().Any(x => x.Key.Equals(key)))
                 return (T)(new SoapyConvertible(_device.ReadSetting(key)).ToType(typeof(T), null));
             else
-                throw new System.ArgumentException("Invalid setting: " + key);
+                return default(T);
         }
 
         public List<ArgInfo> GetSettingInfo(Direction direction, uint channel) => Utility.ToArgInfoList(_device.GetSettingInfo(direction, channel));
@@ -316,7 +316,7 @@ namespace SoapySDR
                 var info = query.First();
                 return new SoapyConvertible(_device.ReadSetting(direction, channel, key)).ToArgType(info.Type);
             }
-            else throw new System.ArgumentException("Invalid setting: " + key);
+            else return null;
         }
 
         public T ReadSetting<T>(Direction direction, uint channel, string key)
@@ -324,7 +324,7 @@ namespace SoapySDR
             if (GetSettingInfo(direction, channel).Any(x => x.Key.Equals(key)))
                 return (T)(new SoapyConvertible(_device.ReadSetting(direction, channel, key)).ToType(typeof(T), null));
             else
-                throw new System.ArgumentException("Invalid setting: " + key);
+                return default(T);
         }
 
         public List<string> GPIOBanks => new List<string>(_device.ListGPIOBanks());
