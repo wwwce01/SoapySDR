@@ -47,7 +47,11 @@ namespace SoapySDR
 
                 Utility.ManagedArraysToSizeList(
                     buffs,
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+                    // We don't use this variable anywhere past this, but we need
+                    // it in scope for buffsAsSizes to be valid.
                     out System.Runtime.InteropServices.GCHandle[] handles,
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
                     out SizeList buffsAsSizes);
 
                 var deviceOutput = _device.ReadStream(
