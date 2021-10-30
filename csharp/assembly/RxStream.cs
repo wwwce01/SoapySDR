@@ -65,7 +65,7 @@ namespace SoapySDR
                 result = deviceOutput.second;
                 ret = deviceOutput.first;
             }
-            else throw new NotSupportedException("Stream is closed");
+            else throw new InvalidOperationException("Stream is closed");
 
             return ret;
         }
@@ -144,7 +144,7 @@ namespace SoapySDR
                 result = deviceOutput.second;
                 ret = deviceOutput.first;
             }
-            else throw new NotSupportedException("Stream is closed");
+            else throw new InvalidOperationException("Stream is closed");
 
             return ret;
         }
