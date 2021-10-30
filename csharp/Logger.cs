@@ -16,11 +16,7 @@ namespace SoapySDR
             {
             }
 
-            public void Handle(LogLevel logLevel, string message)
-            {
-                try { Delegate?.Invoke(logLevel, message); }
-                catch(Exception ex) { System.Console.Error.WriteLine("Caught {0} while logging: {1}", ex.GetType(), ex.Message); }
-            }
+            public override void Handle(LogLevel logLevel, string message) => Delegate?.Invoke(logLevel, message);
         }
 
         private static CSharpLogHandler LogHandler = null;

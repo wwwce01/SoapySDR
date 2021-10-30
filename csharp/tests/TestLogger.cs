@@ -9,11 +9,11 @@ using NUnit.Framework;
 [TestFixture]
 public class TestLogger
 {
-    private static string TempFileName = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+    private static readonly string TempFileName = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
     private static void TestLoggerFcn(SoapySDR.LogLevel logLevel, string message)
     {
-        using (FileStream fs = File.Open(TempFileName, FileMode.OpenOrCreate))
+        using (FileStream fs = File.Open(TempFileName, FileMode.Append))
         {
             using (StreamWriter sw = new StreamWriter(fs))
             {
@@ -63,19 +63,20 @@ public class TestLogger
             string.Format("{0}: {1}", logLevel, string.Format(cultureInfo, "message: {0} {1} {2}", intArg, floatArg, dateTimeArg))
         };
 
-        return string.Join("\n", expectedOutputs);
+        return string.Join("\r\n", expectedOutputs) + "\r\n";
     }
 
     [Test]
     public void Test_Logger()
     {
+        // TODO: replace with property test when implemented
         SoapySDR.Logger.SetLogLevel(SoapySDR.LogLevel.Notice);
 
         // Before doing anything, the standard stdio logger should be used. Unfortunately,
         // we can't intercept and programmatically check the output.
         CallLogger();
 
-        //SoapySDR.Logger.RegisterLogger(TestLoggerFcn);
+        SoapySDR.Logger.RegisterLogger(TestLoggerFcn);
         CallLogger();
         SoapySDR.Logger.UnregisterLogger();
 
@@ -100,12 +101,17 @@ public class TestLogger
     [Test]
     public void Test_LoggerException()
     {
+        // TODO: replace with property test when implemented
+        SoapySDR.Logger.SetLogLevel(SoapySDR.LogLevel.Notice);
+
         // Make sure exceptions from the C# callback given to C++ propagate up
         // to C# properly.
         SoapySDR.Logger.RegisterLogger(ExceptionLogger);
 
-        var ex = Assert.Throws<ApplicationException>(delegate { SoapySDR.Logger.Log(SoapySDR.LogLevel.Error, "This should throw"); });
+        var ex = Assert.Throws<InvalidOperationException>(delegate { SoapySDR.Logger.Log(SoapySDR.LogLevel.Error, "This should throw"); });
         Assert.AreEqual("Error: This should throw", ex.Message);
+
+        SoapySDR.Logger.UnregisterLogger();
     }
 
     [OneTimeTearDown]
