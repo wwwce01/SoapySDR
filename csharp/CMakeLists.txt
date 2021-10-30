@@ -94,8 +94,13 @@ set_source_files_properties(
     FILES ${csharp_swig_outputs}
     PROPERTIES GENERATED TRUE)
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/AssemblyInfo.cs
+    ${CSHARP_SOURCE_DIRECTORY}/AssemblyInfo.cs)
+
 set(csharp_srcs
     ${CMAKE_CURRENT_SOURCE_DIR}/ArgInfo.cs
+    ${CSHARP_SOURCE_DIRECTORY}/AssemblyInfo.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Device.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Logger.cs
     ${CMAKE_CURRENT_SOURCE_DIR}/Range.cs
