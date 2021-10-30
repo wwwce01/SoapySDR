@@ -36,7 +36,7 @@
 ########################################################################
 
 macro(SWIG_CSHARP_INIT)
-    set(CSHARP_SOURCE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CSharpSources)
+    set(CSHARP_SOURCE_DIRECTORY ${PROJECT_BINARY_DIR}/assembly)
     set(CMAKE_SWIG_OUTDIR       ${CSHARP_SOURCE_DIRECTORY})
     file(MAKE_DIRECTORY         ${CSHARP_SOURCE_DIRECTORY})
     set(CSHARP_BINARY_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -101,7 +101,7 @@ macro(SWIG_BUILD_CSHARP_MODULE swig_filename nativelib_name csharp_module_name c
     # For the sake of testing, we'll output the DLL to the C# testing directory.
     set_target_properties(
         ${SWIG_MODULE_${nativelib_name}_REAL_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tests)
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../tests)
 
     # Install files
     install(

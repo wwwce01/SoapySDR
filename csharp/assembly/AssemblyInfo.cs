@@ -23,7 +23,6 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDefaultAlias("Generated Assembly")]
 [assembly: AssemblyCopyright("Copyright © 2021- Nicholas Corgan")]
 [assembly: AssemblyTrademark("SoapySDR - https://github.com/pothosware/SoapySDR")]
-[assembly: AssemblyCulture("en-US")]
 
 // The assembly version has following format :
 //
