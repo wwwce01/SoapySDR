@@ -10,6 +10,12 @@ namespace SoapySDR
         public delegate void LoggerDelegate(LogLevel logLevel, string message);
         private static LoggerDelegate Delegate = null;
 
+        // TODO: add read after getter implemented
+        public static LogLevel LogLevel
+        {
+            set => LogHandlerBase.SetLogLevel(value);
+        }
+
         private class CSharpLogHandler: LogHandlerBase
         {
             public CSharpLogHandler(): base()
@@ -21,16 +27,18 @@ namespace SoapySDR
 
         private static CSharpLogHandler LogHandler = null;
 
-        public static void RegisterLogger(LoggerDelegate del)
+        public static void RegisterLogHandler(LoggerDelegate del)
         {
-            LogHandler = new CSharpLogHandler();
-            Delegate = del;
-        }
-
-        public static void UnregisterLogger()
-        {
-            LogHandler = null;
-            Delegate = null;
+            if(del != null)
+            {
+                LogHandler = new CSharpLogHandler();
+                Delegate = del;
+            }
+            else
+            {
+                LogHandler = null;
+                Delegate = null;
+            }
         }
 
         public static void Log(LogLevel logLevel, string message) => LogHandlerBase.Log(logLevel, message);
@@ -58,9 +66,5 @@ namespace SoapySDR
 
         public static void Log(LogLevel logLevel, IFormatProvider formatProvider, string format, object arg0, object arg1, object arg2) =>
             Log(logLevel, string.Format(formatProvider, format, arg0, arg1, arg2));
-
-        // TODO: After GetLogLevel implemented, make a property
-
-        public static void SetLogLevel(LogLevel logLevel) => LogHandlerBase.SetLogLevel(logLevel);
     }
 }

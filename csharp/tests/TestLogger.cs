@@ -69,16 +69,16 @@ public class TestLogger
     [Test]
     public void Test_Logger()
     {
-        // TODO: replace with property test when implemented
-        SoapySDR.Logger.SetLogLevel(SoapySDR.LogLevel.Notice);
+        // TODO: test value after getter implemented
+        SoapySDR.Logger.LogLevel = SoapySDR.LogLevel.Notice;
 
         // Before doing anything, the standard stdio logger should be used. Unfortunately,
         // we can't intercept and programmatically check the output.
         CallLogger();
 
-        SoapySDR.Logger.RegisterLogger(TestLoggerFcn);
+        SoapySDR.Logger.RegisterLogHandler(TestLoggerFcn);
         CallLogger();
-        SoapySDR.Logger.UnregisterLogger();
+        SoapySDR.Logger.RegisterLogHandler(null);
 
         // Now the standard stdio handler should be used.
         CallLogger();
@@ -86,6 +86,7 @@ public class TestLogger
         // Check out log file and make sure the custom logger was invoked as expected.
         Assert.IsTrue(File.Exists(TempFileName));
 
+        // Make sure the expected contents were written once.
         using (FileStream fs = File.Open(TempFileName, FileMode.Open))
         {
             using (StreamReader sr = new StreamReader(fs))
@@ -101,17 +102,17 @@ public class TestLogger
     [Test]
     public void Test_LoggerException()
     {
-        // TODO: replace with property test when implemented
-        SoapySDR.Logger.SetLogLevel(SoapySDR.LogLevel.Notice);
+        // TODO: test value after getter implemented
+        SoapySDR.Logger.LogLevel = SoapySDR.LogLevel.Notice;
 
         // Make sure exceptions from the C# callback given to C++ propagate up
         // to C# properly.
-        SoapySDR.Logger.RegisterLogger(ExceptionLogger);
+        SoapySDR.Logger.RegisterLogHandler(ExceptionLogger);
 
         var ex = Assert.Throws<InvalidOperationException>(delegate { SoapySDR.Logger.Log(SoapySDR.LogLevel.Error, "This should throw"); });
         Assert.AreEqual("Error: This should throw", ex.Message);
 
-        SoapySDR.Logger.UnregisterLogger();
+        SoapySDR.Logger.RegisterLogHandler(null);
     }
 
     [OneTimeTearDown]
