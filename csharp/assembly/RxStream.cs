@@ -4,6 +4,7 @@
 using System;
 using System.Buffers;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace SoapySDR
 {
@@ -68,6 +69,19 @@ namespace SoapySDR
             else throw new InvalidOperationException("Stream is closed");
 
             return ret;
+        }
+
+        public unsafe ErrorCode Read<T>(
+            Span<T> span,
+            StreamFlags flags,
+            long timeNs,
+            int timeoutUs,
+            out StreamResult result) where T : unmanaged
+        {
+            fixed(T* data = &MemoryMarshal.GetReference(span))
+            {
+                return Read((IntPtr)data, (uint)span.Length, flags, timeNs, timeoutUs, out result);
+            }
         }
 
         public unsafe ErrorCode Read<T>(

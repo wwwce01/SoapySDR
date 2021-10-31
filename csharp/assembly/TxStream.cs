@@ -4,6 +4,7 @@
 using System;
 using System.Buffers;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace SoapySDR
 {
@@ -27,7 +28,7 @@ namespace SoapySDR
             out StreamResult result) where T : unmanaged
         {
             return Write(
-                new ReadOnlyMemory<T>[] { memory },
+                memory.Span,
                 timeNs,
                 timeoutUs,
                 out result);
@@ -67,12 +68,24 @@ namespace SoapySDR
         }
 
         public unsafe ErrorCode Write<T>(
+            ReadOnlySpan<T> span,
+            long timeNs,
+            int timeoutUs,
+            out StreamResult result) where T : unmanaged
+        {
+            fixed(T* data = &MemoryMarshal.GetReference(span))
+            {
+                return Write((IntPtr)data, (uint)span.Length, timeNs, timeoutUs, out result);
+            }
+        }
+
+        public unsafe ErrorCode Write<T>(
             T[] buff,
             long timeNs,
             int timeoutUs,
             out StreamResult result) where T : unmanaged
         {
-            return Write(new ReadOnlyMemory<T>(buff), timeNs, timeoutUs, out result);
+            return Write(new ReadOnlySpan<T>(buff), timeNs, timeoutUs, out result);
         }
 
         public unsafe ErrorCode Write<T>(
