@@ -66,5 +66,9 @@ set_property(
     "System"
     "System.Core"
     "System.Numerics")
+set_property(
+    TARGET SoapySDR.CSharp
+    PROPERTY VS_PACKAGE_REFERENCES
+	"System.Memory_4.5.4")
 
 add_dependencies(SoapySDR.CSharp ${SWIG_TARGET_NAME})

@@ -21,6 +21,7 @@ function(CSHARP_UNIT_TEST name)
     set_property(
         TARGET ${test_name}
         PROPERTY VS_PACKAGE_REFERENCES
+        "System.Memory_4.5.4"
         "NUnit_3.12.0"
         "NUnitLite_3.12.0")
 

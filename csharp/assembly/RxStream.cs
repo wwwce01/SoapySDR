@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSL-1.0
 
 using System;
+using System.Buffers;
 using System.Linq;
 
 namespace SoapySDR
@@ -20,44 +21,43 @@ namespace SoapySDR
         }
 
         public unsafe ErrorCode Read<T>(
-            ref T[] buff,
+            Memory<T> memory,
             StreamFlags flags,
             long timeNs,
             int timeoutUs,
-            out StreamResult result) where T: unmanaged
+            out StreamResult result) where T : unmanaged
         {
-            T[][] buffs2D = new T[1][];
-            buffs2D[0] = buff;
-
-            return Read(ref buffs2D, flags, timeNs, timeoutUs, out result);
+            return Read(
+                new Memory<T>[] { memory },
+                flags,
+                timeNs,
+                timeoutUs,
+                out result);
         }
 
         public unsafe ErrorCode Read<T>(
-            ref T[][] buffs,
+            Memory<T>[] memory,
             StreamFlags flags,
             long timeNs,
             int timeoutUs,
-            out StreamResult result) where T: unmanaged
+            out StreamResult result) where T : unmanaged
         {
             ErrorCode ret;
 
-            if(_streamHandle != null)
+            if (_streamHandle != null)
             {
-                Utility.ValidateBuffs(_streamHandle, buffs);
+                Utility.ValidateMemory(_streamHandle, memory);
 
-                Utility.ManagedArraysToSizeList(
-                    buffs,
+                var memsAsSizes = Utility.ToSizeList(
+                    memory,
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
-                    // We don't use this variable anywhere past this, but we need
-                    // it in scope for buffsAsSizes to be valid.
-                    out System.Runtime.InteropServices.GCHandle[] handles,
+                    out MemoryHandle[] memoryHandles);
 #pragma warning restore IDE0059 // Unnecessary assignment of a value
-                    out SizeList buffsAsSizes);
 
                 var deviceOutput = _device.ReadStream(
                     _streamHandle,
-                    buffsAsSizes,
-                    (uint)buffs.Length,
+                    memsAsSizes,
+                    (uint)memory[0].Length,
                     flags,
                     timeNs,
                     timeoutUs);
@@ -70,6 +70,26 @@ namespace SoapySDR
             return ret;
         }
 
+        public unsafe ErrorCode Read<T>(
+            ref T[] buff,
+            StreamFlags flags,
+            long timeNs,
+            int timeoutUs,
+            out StreamResult result) where T: unmanaged
+        {
+            return Read(new Memory<T>(buff), flags, timeNs, timeoutUs, out result);
+        }
+
+        public unsafe ErrorCode Read<T>(
+            ref T[][] buffs,
+            StreamFlags flags,
+            long timeNs,
+            int timeoutUs,
+            out StreamResult result) where T: unmanaged
+        {
+            return Read(buffs.Select(buff => new Memory<T>(buff)).ToArray(), flags, timeNs, timeoutUs, out result);
+        }
+
         public unsafe ErrorCode Read(
             IntPtr ptr,
             uint numElems,
@@ -79,7 +99,7 @@ namespace SoapySDR
             out StreamResult result)
         {
             return Read(
-                (UIntPtr)(void*)ptr,
+                new IntPtr[] { ptr },
                 numElems,
                 flags,
                 timeNs,
@@ -95,43 +115,9 @@ namespace SoapySDR
             int timeoutUs,
             out StreamResult result)
         {
-            return Read(
-                ptrs.Select(x => (UIntPtr)(void*)x).ToArray(),
-                numElems,
-                flags,
-                timeNs,
-                timeoutUs,
-                out result);
-        }
-
-        public unsafe ErrorCode Read(
-            UIntPtr ptr,
-            uint numElems,
-            StreamFlags flags,
-            long timeNs,
-            int timeoutUs,
-            out StreamResult result)
-        {
-            return Read(
-                new UIntPtr[] { ptr },
-                numElems,
-                flags,
-                timeNs,
-                timeoutUs,
-                out result);
-        }
-
-        public unsafe ErrorCode Read(
-            UIntPtr[] ptrs,
-            uint numElems,
-            StreamFlags flags,
-            long timeNs,
-            int timeoutUs,
-            out StreamResult result)
-        {
             ErrorCode ret;
 
-            if(_streamHandle != null)
+            if (_streamHandle != null)
             {
                 var deviceOutput = _device.ReadStream(
                     _streamHandle,

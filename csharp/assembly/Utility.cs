@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSL-1.0
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -10,6 +11,47 @@ namespace SoapySDR
 {
     public class Utility
     {
+        internal static void ValidateMemory<T>(
+            StreamHandle streamHandle,
+            ReadOnlyMemory<T>[] mems) where T : unmanaged
+        {
+            var numChannels = streamHandle.GetChannels().Count;
+            var format = streamHandle.GetFormat();
+
+            var scalarFormatString = GetFormatString<T>();
+            var complexFormatString = GetComplexFormatString<T>();
+
+            if (mems == null)
+            {
+                throw new ArgumentNullException("buffs");
+            }
+            else if (mems.Length != numChannels)
+            {
+                throw new ArgumentException(string.Format("Expected {0} channels. Found {1} buffers.", numChannels, mems.Length));
+            }
+            else if (!format.Equals(scalarFormatString) && !format.Equals(complexFormatString))
+            {
+                throw new ArgumentException(string.Format("Expected format \"{0}\" or \"{1}\". Found format \"{2}\"",
+                    scalarFormatString,
+                    complexFormatString,
+                    format));
+            }
+
+            HashSet<int> uniqueSizes = new HashSet<int>(mems.Select(buff => buff.Length));
+            if ((uniqueSizes.Count > 1) || (uniqueSizes.First() == 0))
+                throw new ArgumentException("All buffers must be non-null and of the same length");
+
+            if (format.Equals(complexFormatString))
+            {
+                if ((uniqueSizes.First() % 2) != 0)
+                    throw new ArgumentException("For complex interleaved streams, the input buffer must be of an even size");
+            }
+        }
+
+        internal static void ValidateMemory<T>(
+            StreamHandle streamHandle,
+            Memory<T>[] mems) where T : unmanaged => ValidateMemory<T>(streamHandle, mems.Select(mem => (ReadOnlyMemory<T>)mem).ToArray());
+
         internal static void ValidateBuffs<T>(
             StreamHandle streamHandle,
             T[][] buffs) where T: unmanaged
@@ -115,17 +157,37 @@ namespace SoapySDR
             return output;
         }
 
+        internal unsafe static SizeList ToSizeList<T>(
+            Memory<T>[] memory,
+            out MemoryHandle[] memoryHandles)
+        {
+            memoryHandles = memory.Select(mem => mem.Pin()).ToArray();
+            return ToSizeList(memoryHandles.Select(handle => (UIntPtr)handle.Pointer).ToArray());
+        }
+
+        internal unsafe static SizeList ToSizeList<T>(
+            ReadOnlyMemory<T>[] memory,
+            out MemoryHandle[] memoryHandles)
+        {
+            memoryHandles = memory.Select(mem => mem.Pin()).ToArray();
+            return ToSizeList(memoryHandles.Select(handle => (UIntPtr)handle.Pointer).ToArray());
+        }
+
 #if _64BIT
         internal static SizeList ToSizeList(uint[] arr) => new SizeList(arr.Select(x => (ulong)x));
 
         internal static SizeList ToSizeList(UIntPtr[] arr) => new SizeList(arr.Select(x => (ulong)x));
+
+        internal unsafe static SizeList ToSizeList(IntPtr[] arr) => new SizeList(arr.Select(x => (ulong)(UIntPtr)(void*)x));
 #else
         internal static SizeList ToSizeList(uint[] arr) => new SizeList(arr);
 
         internal static SizeList ToSizeList(UIntPtr[] arr) => new SizeList(arr.Select(x => (uint)x));
+
+        internal unsafe static SizeList ToSizeList(IntPtr[] arr) => new SizeList(arr.Select(x => (uint)(UIntPtr)(void*)x));
 #endif
 
-        // TODO: how many native-layer copies are made below?
+        // TODO: how many copies are made below?
 
         internal static Dictionary<string, string> ToDictionary(Kwargs kwargs) => kwargs.ToDictionary(entry => entry.Key, entry => entry.Value);
 
