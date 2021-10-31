@@ -58,6 +58,7 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set_property(TARGET SoapySDR.CSharp PROPERTY COMPILE_DEFINITIONS _64BIT)
 endif()
 
+# TODO: Core? Framework? Standard? Parameterize?
 set_property(TARGET SoapySDR.CSharp PROPERTY DOTNET_TARGET_FRAMEWORK_VERSION "v4.7.2")
 set_property(
     TARGET SoapySDR.CSharp
