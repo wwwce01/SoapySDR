@@ -11,7 +11,7 @@ local lib = require("SoapySDR.Lib")
 local Utility = require("SoapySDR.Utility")
 
 -- TODO: code formatting consistency
--- TODO: remaining functions, return documentation (starts with cap, ends in period), Device constructor (how?)
+-- TODO: remaining functions, return documentation (starts with cap, ends in period), Device constructor (how?), @return on new line
 -- TODO: add @see entries for has/list functions for group
 -- TODO: make sure required Lua types are explained
 
@@ -1246,6 +1246,14 @@ function Device:readSensor(key)
             Utility.toString(key)))
 end
 
+---
+-- List the available channel readback sensors.
+-- A sensor can represent a reference lock, RSSI, temperature.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+--
+-- @return A list of available sensor string names
 function Device:listChannelSensors(direction, channel)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -1273,9 +1281,9 @@ function Device:readChannelSensor(direction, channel, key)
         Utility.toString(key)))
 end
 
---- Register API
--- @section register
-
+---
+-- Get a list of available register interfaces by name.
+-- @return A list of available register interfaces
 function Device:listRegisterInterfaces()
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -1283,6 +1291,13 @@ function Device:listRegisterInterfaces()
         lengthPtr)
 end
 
+---
+-- Write a register on the device given the interface name.
+-- This can represent a register on a soft CPU, FPGA, IC;
+-- the interpretation is up the implementation to decide.
+-- @param name the name of a available register interface
+-- @param addr the register address
+-- @param value the 32-bit register value
 function Device:writeRegister(name, addr, value)
     return processDeviceOutput(lib.SoapySDRDevice_writeRegister(
         self.__deviceHandle,
@@ -1291,6 +1306,12 @@ function Device:writeRegister(name, addr, value)
         value))
 end
 
+---
+-- Read a register on the device given the interface name.
+-- @param name the name of a available register interface
+-- @param addr the register address
+--
+-- @return The 32-bit register value
 function Device:readRegister(name, addr)
     return processDeviceOutput(lib.SoapySDRDevice_readRegister(
         self.__deviceHandle,
@@ -1298,6 +1319,15 @@ function Device:readRegister(name, addr)
         addr))
 end
 
+---
+-- Write a memory block on the device given the interface name.
+-- This can represent a memory block on a soft CPU, FPGA, IC;
+-- the interpretation is up the implementation to decide.
+-- @param name the name of a available memory block interface
+-- @param addr the memory block start address
+-- @param values the memory block content
+-- This parameter takes in a Lua array, with each element containing
+-- a 32-bit register value.
 function Device:writeRegisters(name, addr, values)
     return processDeviceOutput(lib.SoapySDRDevice_writeRegisters(
         self.__deviceHandle,
@@ -1307,6 +1337,12 @@ function Device:writeRegisters(name, addr, values)
         #values))
 end
 
+---
+-- Read a memory block on the device given the interface name.
+-- @param name the name of a available memory block interface
+-- @param addr the memory block start address
+-- @param length number of 32-bit words to be read from memory block
+-- @return The memory block content, returned as a Lua array of 32-bit numbers
 function Device:readRegisters(name, addr, len)
     local lengthPtr = ffi.new("size_t[1]", len)
     return processDeviceOutput(
@@ -1318,9 +1354,6 @@ function Device:readRegisters(name, addr, len)
         lengthPtr)
 end
 
---- Settings API
--- @section setting
-
 function Device:getSettingInfo()
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -1328,6 +1361,11 @@ function Device:getSettingInfo()
         lengthPtr)
 end
 
+---
+-- Write an arbitrary setting on the device.
+-- The interpretation is up the implementation.
+-- @param key the setting identifier
+-- @param value the setting value
 function Device:writeSetting(key, value)
     return processDeviceOutput(lib.SoapySDRDevice_writeSetting(
         self.__deviceHandle,
@@ -1335,6 +1373,11 @@ function Device:writeSetting(key, value)
         Utility.soapySettingToString(value)))
 end
 
+---
+-- Read an arbitrary setting on the device.
+-- @param key the setting identifier
+--
+-- @return The setting value (type depends on setting)
 function Device:readSetting(key)
     local keyStr = Utility.toString(key)
 
@@ -1357,6 +1400,14 @@ function Device:getChannelSettingInfo(direction, channel)
         lengthPtr)
 end
 
+---
+-- Write an arbitrary channel setting on the device.
+-- The interpretation is up the implementation.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param key the setting identifier
+-- @param value the setting value
 function Device:writeChannelSetting(direction, channel, key, value)
     return processDeviceOutput(lib.SoapySDRDevice_writeChannelSetting(
         self.__deviceHandle,
@@ -1366,6 +1417,14 @@ function Device:writeChannelSetting(direction, channel, key, value)
         Utility.soapySettingToString(value)))
 end
 
+---
+-- Read an arbitrary channel setting on the device.
+-- @param direction the channel direction (RX or TX)
+-- @see SoapySDR.Direction
+-- @param channel an available channel on the device
+-- @param key the setting identifier
+--
+-- @return The setting value (type depends on setting)
 function Device:readChannelSetting(direction, channel, key)
     local keyStr = Utility.toString(key)
 
@@ -1379,9 +1438,10 @@ function Device:readChannelSetting(direction, channel, key)
         self:getChannelSettingInfo(direction, channel))
 end
 
---- GPIO API
--- @section gpio
-
+---
+-- Get a list of available GPIO banks by name.
+--
+-- @return A list of available GPIO banks
 function Device:listGPIOBanks()
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -1389,6 +1449,10 @@ function Device:listGPIOBanks()
         lengthPtr)
 end
 
+---
+-- Write the value of a GPIO bank.
+-- @param bank the name of an available bank
+-- @param value a 32-bit integer representing GPIO bits
 function Device:writeGPIO(bank, value)
     return processDeviceOutput(lib.SoapySDRDevice_writeGPIO(
         self.__deviceHandle,
@@ -1396,6 +1460,11 @@ function Device:writeGPIO(bank, value)
         value))
 end
 
+---
+-- Write the value of a GPIO bank with a modification mask.
+-- @param bank the name of an available bank
+-- @param value a 32-bit integer representing GPIO bits
+-- @param mask a 32-bit modification mask where 1 = modify
 function Device:writeGPIOMasked(bank, value, mask)
     return processDeviceOutput(lib.SoapySDRDevice_writeGPIOMasked(
         self.__deviceHandle,
@@ -1404,12 +1473,22 @@ function Device:writeGPIOMasked(bank, value, mask)
         mask))
 end
 
+---
+-- Read back the value of a GPIO bank.
+-- @param bank the name of an available bank
+--
+-- @return A 32-bit integer representing GPIO bits
 function Device:readGPIO(bank)
     return processDeviceOutput(lib.SoapySDRDevice_readGPIO(
         self.__deviceHandle,
         Utility.toString(bank)))
 end
 
+---
+-- Write the data direction of a GPIO bank.
+-- 1 bits represent outputs, 0 bits represent inputs.
+-- @param bank the name of an available bank
+-- @param dir a 32-bit integer representing data direction bits
 function Device:writeGPIODir(bank, dir)
     return processDeviceOutput(lib.SoapySDRDevice_writeGPIODir(
         self.__deviceHandle,
@@ -1417,6 +1496,12 @@ function Device:writeGPIODir(bank, dir)
         dir))
 end
 
+---
+-- Write the data direction of a GPIO bank with a modification mask.
+-- 1 bits represent outputs, 0 bits represent inputs.
+-- @param bank the name of an available bank
+-- @param dir a 32-bit integer representing data direction bits
+-- @param mask a 32-bit modification mask where 1 = modify
 function Device:writeGPIODirMasked(bank, dir, mask)
     return processDeviceOutput(lib.SoapySDRDevice_writeGPIODirMasked(
         self.__deviceHandle,
@@ -1425,15 +1510,23 @@ function Device:writeGPIODirMasked(bank, dir, mask)
         mask))
 end
 
+---
+-- Read the data direction of a GPIO bank.
+-- 1 bits represent outputs, 0 bits represent inputs.
+-- @param bank the name of an available bank
+-- @return A 32-bit integer representing data direction bits
 function Device:readGPIODir(bank)
     return processDeviceOutput(lib.SoapySDRDevice_readGPIODir(
         self.__deviceHandle,
         Utility.toString(bank)))
 end
 
---- I2C API
--- @section i2c
-
+---
+-- Write to an available I2C slave.
+-- If the device contains multiple I2C masters,
+-- the address bits can encode which master.
+-- @param addr the signed 32-bit address of the slave
+-- @param data an array of bytes to write, represented as a string
 function Device:writeI2C(addr, data)
     local convertedData = Utility.toString(data)
 
@@ -1444,7 +1537,15 @@ function Device:writeI2C(addr, data)
         #convertedData))
 end
 
-function Device:readI2C(bank, addr)
+---
+-- Read from an available I2C slave.
+-- If the device contains multiple I2C masters,
+-- the address bits can encode which master.
+-- @param addr the address of the slave
+-- @param numBytes the number of bytes to read
+--
+-- @return An array of bytes read from the slave, represented as a string
+function Device:readI2C(bank, addr, numBytes)
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(lib.SoapySDRDevice_readI2C(
         self.__deviceHandle,
@@ -1452,9 +1553,20 @@ function Device:readI2C(bank, addr)
         lengthPtr))
 end
 
---- SPI API
--- @section spi
-
+---
+-- Perform a SPI transaction and return the result.
+-- It's up to the implementation to set the clock rate,
+-- read edge, and the write edge of the SPI core.
+-- SPI slaves without a readback pin will return 0.
+--
+-- If the device contains multiple SPI masters,
+-- the address bits can encode which master.
+--
+-- @param addr a signed 32-bit address of an available SPI slave
+-- @param data the SPI data, numBits-1 is first out
+-- @param numBits the number of bits to clock out
+--
+-- @return The readback data, numBits-1 is first in
 function Device:transactSPI(addr, data, numBits)
     return processDeviceOutput(lib.SoapySDRDevice_transactSPI(
         self.__deviceHandle,
@@ -1463,9 +1575,9 @@ function Device:transactSPI(addr, data, numBits)
         numBits))
 end
 
---- UART API
--- @section uart
-
+---
+-- Enumerate the available UART devices.
+-- @return A list of names of available UARTs
 function Device:listUARTs()
     local lengthPtr = ffi.new("size_t[1]")
     return processDeviceOutput(
@@ -1473,6 +1585,12 @@ function Device:listUARTs()
         lengthPtr)
 end
 
+---
+-- Write data to a UART device.
+-- It's up to the implementation to set the baud rate,
+-- carriage return settings, and flushing on newline.
+-- @param which the name of an available UART
+-- @param data an array of bytes to write out, represented as a string
 function Device:writeUART(which, data)
     return lib.SoapySDRDevice_writeUART(
         self.__deviceHandle,
@@ -1480,6 +1598,14 @@ function Device:writeUART(which, data)
         data)
 end
 
+---
+-- Read bytes from a UART until timeout or newline.
+-- It's up to the implementation to set the baud rate,
+-- carriage return settings, and flushing on newline.
+-- @param which the name of an available UART
+-- @param[opt] timeoutUs a timeout in microseconds (100000 if nil or unspecified)
+--
+-- @return An array of bytes read from the UART, represented as a string
 function Device:readUART(which, timeoutUs)
     -- To allow for optional parameter
     timeoutUs = timeoutUs or 100000
