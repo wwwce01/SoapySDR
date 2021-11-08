@@ -200,7 +200,7 @@ jobs:
             INSTALL_PREFIX: 'C:\Program Files\SoapySDR'
             LUAJIT_INSTALL_PREFIX: 'C:\Program Files\LuaJIT'
             LUAJIT_SHARE_LUA_51: 'C:\Program Files\LuaJIT\share\lua\5.1'
-            LUA_PATH: 'C:\Program Files\LuaJIT\share\lua\5.1\?.lua;C:\Program Files\SoapySDR\share\lua\5.1\?\?.lua'
+            LUA_PATH: 'C:\Program Files\LuaJIT\share\lua\5.1\?.lua;C:\Program Files\SoapySDR\share\lua\5.1\?\?.lua;C:\Program Files\SoapySDR\share\lua\5.1\?\init.lua'
         steps:
           - uses: actions/checkout@v2
           - uses: ilammy/msvc-dev-cmd@v1
