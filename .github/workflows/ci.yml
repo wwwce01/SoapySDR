@@ -246,8 +246,8 @@ jobs:
           - name: Test LuaJIT bindings
             run: |
                 $Env:PATH += ";$Env:INSTALL_PREFIX\bin;$Env:LUAJIT_INSTALL_PREFIX"
-                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.API_VERSION)'
-                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.ABI_VERSION)'
-                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Error.TIMEOUT)'
-                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Error.ToString(SoapySDR.Error.TIMEOUT))'
-                luajit -e 'SoapySDR = require("SoapySDR"); print(SoapySDR.Device("driver=null"))'
+                luajit -e "SoapySDR = require('SoapySDR'); print(SoapySDR.API_VERSION)"
+                luajit -e "SoapySDR = require('SoapySDR'); print(SoapySDR.ABI_VERSION)"
+                luajit -e "SoapySDR = require('SoapySDR'); print(SoapySDR.Error.TIMEOUT)"
+                luajit -e "SoapySDR = require('SoapySDR'); print(SoapySDR.Error.ToString(SoapySDR.Error.TIMEOUT))"
+                luajit -e "SoapySDR = require('SoapySDR'); print(SoapySDR.Device('driver=null'))"
