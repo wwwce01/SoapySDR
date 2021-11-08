@@ -2,7 +2,7 @@
 -- SPDX-License-Identifier: BSL-1.0
 
 ---
--- @module SoapySDR
+-- @module SoapySDR.Device
 
 local class = require("SoapySDR.Class")
 
@@ -14,6 +14,7 @@ local Utility = require("SoapySDR.Utility")
 -- TODO: remaining functions, return documentation (starts with cap, ends in period), Device constructor (how?), @return on new line
 -- TODO: add @see entries for has/list functions for group
 -- TODO: make sure required Lua types are explained
+-- TODO: separate multiple returns into separate @return lines
 
 --
 -- Device-specific utility
@@ -49,16 +50,6 @@ end
 -- Device enumeration
 --
 
---- Enumerate a list of available devices on the system.
--- @function enumerateDevices
--- @param[opt] args device construction key/value argument filters
---
--- If omitted, no filter will be applied, and all accessible devices
--- will be included.
---
--- If given, this parameter can either be a comma-delimited string
--- (e.g. "type=rtlsdr,serial=12345") or a table (e.g. {type: "rtlsdr",
--- serial: 12345}).
 local function enumerateDevices(args)
     local devs = nil
     local lengthPtr = ffi.new("size_t[1]")
