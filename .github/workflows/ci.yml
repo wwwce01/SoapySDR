@@ -224,6 +224,7 @@ jobs:
           - name: Build SoapySDR
             run: |
                 $Env:PATH += ";$Env:LUAJIT_INSTALL_PREFIX"
+                luajit -e "print(package.path)"
                 mkdir ${{github.workspace}}\build
                 cd ${{github.workspace}}\build
                 cmake ${{matrix.cmake_config}} -DENABLE_PYTHON=OFF -DCMAKE_INSTALL_PREFIX="$Env:INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} ${{github.workspace}}
