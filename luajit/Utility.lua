@@ -339,7 +339,7 @@ function Utility.processOutput(obj, lengthPtr)
     elseif Utility.isFFIRawStreamPtr(obj) then return obj
     end
 
-    print(string.format("Warning: %s returned unhandled type %s. Returning as is.", debug.getinfo(2).name, ffi.typeof(obj)))
+    print(string.format("Warning: returning unhandled type %s.", ffi.typeof(obj)))
 
     return obj
 end

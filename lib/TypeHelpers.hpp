@@ -13,6 +13,8 @@
 #include <stdexcept>
 #include <algorithm>
 
+#include <cstdio>
+
 /*******************************************************************
  * Helpful converters
  ******************************************************************/
@@ -28,6 +30,7 @@ static inline char *toCString(const std::string &s)
 {
     auto out = callocArrayType<char>(s.size()+1);
     std::copy(s.begin(), s.end(), out);
+    fprintf(stderr, "%s: \"%s\" (%zu) -> \"%s\" (%zu)\n", __FUNCTION__, s.c_str(), s.size(), out, strlen(out));
     return out;
 }
 
