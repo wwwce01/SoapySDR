@@ -275,7 +275,7 @@ function testDevice()
     -- I2C API
     --
     device:writeI2C(0, "")
-    luaunit.assertEquals(device:readI2C("", 0), "")
+    luaunit.assertEquals(device:readI2C("", 0, 0), "")
 
     --
     -- SPI API

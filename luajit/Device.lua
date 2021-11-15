@@ -1537,7 +1537,7 @@ end
 --
 -- @return An array of bytes read from the slave, represented as a string
 function Device:readI2C(bank, addr, numBytes)
-    local lengthPtr = ffi.new("size_t[1]")
+    local lengthPtr = ffi.new("size_t[1]", numBytes)
     return processDeviceOutput(lib.SoapySDRDevice_readI2C(
         self.__deviceHandle,
         addr,
