@@ -200,7 +200,7 @@ jobs:
             INSTALL_PREFIX: 'C:\Program Files\SoapySDR'
             LUAJIT_INSTALL_PREFIX: 'C:\Program Files\LuaJIT'
             LUAJIT_SHARE_LUA_51: 'C:\Program Files\LuaJIT\share\lua\5.1'
-            NEW_LUA_PATH: ';C:\Program Files\SoapySDR\share\lua\5.1\?\?.lua;C:\Program Files\SoapySDR\share\lua\5.1\?\init.lua'
+            LUA_PATH: '.\?.lua;C:\Program Files\LuaJIT\lua\?.lua;C:\Program Files\LuaJIT\lua\?\init.lua;C:\Program Files\SoapySDR\share\lua\5.1\?\?.lua;C:\Program Files\SoapySDR\share\lua\5.1\?\init.lua;C:\Program Files\SoapySDR\share\lua\5.1\?.?'
         steps:
           - uses: actions/checkout@v2
           - uses: ilammy/msvc-dev-cmd@v1
@@ -225,9 +225,6 @@ jobs:
           - name: Build SoapySDR
             run: |
                 $Env:PATH += ";$Env:LUAJIT_INSTALL_PREFIX"
-                luajit -e "print('before before'); print(package.path); print('after before')"
-                $Env:LUA_PATH += $Env:NEW_LUA_PATH
-                luajit -e "print('before after'); print(package.path); print('after after')"
                 mkdir ${{github.workspace}}\build
                 cd ${{github.workspace}}\build
                 cmake ${{matrix.cmake_config}} -DENABLE_PYTHON=OFF -DCMAKE_INSTALL_PREFIX="$Env:INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} ${{github.workspace}}
