@@ -214,7 +214,6 @@ jobs:
                 git clone https://github.com/LuaJIT/LuaJIT.git -b v2.1
                 cd LuaJIT\src
                 .\msvcbuild.bat
-                ls
                 cp luajit.exe "$Env:LUAJIT_INSTALL_PREFIX"
                 cp lua51.dll "$Env:LUAJIT_INSTALL_PREFIX"
                 cp -r jit "$Env:LUAJIT_INSTALL_PREFIX"
