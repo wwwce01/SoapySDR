@@ -1538,10 +1538,17 @@ end
 -- @return An array of bytes read from the slave, represented as a string
 function Device:readI2C(bank, addr, numBytes)
     local lengthPtr = ffi.new("size_t[1]", numBytes)
-    return processDeviceOutput(lib.SoapySDRDevice_readI2C(
+
+    -- The underlying C function doesn't return a null-terminated
+    -- string, so we need to copy its output into a new string.
+    local nativeBuffer = lib.SoapySDRDevice_readI2C(
         self.__deviceHandle,
         addr,
-        lengthPtr))
+        lengthPtr)
+    local ret = ffi.string(nativeBuffer, lengthPtr[0])
+    lib.SoapySDR_free(nativeBuffer)
+
+    return ret
 end
 
 ---
