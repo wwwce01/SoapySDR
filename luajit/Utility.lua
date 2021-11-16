@@ -38,11 +38,13 @@ local ffiShortType = ffi.typeof("short")
 local ffiIntType = ffi.typeof("int")
 local ffiLongType = ffi.typeof("long")
 local ffiLongLongType = ffi.typeof("long long")
+local ffiInt64Type = ffi.typeof("int64_t")
 local ffiUnsignedChar = ffi.typeof("unsigned char")
 local ffiUnsignedShortType = ffi.typeof("unsigned short")
 local ffiUnsignedIntType = ffi.typeof("unsigned int")
 local ffiUnsignedLongType = ffi.typeof("unsigned long")
 local ffiUnsignedLongLongType = ffi.typeof("unsigned long long")
+local ffiUInt64Type = ffi.typeof("uint64_t")
 local ffiFloatType = ffi.typeof("float")
 local ffiDoubleType = ffi.typeof("double")
 
@@ -74,6 +76,7 @@ function Utility.isFFINumeric(obj)
             (ffiType == ffiIntType) or (ffiType == ffiUnsignedIntType) or
             (ffiType == ffiLongType) or (ffiType == ffiUnsignedLongType) or
             (ffiType == ffiLongLongType) or (ffiType == ffiUnsignedLongLongType) or
+            (ffiType == ffiInt64Type) or (ffiType == ffiUInt64Type) or
             (ffiType == ffiFloatType) or (ffiType == ffiUnsignedFloatType) or
             (ffiType == ffiDoubleType) or (ffiType == ffiUnsignedDoubleType))
 end
