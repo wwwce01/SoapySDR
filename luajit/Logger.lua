@@ -44,6 +44,17 @@ local Logger =
     end,
 
     ---
+    -- Format a message and send to the registered logger.
+    -- The inputs are passed through Lua's string.format().
+    -- @param logLevel a possible logging level
+    -- @param format the message format string
+    -- @param[opt] ... Optional format arguments
+    -- @see Level
+    logf = function(logLevel, format, ...)
+        lib.SoapySDR_log(logLevel, string.format(format, ...))
+    end,
+
+    ---
     -- Register a new system log handler.
     -- Platforms should call this to replace the default stdio handler.
     -- @param[opt] handler A function that takes in a log level and message, or nil to restore the default handler 
